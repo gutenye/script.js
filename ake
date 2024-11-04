@@ -1,0 +1,32 @@
+#!/usr/bin/env nu
+
+use utils.nu *
+
+def help [] {
+  $'
+ake l   # lint
+ake t   # lint & test
+ake t watch
+  '
+  | str trim
+}
+
+def main [
+  -h
+  ...args: string
+] {
+  help | less --RAW-CONTROL-CHARS
+}
+
+def 'main l' [] {
+  bun run lint
+}
+
+def 'main t' [...args: string] {
+  main l
+  bun run test ...$args
+}
+
+def 'main t watch' [...args: string] {
+  bun run test --watch ...$args
+}
