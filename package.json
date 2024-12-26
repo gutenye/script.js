@@ -9,7 +9,11 @@
   "scripts": {
     "test": "bun test",
     "lint": "biome check --fix",
-    "lint:ci": "biome ci --reporter=github"
+    "lint:ci": "biome ci --reporter=github",
+    "prepublishOnly": "bun run build"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@gutenye/commander-completion-carapace": "^1.0.3",
