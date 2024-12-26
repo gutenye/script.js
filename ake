@@ -1,0 +1,27 @@
+app.name(PROJECT_NAME).enableCompletion()
+
+app
+  .command('default [args..]', { isDefault: true, hidden: true })
+  .allowUnknownOption()
+  .action(async () => {
+    const rawArgs = app.rawArgs
+    if (rawArgs.length === 0) {
+      app.help()
+    }
+  })
+
+const test = app
+  .command('test')
+  .alias('t')
+  .description('Test')
+  .action(async () => {
+    await $`bun run test`
+  })
+
+test
+  .command('watch')
+  .alias('w')
+  .description('Watch mode')
+  .action(async () => {
+    await $`bun run test --watch`
+  })
