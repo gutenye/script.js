@@ -14,7 +14,8 @@
     "test": "bun test",
     "lint": "biome check --fix",
     "lint:ci": "biome ci --reporter=github",
-    "build": "rm -rf build; tsc --project tsconfig.build.json; tsc-alias --project tsconfig.build.json"
+    "build": "rm -rf build; tsc --project tsconfig.build.json; tsc-alias --project tsconfig.build.json",
+    "prepublishOnly": "bun run build"
   },
   "publishConfig": {
     "access": "public"
@@ -34,7 +35,7 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "^1.9.4",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@types/bun": "latest",
