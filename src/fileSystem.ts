@@ -1,4 +1,4 @@
-import fs from './utils/fs'
+import fs from '#/utils'
 
 export { fs }
 
