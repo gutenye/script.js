@@ -1,4 +1,4 @@
-# 🌟 Script.js 🌟
+# 🧩 Script.js 🧩
 
 [![Stars](https://img.shields.io/github/stars/gutenye/script.js?style=social)](https://github.com/gutenye/script.js) [![NPM Version](https://img.shields.io/npm/v/@gutenye/script.js)](https://www.npmjs.com/package/@gutenye/script.js) [![License](https://img.shields.io/github/license/gutenye/script.js?color=blue)](https://github.com/gutenye/script.js/blob/main/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/gutenye/script.js#-contribute)
 
@@ -26,7 +26,7 @@ We welcome contributions from the community! Whether it’s reporting bugs, sugg
 
 ---
 
-Thank you for using Script.js! 🔐 ✨ If you found it helpful, please ⭐️ star the project ️️⭐ on GitHub. If you have any questions or encounter issues, please refer to the documentation or report an issue on GitHub.
+Thank you for using Script.js! ✨ If you found it helpful, please ⭐️ star the project ️️⭐ on GitHub. If you have any questions or encounter issues, please refer to the documentation or report an issue on GitHub.
 
 **Thanks to all the people who contribute:**
 
