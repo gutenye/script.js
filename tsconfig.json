@@ -1,5 +1,12 @@
 {
   "compilerOptions": {
+    // Import path alias
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["src/*"],
+      "#root/*": ["./*"]
+    },
+
     // Enable latest features
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",

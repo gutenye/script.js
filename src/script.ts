@@ -8,27 +8,27 @@ globalThis.PWD = process.cwd()
 globalThis.ENV = process.env
 
 // App
-import { app, start } from './app.js'
+import { app, start } from './app'
 globalThis.app = app
 
 // Mixins
-import { mixins } from './mixins.js'
+import { mixins } from './mixins'
 globalThis.mixins = mixins
 
 // Spawn
-import { $, $l, $t } from './spawn.js'
+import { $, $l, $t } from './spawn'
 globalThis.$ = $
 globalThis.$t = $t
 globalThis.$l = $l
 
 // Error
-import { exitWithError } from './exit.js'
+import { exitWithError } from './exit'
 globalThis.exitWithError = exitWithError
 
 globalThis.mixins = mixins
 
 // Filesystem
-import { fs, cp, ls, mkdir, mv, rm } from './fileSystem.js'
+import { fs, cp, ls, mkdir, mv, rm } from './fileSystem'
 globalThis.fs = fs
 globalThis.cp = cp
 globalThis.mv = mv
@@ -41,13 +41,13 @@ import _ from 'lodash-es'
 globalThis._ = _
 
 // UI
-import * as ui from './ui/index.js'
+import * as ui from './ui'
 globalThis.ui = ui
 import colors from 'chalk'
 globalThis.colors = colors
 
 // Csv
-import * as csv from './csv.js'
+import * as csv from './csv'
 globalThis.csv = csv
 
 start()

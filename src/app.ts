@@ -1,4 +1,4 @@
-import { Argument, Option, program } from './command.js'
+import { Argument, Option, program } from './command'
 
 const [bunPath, scriptJsPath, scriptPath, ...args] = process.argv
 
