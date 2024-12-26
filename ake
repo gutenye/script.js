@@ -1,27 +1,8 @@
-app.name(PROJECT_NAME).enableCompletion()
+await mixins('package-manager', 'test')
 
-app
-  .command('default [args..]', { isDefault: true, hidden: true })
-  .allowUnknownOption()
-  .action(async () => {
-    const rawArgs = app.rawArgs
-    if (rawArgs.length === 0) {
-      app.help()
-    }
-  })
+globalThis.PACKAGE_MANAGER = 'bun'
 
-const test = app
-  .command('test')
-  .alias('t')
-  .description('Test')
-  .action(async () => {
-    await $`bun run test`
-  })
+const HELP = `
+`
 
-test
-  .command('watch')
-  .alias('w')
-  .description('Watch mode')
-  .action(async () => {
-    await $`bun run test --watch`
-  })
+app.name('ake-script.js').addHelpText('after', HELP.trimEnd())
