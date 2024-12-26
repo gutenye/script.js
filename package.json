@@ -13,9 +13,7 @@
   "scripts": {
     "test": "bun test",
     "lint": "biome check --fix",
-    "lint:ci": "biome ci --reporter=github",
-    "build": "rm -rf build; tsc --project tsconfig.build.json; tsc-alias --project tsconfig.build.json",
-    "prepublishOnly": "bun run build"
+    "lint:ci": "biome ci --reporter=github"
   },
   "publishConfig": {
     "access": "public"
