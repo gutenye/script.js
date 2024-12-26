@@ -1,8 +1,12 @@
 {
   "name": "@gutenye/script.js",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "Write shell scripts in JavaScript",
+  "keywords": [],
+  "license": "MIT",
+  "repository": "github:gutenye/script.js",
   "type": "module",
-  "module": "index.ts",
+  "files": ["src", "tsconfig.json", "build", "!**/__tests__"],
   "bin": {
     "gutenye-script.js": "src/script.ts"
   },
@@ -10,7 +14,6 @@
     "test": "bun test",
     "lint": "biome check --fix",
     "lint:ci": "biome ci --reporter=github",
-    "prepublishOnly": "bun run build",
     "build": "rm -rf build; tsc --project tsconfig.build.json; tsc-alias --project tsconfig.build.json"
   },
   "publishConfig": {
