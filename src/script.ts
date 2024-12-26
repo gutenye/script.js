@@ -41,7 +41,7 @@ import _ from 'lodash-es'
 globalThis._ = _
 
 // UI
-import * as ui from './ui'
+import * as ui from './ui/index.js'
 globalThis.ui = ui
 import colors from 'chalk'
 globalThis.colors = colors

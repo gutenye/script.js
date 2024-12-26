@@ -1,5 +1,3 @@
-// DO NOT MODIFY, COPIED FROM lib.js
-
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import nodePath from 'node:path'

@@ -4,7 +4,7 @@
   "type": "module",
   "module": "index.ts",
   "bin": {
-    "gutenye-script.js": "src/index.js"
+    "gutenye-script.js": "src/script.ts"
   },
   "scripts": {
     "test": "bun test",
