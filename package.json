@@ -2,6 +2,7 @@
   "name": "@gutenye/script.js",
   "version": "0.0.1",
   "type": "module",
+  "module": "index.ts",
   "bin": {
     "gutenye-script.js": "src/index.js"
   },
@@ -26,8 +27,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/bun": "latest",
-    "@types/lodash-es": "^4.17.12"
-  },
-  "module": "index.ts"
+    "@types/lodash-es": "^4.17.12",
+    "conventional-changelog-conventionalcommits": "^8.0.0"
+  }
 }
