@@ -4,7 +4,7 @@ import 'zx/globals'
 
 // Variables
 globalThis.HOME = os.homedir()
-globalThis.PWD = process.cwd()
+globalThis.CWD = process.cwd()
 globalThis.ENV = process.env
 
 // App
@@ -24,8 +24,6 @@ globalThis.$l = $l
 // Error
 import { exitWithError } from './exit'
 globalThis.exitWithError = exitWithError
-
-globalThis.mixins = mixins
 
 // Filesystem
 import { fs, cp, ls, mkdir, mv, rm } from './fileSystem'

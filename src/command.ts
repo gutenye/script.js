@@ -16,7 +16,7 @@ export class Command extends BaseCommand {
     }
   }
 
-  actionLinux(fn) {
+  actionLin(fn) {
     this._actionLinux = fn
     this._actionOS()
     return this
