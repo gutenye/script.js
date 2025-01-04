@@ -26,6 +26,17 @@ app.command('cmd1')
   })
 ```
 
+## Subcommands
+
+```ts
+const sub1 = app.command('sub1')
+
+sub1.command('list')
+  .action(() => { .. })
+```
+
+Invoke with `hello sub1 list`
+
 ## Platform-Specific Actions
 
 In some cases, you may want to run different actions based on the user’s operating system.

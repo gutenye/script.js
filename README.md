@@ -67,6 +67,12 @@ chmod +x hello.js   # Make the script executable
 - [Completion](./docs/Completion.md): Customize the autocompletion
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
 
+## 🙇 Thanks
+
+- [zx](https://github.com/google/zx): A tool for writing better scripts
+- [Bun](https://github.com/oven-sh/bun): Incredibly fast JavaScript runtime, bundler, test runner, and package manager – all in one
+- [commander.js](https://github.com/tj/commander.js): node.js command-line interfaces made easy
+
 ## 🤝 Contribute
 
 We love contributions! Whether you’re fixing bugs, adding features, or improving documentation, your involvement makes this project better.
