@@ -46,7 +46,7 @@ app.command('greetings [files...]')
   .action((files, options) => {
     $`
       ls -l ${files}
-      echo ${files} | wc -l`
+      echo ${files} | wc -l
     `
   })
 ```
@@ -69,9 +69,11 @@ chmod +x hello.js   # Make the script executable
 
 ## 🙇 Thanks
 
-- [zx](https://github.com/google/zx): A tool for writing better scripts
 - [Bun](https://github.com/oven-sh/bun): Incredibly fast JavaScript runtime, bundler, test runner, and package manager – all in one
-- [commander.js](https://github.com/tj/commander.js): node.js command-line interfaces made easy
+- [Carapace](https://github.com/carapace-sh/carapace-bin): A multi-shell completion binary
+- [Zurk](https://github.com/webpod/zurk): A generic process spawner
+- [Zx](https://github.com/google/zx): A tool for writing better scripts
+- [Commander.js](https://github.com/tj/commander.js): node.js command-line interfaces made easy
 
 ## 🤝 Contribute
 
