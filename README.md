@@ -33,7 +33,7 @@ npm install -g @gutenye/script.js
 Create a file named `hello.js` and add the following code:
 
 ```ts
-#!/usr/bin/env gutenye-script.js
+#!/usr/bin/env script.js
 
 app
   .name('hello.js')
