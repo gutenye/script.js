@@ -26,8 +26,9 @@ import { exitWithError } from './exit'
 globalThis.exitWithError = exitWithError
 
 // Filesystem
-import { fs, cp, ls, mkdir, mv, rm } from './fileSystem'
+import { fs, path, cp, ls, mkdir, mv, rm } from './fileSystem'
 globalThis.fs = fs
+globalThis.path = path
 globalThis.cp = cp
 globalThis.mv = mv
 globalThis.rm = rm
@@ -47,5 +48,8 @@ globalThis.colors = colors
 // Csv
 import * as csv from './csv'
 globalThis.csv = csv
+
+import * as yaml from './yaml'
+globalThis.yaml = yaml
 
 start()

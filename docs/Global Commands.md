@@ -18,7 +18,7 @@ Script.js provides the following built-in global variables to simplify working w
 
 ```ts
 HOME     // The home directory of the user
-PWD      // The current working directory
+CWD      // The current working directory
 ENV      // A collection of environment variables
 ```
 

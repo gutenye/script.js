@@ -1,6 +1,6 @@
-import { fs } from '#/utils'
+import { fs, path } from '#/utils'
 
-export { fs }
+export { fs, path }
 
 export const cp = fs.copy
 
