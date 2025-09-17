@@ -9,7 +9,7 @@ app.Option = Option
 
 export async function start() {
   if (!scriptPath) {
-    echo('Error: missing script path, usage: gutenye-script.js <script>')
+    echo('Error: missing script path, usage: script.js <script>')
     process.exit(1)
   }
 
