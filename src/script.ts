@@ -26,9 +26,9 @@ import { exitWithError } from './exit'
 globalThis.exitWithError = exitWithError
 
 // Filesystem
-import { fs, path, cp, ls, mkdir, mv, rm } from './fileSystem'
+import { fs, cp, ls, mkdir, mv, nodePath, rm } from './fileSystem'
 globalThis.fs = fs
-globalThis.path = path
+globalThis.nodePath = nodePath
 globalThis.cp = cp
 globalThis.mv = mv
 globalThis.rm = rm

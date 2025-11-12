@@ -32,3 +32,21 @@ export async function mergeFiles(inputPaths: string[], outputPath: string) {
   const outputText = Yaml.stringify(outputObject)
   await fs.outputFile(outputPath, outputText)
 }
+
+export async function copyFileWithoutComments(
+  source: string,
+  destination: string,
+) {
+  const text = (await fs.inputFile(source, 'utf8')) as string
+  if (!text) {
+    throw new Error(`input file not found: ${source}`)
+  }
+  const doc = Yaml.parseDocument(text)
+  Yaml.visit(doc, {
+    Node(key, node) {
+      if ('comment' in node) node.comment = null
+      if ('commentBefore' in node) node.commentBefore = null
+    },
+  })
+  await fs.outputFile(destination, doc.toString())
+}
