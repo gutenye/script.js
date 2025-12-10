@@ -2,7 +2,7 @@ import * as zx from 'zx'
 
 // wait for release fix: handle nullable stdout/stderr https://github.com/google/zx/commits/main/
 // export const $ = zx.$.sync({ stdio: 'inherit' })
-export const $ = zx.$({ stdio: 'inherit' })
+export const $ = zx.$({ stdio: 'inherit', nothrow: true })
 
 // Returns text
 export function $t(...args) {
