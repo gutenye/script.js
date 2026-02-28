@@ -31,8 +31,7 @@ class Command {
     return command
   }
 
-  async run() {
-    const argv = Bun.argv.slice(2)
+  async run(argv = Bun.argv.slice(2)) {
     const commandName = argv[0]
     const command = this.#findCommand(commandName)
     if (command) {
