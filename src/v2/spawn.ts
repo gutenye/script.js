@@ -17,7 +17,7 @@ class ShellCommand {
     this.#command = command
   }
 
-  #exec() {
+  #pipeExec() {
     if (!this.#result) {
       const opts: Parameters<typeof Bun.spawnSync>[1] = {
         stdin: 'inherit',
@@ -60,11 +60,11 @@ class ShellCommand {
   }
 
   get exitCode() {
-    return this.#exec().exitCode
+    return this.#pipeExec().exitCode
   }
 
   text() {
-    const { stdout } = this.#exec()
+    const { stdout } = this.#pipeExec()
     return (stdout ?? '').toString()
   }
 
