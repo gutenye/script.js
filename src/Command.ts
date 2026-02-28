@@ -33,7 +33,7 @@ export class Command {
 
   async run(argv = Bun.argv.slice(2)) {
     const commandName = argv[0]
-    if (!commandName) {
+    if (!commandName || commandName === '-h') {
       console.log(this.helpText())
       return process.exit(0)
     }
@@ -44,6 +44,10 @@ export class Command {
       return process.exit(1)
     }
     const commandArgv = argv.slice(1)
+    if (commandArgv.includes('-h')) {
+      console.log(command.helpText())
+      return process.exit(0)
+    }
     const { positionals, options } = parseArgv(
       commandArgv,
       command.arguments,
@@ -85,8 +89,8 @@ export class Command {
   helpText() {
     const lines: string[] = []
     const name = this.name || 'app'
-    lines.push(`Usage: ${name} <command>`)
     if (this.commands.length > 0) {
+      lines.push(`Usage: ${name} <command>`)
       lines.push('')
       lines.push('Commands:')
       const maxLen = Math.max(
@@ -95,6 +99,37 @@ export class Command {
       for (const cmd of this.commands) {
         const padded = (cmd.name || '').padEnd(maxLen + 2)
         lines.push(`  ${padded}${cmd.description || ''}`)
+      }
+    } else {
+      const args = this.arguments.map((a) =>
+        a.required ? `<${a.name}>` : `[${a.name}]`,
+      )
+      const usage = [name, ...args].join(' ')
+      lines.push(`Usage: ${usage}`)
+      if (this.description) {
+        lines.push('')
+        lines.push(this.description)
+      }
+      if (this.arguments.length > 0) {
+        lines.push('')
+        lines.push('Arguments:')
+        const maxLen = Math.max(...this.arguments.map((a) => a.name.length))
+        for (const arg of this.arguments) {
+          const padded = arg.name.padEnd(maxLen + 2)
+          lines.push(`  ${padded}${arg.description || ''}`)
+        }
+      }
+      if (this.options.length > 0) {
+        lines.push('')
+        lines.push('Options:')
+        const flags = this.options.map((o) =>
+          [o.short, o.long].filter(Boolean).join(', '),
+        )
+        const maxLen = Math.max(...flags.map((f) => f.length))
+        for (let i = 0; i < this.options.length; i++) {
+          const padded = flags[i].padEnd(maxLen + 2)
+          lines.push(`  ${padded}${this.options[i].description || ''}`)
+        }
       }
     }
     return lines.join('\n')
