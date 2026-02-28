@@ -1,6 +1,6 @@
 # Ake
 
-Run script in any directory with autocompletion support
+Run script in any project with autocompletion support
 
 ## Start
 
@@ -37,7 +37,9 @@ a <Tab> # uses ake file's completion
 
 Create `~/bin.src/ake/template`
 
-## Put ake file in another location 
+## Put ake file in another location
+
+Doesn't touch original project files
 
 ```sh
 akectl init remote # create in ~/bin.src/ake/<dir>
