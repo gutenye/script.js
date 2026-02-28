@@ -264,3 +264,34 @@ Examples:
     expect(options.port).toBe('8080')
   })
 })
+
+describe('invoke()', () => {
+  test('parses string as argv and runs command', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('build', 'Build').a('<target>').a(action)
+
+    await c.invoke('build production')
+
+    expect(action).toHaveBeenCalledTimes(1)
+    const [target] = action.mock.calls[0]
+    expect(target).toBe('production')
+  })
+
+  test('calls command action directly with args', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('build', 'Build').a(action)
+
+    await c.invoke('build', 'arg1', 'arg2')
+
+    expect(action).toHaveBeenCalledWith('arg1', 'arg2')
+  })
+
+  test('throws on unknown command', async () => {
+    const c = new Command()
+    expect(c.invoke('nonexistent', 'arg')).rejects.toThrow(
+      'Unknown command: nonexistent',
+    )
+  })
+})

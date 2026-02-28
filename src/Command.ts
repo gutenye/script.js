@@ -45,6 +45,17 @@ export class Command {
     return command
   }
 
+  async invoke(text: string, ...args: any[]) {
+    if (args.length === 0) {
+      return this.run(text.split(/ +/))
+    }
+    const command = this.#findCommand(text)
+    if (!command) {
+      throw new Error(`Unknown command: ${text}`)
+    }
+    return command.action?.(...args)
+  }
+
   async run(argv = Bun.argv.slice(2)) {
     const commandName = argv[0]
     if (commandName === '-h') {
