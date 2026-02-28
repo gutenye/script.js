@@ -13,13 +13,14 @@ export class Argument {
     completion: string[] | (() => string[]) = [],
   ) {
     this.rawName = rawName.trim()
-    const { name, required, variadic } = Argument.parseName(rawName)
+    const { name, required, variadic, defaultValue } =
+      Argument.parseName(rawName)
     this.name = name
     this.required = required
     this.variadic = variadic
     this.description = description
     this.completion = completion
-    this.defaultValue = undefined
+    this.defaultValue = defaultValue
   }
 
   toString() {
@@ -30,7 +31,10 @@ export class Argument {
     const trimmed = rawName.trim()
     const required = trimmed.startsWith('<')
     const variadic = trimmed.includes('...')
-    const name = trimmed.replace(/[<>\[\]\.]/g, '').trim()
-    return { name, required, variadic }
+    const inner = trimmed.replace(/[<>\[\]\.]/g, '').trim()
+    const eqIndex = inner.indexOf('=')
+    const name = eqIndex !== -1 ? inner.slice(0, eqIndex) : inner
+    const defaultValue = eqIndex !== -1 ? inner.slice(eqIndex + 1) : undefined
+    return { name, required, variadic, defaultValue }
   }
 }
