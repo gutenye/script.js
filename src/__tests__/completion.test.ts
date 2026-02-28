@@ -1,6 +1,9 @@
-import { describe, expect, test } from 'bun:test'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Command } from '../Command'
-import { buildSpec, buildSpecText } from '../completion'
+import { buildSpec, buildSpecText, installCompletion } from '../completion'
 
 describe('buildSpec()', () => {
   test('builds spec with name, description, aliases', () => {
@@ -119,5 +122,53 @@ describe('buildSpecText()', () => {
     expect(result.spec.name).toBe('myapp')
     expect(result.text).toContain('name: myapp')
     expect(result.text).toContain('build')
+  })
+})
+
+describe('installCompletion()', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'completion-test-'))
+  })
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  test('writes spec file when command has name and commands', async () => {
+    const c = new Command()
+    c.define('myapp')
+    c.command('build', 'Build')
+    await installCompletion(c, { specsDir: tmpDir })
+    const content = fs.readFileSync(path.join(tmpDir, 'myapp.yaml'), 'utf8')
+    expect(content).toContain('name: myapp')
+  })
+
+  test('skips when name is missing', async () => {
+    const c = new Command()
+    c.command('build', 'Build')
+    await installCompletion(c, { specsDir: tmpDir })
+    expect(fs.readdirSync(tmpDir)).toHaveLength(0)
+  })
+
+  test('skips write when file is identical', async () => {
+    const c = new Command()
+    c.define('myapp')
+    c.command('build', 'Build')
+    await installCompletion(c, { specsDir: tmpDir })
+    const stat1 = fs.statSync(path.join(tmpDir, 'myapp.yaml'))
+    await installCompletion(c, { specsDir: tmpDir })
+    const stat2 = fs.statSync(path.join(tmpDir, 'myapp.yaml'))
+    expect(stat1.mtimeMs).toBe(stat2.mtimeMs)
+  })
+
+  test('auto-names ake scripts from scriptPath', async () => {
+    const c = new Command()
+    c.command('build', 'Build')
+    await installCompletion(c, { specsDir: tmpDir, scriptPath: '/some/path/ake' })
+    const files = fs.readdirSync(tmpDir)
+    expect(files.length).toBe(1)
+    expect(files[0]).toMatch(/^ake\..*\.yaml$/)
   })
 })

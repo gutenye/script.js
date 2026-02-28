@@ -1,3 +1,6 @@
+import nodeFs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import type { Command } from './Command'
 import * as yaml from 'yaml'
 
@@ -90,4 +93,54 @@ export function buildSpecText(
 
   const text = yaml.stringify(spec)
   return { spec, text }
+}
+
+function getCarapaceSpecsDir(): string {
+  const homeDir = os.homedir()
+  switch (os.platform()) {
+    case 'darwin':
+      return path.join(homeDir, 'Library/Application Support/carapace/specs')
+    case 'win32': {
+      const localAppData = process.env.LOCALAPPDATA || path.join(homeDir, 'AppData/Local')
+      return path.join(localAppData, 'carapace/specs')
+    }
+    default: {
+      const configHome = process.env.XDG_CONFIG_HOME || path.join(homeDir, '.config')
+      return path.join(configHome, 'carapace/specs')
+    }
+  }
+}
+
+type InstallOptions = {
+  scriptPath?: string
+  specsDir?: string
+}
+
+export async function installCompletion(command: Command, options: InstallOptions = {}) {
+  try {
+    if (!command.name && options.scriptPath) {
+      const basename = path.basename(options.scriptPath)
+      if (basename === 'ake') {
+        command.name = `ake.${nodeFs.realpathSync(process.cwd()).replaceAll('/', '_')}`
+      }
+    }
+
+    const result = buildSpecText(command)
+    if (!result) return
+
+    const specsDir = options.specsDir || getCarapaceSpecsDir()
+    const filePath = path.join(specsDir, `${result.spec.name}.yaml`)
+
+    let existing: string | undefined
+    try {
+      existing = nodeFs.readFileSync(filePath, 'utf8')
+    } catch {}
+
+    if (existing === result.text) return
+
+    nodeFs.mkdirSync(specsDir, { recursive: true })
+    nodeFs.writeFileSync(filePath, result.text)
+  } catch {
+    // completion is supplementary — silently ignore errors
+  }
 }
