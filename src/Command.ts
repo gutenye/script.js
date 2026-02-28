@@ -39,7 +39,7 @@ export class Command {
     }
     const command = this.#findCommand(commandName)
     if (!command) {
-      console.error(this.helpText())
+      console.log(this.helpText())
       console.error(`\nUnknown command: ${commandName}`)
       return process.exit(1)
     }
@@ -89,7 +89,9 @@ export class Command {
     if (this.commands.length > 0) {
       lines.push('')
       lines.push('Commands:')
-      const maxLen = Math.max(...this.commands.map((c) => (c.name || '').length))
+      const maxLen = Math.max(
+        ...this.commands.map((c) => (c.name || '').length),
+      )
       for (const cmd of this.commands) {
         const padded = (cmd.name || '').padEnd(maxLen + 2)
         lines.push(`  ${padded}${cmd.description || ''}`)
