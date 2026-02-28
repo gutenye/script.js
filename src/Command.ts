@@ -79,6 +79,9 @@ export class Command {
       return process.exit(1)
     }
     const commandArgv = argv.slice(1)
+    if (command.commands.length > 0 || command.#defaultCommand) {
+      return command.run(commandArgv)
+    }
     if (commandArgv.includes('-h')) {
       console.log(command.helpText())
       return process.exit(0)

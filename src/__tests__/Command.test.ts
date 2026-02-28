@@ -95,6 +95,40 @@ describe('run()', () => {
     expect(action).toHaveBeenCalledTimes(1)
   })
 
+  test('dispatches to subcommand', async () => {
+    const c = new Command()
+    const action = mock()
+    const build = c.command('build', 'Build')
+    build.command('xcode', 'Build with Xcode').a('<config>').a(action)
+
+    await c.run(['build', 'xcode', 'release'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+    const [config] = action.mock.calls[0]
+    expect(config).toBe('release')
+  })
+
+  test('prints subcommand help with -h', async () => {
+    const c = new Command()
+    const build = c.command('build', 'Build')
+    build.command('xcode', 'Build with Xcode')
+    build.command('gradle', 'Build with Gradle')
+
+    const logs: string[] = []
+    const origLog = console.log
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.exit = mockExit
+    await c.run(['build', '-h'])
+    console.log = origLog
+    process.exit = origExit
+
+    expect(logs[0]).toContain('xcode')
+    expect(logs[0]).toContain('gradle')
+    expect(mockExit).toHaveBeenCalledWith(0)
+  })
+
   test('prints help and error when command not found', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
