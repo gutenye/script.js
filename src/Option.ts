@@ -8,7 +8,7 @@ export class Option {
   variadic: boolean
   negate: boolean
   attributeName: string
-  completion: string[]
+  completion: string[] | (() => string[])
   defaultValue: any
 
   constructor(rawFlags: string, description = '', defaultValueOrCompletion: any = undefined) {
@@ -44,7 +44,7 @@ export class Option {
       this.attributeName = ''
     }
 
-    if (Array.isArray(defaultValueOrCompletion)) {
+    if (Array.isArray(defaultValueOrCompletion) || typeof defaultValueOrCompletion === 'function') {
       this.completion = defaultValueOrCompletion
       this.defaultValue = undefined
     } else {

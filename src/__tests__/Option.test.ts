@@ -69,4 +69,11 @@ describe('Option', () => {
     expect(opt.description).toBe('Output file')
     expect(opt.defaultValue).toBe('out.txt')
   })
+
+  test('accepts function completion', () => {
+    const fn = () => ['json', 'yaml']
+    const opt = new Option('--format <type>', 'Output format', fn)
+    expect(opt.completion).toBe(fn)
+    expect(opt.defaultValue).toBeUndefined()
+  })
 })

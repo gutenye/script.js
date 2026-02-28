@@ -3,10 +3,10 @@ export class Argument {
   description: string
   required: boolean
   variadic: boolean
-  completion: string[]
+  completion: string[] | (() => string[])
   defaultValue: any
 
-  constructor(rawName: string, description = '', completion: string[] = []) {
+  constructor(rawName: string, description = '', completion: string[] | (() => string[]) = []) {
     const { name, required, variadic } = Argument.parseName(rawName)
     this.name = name
     this.required = required

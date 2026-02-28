@@ -35,4 +35,10 @@ describe('Argument', () => {
     expect(arg.description).toBe('Platform')
     expect(arg.completion).toEqual(['ios', 'android'])
   })
+
+  test('accepts function completion', () => {
+    const fn = () => ['ios', 'android']
+    const arg = new Argument('<platform>', 'Platform', fn)
+    expect(arg.completion).toBe(fn)
+  })
 })
