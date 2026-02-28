@@ -2,6 +2,7 @@ import nodeFs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import * as yaml from 'yaml'
+import { getCompletionName } from './ake/shared'
 import type { Command } from './Command'
 
 export type CompletionValue = string[] | (() => string[])
@@ -126,7 +127,7 @@ export async function installCompletion(
     if (!command.name && options.scriptPath) {
       const basename = path.basename(options.scriptPath)
       if (basename === 'ake') {
-        command.name = `ake.${nodeFs.realpathSync(process.cwd()).replaceAll('/', '_')}`
+        command.name = getCompletionName()
       }
     }
 
