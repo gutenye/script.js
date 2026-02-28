@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
-import { $, app, cmd } from './Command'
+import { app, cmd } from './Command'
+import { $ } from './spawn'
 
 cmd('cmd1 | c1', 'Command 1')
   .a('<platform>', 'Platform', [
@@ -13,9 +14,9 @@ cmd('cmd1 | c1', 'Command 1')
   ])
   .a('<name>', 'Name')
   .a('-l | --long')
-  .a((ctx) => {
-    console.log('cmd')
-    $`echo ${ctx.args}`
+  .a((platform, options, ctx) => {
+    console.log(platform, options, ctx)
+    $`echo 1 ${ctx.args}`
   })
 
 await app.run()

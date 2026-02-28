@@ -35,7 +35,11 @@ class Command {
     const commandName = args[0]
     const command = this.#findCommand(commandName)
     if (command) {
-      await command.action?.()
+      const context: Context = {
+        args,
+      }
+      const options = {}
+      await command.action?.(args, options, context)
     } else {
       console.log(this.name, this.description)
       console.log(JSON.stringify(this.commands, null, 2))
@@ -81,12 +85,10 @@ class Command {
   }
 }
 
-export function $(command: string) {
-  Bun.spawnSync(['/bin/sh', '-c', command], {
-    stdio: ['inherit', 'inherit', 'inherit'],
-  })
-}
-
 export const app = new Command()
 
 export const cmd = app.cmd
+
+type Context = {
+  args: string[]
+}
