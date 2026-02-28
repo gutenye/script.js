@@ -1,6 +1,8 @@
+import path from 'node:path'
 import { Argument, Option, program } from './command'
 
-const [bunPath, scriptJsPath, scriptPath, ...args] = process.argv
+const [bunPath, scriptJsPath, _scriptPath, ...args] = process.argv
+const scriptPath = _scriptPath ? path.resolve(_scriptPath) : undefined
 
 export const app = program
 
