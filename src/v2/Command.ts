@@ -5,6 +5,7 @@ class Command {
   action: (...args: any[]) => void | Promise<void>
   arguments: Argument[] = []
   commands: Command[] = []
+  options: Option[] = []
   a = this.add.bind(this)
   cmd = this.command.bind(this)
 
@@ -42,7 +43,7 @@ class Command {
     if (typeof args[0] === 'function') {
       this.action = args[0]
     } else {
-      let [name, description, completion] = args
+      let [inputName, description, completion] = args
       if (typeof description !== 'string') {
         if (completion) {
           throw new Error(
@@ -52,11 +53,21 @@ class Command {
         completion = description
         description = ''
       }
-      this.arguments.push({
-        name,
-        description,
-        completion,
-      })
+
+      const name = inputName.trim()
+      if (name.startsWith('-')) {
+        this.options.push({
+          name,
+          description,
+          completion,
+        })
+      } else {
+        this.arguments.push({
+          name,
+          description,
+          completion,
+        })
+      }
     }
 
     return this
@@ -86,6 +97,12 @@ export const app = new Command()
 export const cmd = app.cmd
 
 type Argument = {
+  name: string
+  description: string
+  completion: string[]
+}
+
+type Option = {
   name: string
   description: string
   completion: string[]
