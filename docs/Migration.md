@@ -154,7 +154,7 @@ The following v1 globals are removed in v2. Use npm packages directly:
 | Feature | Example |
 |---------|---------|
 | `cmd()` shorthand | `cmd('build', 'Build')` |
-| `.ad()` unified API | `.add('<arg>')`, `.add('-v \| --verbose')`, `.add(fn)` |
+| `.add()` unified API | `.add('<arg>')`, `.add('-v \| --verbose')`, `.add(fn)` |
 | Default command | `cmd().add((ctx) => {})` |
 | Argument validation | `.add('<platform>', 'Platform', ['ios', 'android'])` |
 | `invoke()` | `await app.invoke('build production')` |
