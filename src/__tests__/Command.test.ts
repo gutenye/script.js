@@ -371,3 +371,4 @@ describe('choices validation', () => {
     expect(action).toHaveBeenCalledTimes(1)
   })
 })
+

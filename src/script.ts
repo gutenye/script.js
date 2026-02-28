@@ -2,12 +2,14 @@
 
 import path from 'node:path'
 import { app, cmd } from './Command'
+import { mixins } from './mixins'
 import { installCompletion } from './completion'
 import { $ } from './spawn'
 
 globalThis.$ = $
 globalThis.app = app
 globalThis.cmd = cmd
+globalThis.mixins = mixins
 
 const scriptPath = Bun.argv[2]
 if (!scriptPath) {
