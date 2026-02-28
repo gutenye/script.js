@@ -83,7 +83,7 @@ describe('run()', () => {
     const [target, options, context] = action.mock.calls[0]
     expect(target).toBe('production')
     expect(options.verbose).toBe(true)
-    expect(context.args).toEqual(['production', '-v'])
+    expect(context.argv).toEqual(['production', '-v'])
   })
 
   test('dispatches to matching command by alias', async () => {
@@ -217,6 +217,21 @@ Examples:
     await c.run([])
 
     expect(action).toHaveBeenCalledTimes(1)
+    const [ctx] = action.mock.calls[0]
+    expect(ctx.argv).toEqual([])
+  })
+
+  test('passes only context when command has no arguments or options', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('run', 'Run it').a(action)
+
+    await c.run(['run'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+    expect(action.mock.calls[0]).toHaveLength(1)
+    const [ctx] = action.mock.calls[0]
+    expect(ctx.argv).toEqual([])
   })
 
   test('passes parsed positionals and options to action', async () => {

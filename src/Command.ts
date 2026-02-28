@@ -58,8 +58,8 @@ export class Command {
           this.#defaultCommand.arguments,
           this.#defaultCommand.options,
         )
-        const context: Context = { args: argv }
-        await this.#defaultCommand.action?.(...positionals, options, context)
+        const context: Context = { argv }
+        await this.#invokeAction(this.#defaultCommand, positionals, options, context)
         return
       }
       console.log(this.helpText())
@@ -81,8 +81,8 @@ export class Command {
       command.arguments,
       command.options,
     )
-    const context: Context = { args: commandArgv }
-    await command.action?.(...positionals, options, context)
+    const context: Context = { argv: commandArgv }
+    await this.#invokeAction(command, positionals, options, context)
   }
 
   add(...args: any[]) {
@@ -168,6 +168,20 @@ export class Command {
     return lines.join('\n')
   }
 
+  async #invokeAction(
+    command: Command,
+    positionals: any[],
+    options: Record<string, any>,
+    context: Context,
+  ) {
+    const args = [...positionals]
+    if (command.options.length > 0) {
+      args.push(options)
+    }
+    args.push(context)
+    await command.action?.(...args)
+  }
+
   #findCommand(name: string) {
     return this.commands.find(
       (command) => command.name === name || command.aliases.includes(name),
@@ -186,5 +200,5 @@ export const app = new Command()
 export const cmd = app.cmd
 
 type Context = {
-  args: string[]
+  argv: string[]
 }
