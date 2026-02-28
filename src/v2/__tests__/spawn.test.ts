@@ -25,14 +25,14 @@ describe('$', () => {
 
   test('interpolates strings with shell escaping', () => {
     const name = 'Mike Smith'
-    const result = $`echo ${name}`.text()
-    expect(result).toBe('Mike Smith\n')
+    const result = $`printf "<%s>" ${name}`.text()
+    expect(result).toBe('<Mike Smith>')
   })
 
   test('interpolates arrays as separate arguments', () => {
     const args = ['arg 1', 'arg 2']
-    const result = $`echo ${args}`.text()
-    expect(result).toBe('arg 1 arg 2')
+    const result = $`printf "<%s>" ${args}`.text()
+    expect(result).toBe('<arg 1><arg 2>')
   })
 })
 
