@@ -1,4 +1,5 @@
 import type { Command } from './Command'
+import * as yaml from 'yaml'
 
 export type CompletionValue = string[] | (() => string[])
 
@@ -77,4 +78,16 @@ export function buildSpec(command: Command): CarapaceSpec {
   }
 
   return spec
+}
+
+export function buildSpecText(
+  command: Command,
+): { spec: CarapaceSpec; text: string } | undefined {
+  if (!command.name) return undefined
+
+  const spec = buildSpec(command)
+  if (!(spec.commands || spec.flags || spec.completion)) return undefined
+
+  const text = yaml.stringify(spec)
+  return { spec, text }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { Command } from '../Command'
-import { buildSpec } from '../completion'
+import { buildSpec, buildSpecText } from '../completion'
 
 describe('buildSpec()', () => {
   test('builds spec with name, description, aliases', () => {
@@ -96,5 +96,28 @@ describe('buildSpec()', () => {
     expect(spec.commands).toHaveLength(2)
     expect(spec.commands![0].name).toBe('deploy')
     expect(spec.commands![1].name).toBe('build')
+  })
+})
+
+describe('buildSpecText()', () => {
+  test('returns undefined when no commands or completions', () => {
+    const c = new Command()
+    c.define('myapp')
+    expect(buildSpecText(c)).toBeUndefined()
+  })
+
+  test('returns undefined when name is missing', () => {
+    const c = new Command()
+    expect(buildSpecText(c)).toBeUndefined()
+  })
+
+  test('returns spec and yaml text', () => {
+    const c = new Command()
+    c.define('myapp')
+    c.command('build', 'Build').a('-v | --verbose', 'Verbose')
+    const result = buildSpecText(c)!
+    expect(result.spec.name).toBe('myapp')
+    expect(result.text).toContain('name: myapp')
+    expect(result.text).toContain('build')
   })
 })
