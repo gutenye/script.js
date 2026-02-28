@@ -1,55 +1,24 @@
 #!/usr/bin/env bun --env-file ''
 
-import 'zx/globals'
-
-// Variables
-globalThis.HOME = os.homedir()
-globalThis.CWD = process.cwd()
-globalThis.ENV = process.env
-
-// App
-import { app, start } from './app'
-globalThis.app = app
-
-// Mixins
+import path from 'node:path'
+import { globby } from 'globby'
+import { app, cmd } from './Command'
+import { installCompletion } from './completion'
 import { mixins } from './mixins'
-globalThis.mixins = mixins
+import { $ } from './spawn'
 
-// Spawn
-import { $, $l, $t } from './spawn'
 globalThis.$ = $
-globalThis.$t = $t
-globalThis.$l = $l
+globalThis.app = app
+globalThis.cmd = cmd
+globalThis.mixins = mixins
+globalThis.globby = globby
 
-// Error
-import { exitWithError } from './exit'
-globalThis.exitWithError = exitWithError
+const scriptPath = Bun.argv[2]
+if (!scriptPath) {
+  console.error('Usage: script.js <script>')
+  process.exit(1)
+}
 
-// Filesystem
-import { fs, cp, ls, mkdir, mv, nodePath, rm } from './fileSystem'
-globalThis.fs = fs
-globalThis.nodePath = nodePath
-globalThis.cp = cp
-globalThis.mv = mv
-globalThis.rm = rm
-globalThis.mkdir = mkdir
-globalThis.ls = ls
-
-// Lodash
-import _ from 'lodash-es'
-globalThis._ = _
-
-// UI
-import * as ui from './ui'
-globalThis.ui = ui
-import colors from 'chalk'
-globalThis.colors = colors
-
-// Csv
-import * as csv from './csv'
-globalThis.csv = csv
-
-import * as yaml from './yaml'
-globalThis.yaml = yaml
-
-start()
+await import(path.resolve(scriptPath))
+installCompletion(app, { scriptPath })
+await app.run(Bun.argv.slice(3))

@@ -13,15 +13,11 @@ import {
 const NAME = 'akectl'
 const ENV = process.env
 
-app.name(NAME).enableCompletion()
+app.meta(NAME)
 
-app
-  .command('init')
-  .description('Create ake file')
-  .addArgument(
-    new app.Argument('<place>', 'Place').choices(['local', 'remote']),
-  )
-  .action(async (place: string) => {
+cmd('init', 'Create ake file')
+  .a('<place>', 'Place', ['local', 'remote'])
+  .a(async (place: string) => {
     const akeFiles = await findAkeFiles()
     if (akeFiles.length > 0) {
       exitWithError('Already have an ake file, cannot create a new one')
@@ -42,17 +38,14 @@ app
     await openEditor(target)
   })
 
-app
-  .command('edit')
-  .description('Edit ake file')
-  .action(async () => {
-    const akeFiles = await findAkeFiles()
-    const akeFile = akeFiles[0]
-    if (!akeFile) {
-      exitWithError('No ake file found')
-    }
-    await openEditor(akeFile)
-  })
+cmd('edit', 'Edit ake file').a(async () => {
+  const akeFiles = await findAkeFiles()
+  const akeFile = akeFiles[0]
+  if (!akeFile) {
+    exitWithError('No ake file found')
+  }
+  await openEditor(akeFile)
+})
 
 async function openEditor(inputPaths: string | string[], options = {}) {
   const paths = castArray(inputPaths)

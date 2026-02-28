@@ -1,64 +1,58 @@
 # Global Commands
 
-Script.js provides a powerful set of global commands, making it easier to execute shell commands, work with the filesystem, handle environment variables, and more—using the simplicity and power of JavaScript.
+Script.js provides a set of global commands, making it easier to execute shell commands and work with files using the simplicity and power of JavaScript.
 
 ## $
 
-Run shell commands directly from your script using the $ command.
+Run shell commands directly from your script using the `$` tagged template:
 
 ```ts
-$`cmd`   // Execute shell command
-$t`cmd`  // Execute shell command, return result as a string
-$l`cmd`  // Execute shell command, return output as an array of lines
+$`echo hello`                     // inherit stdio (prints to terminal)
+$`echo hello`.text()              // returns stdout as string
+$`echo hello`.lines()             // returns stdout as string[]
+$`echo '{"a":1}'`.json()          // returns parsed JSON
 ```
 
-## Global variables
-
-Script.js provides the following built-in global variables to simplify working with your environment:
+### Chaining
 
 ```ts
-HOME     // The home directory of the user
-CWD      // The current working directory
-ENV      // A collection of environment variables
+$`cmd`.cwd('/tmp').text()         // run in specific directory
+$`cmd`.env({ KEY: 'val' }).text() // run with env vars
 ```
 
-## Filesystem Operations
-
-Script.js makes filesystem manipulation easy and intuitive. It supports common file operations and provides automatic handling for missing directories and globbing.
-
-- Supports `~/path` for home directory expansion.
-- Supports globbing for file patterns.
-- Automatically ignores missing directories and creates missing directories.
+### Global Defaults
 
 ```ts
-cp(source, dest)
-mv(source, dest)
-rm(dir)
-mkdir(dir)
-ls(dir)   // e.g. ls('~/*.txt')
+$.cwd('/tmp')                     // set default cwd for all commands
+$.env({ KEY: 'val' })             // set default env for all commands
 ```
 
-## Utilities
+### Interpolation
 
-Script.js provides lodash utils.
+Values are automatically shell-escaped:
 
 ```ts
-_    // lodash object
+const file = 'my file.txt'
+$`cat ${file}`                    // cat 'my file.txt'
+
+const files = ['a.txt', 'b.txt']
+$`cat ${files}`                   // cat a.txt b.txt
 ```
 
-## UI functions
-
-Script.js makes it easy to present data in a tabular format or apply text formatting using the ui module.
+## Global Variables
 
 ```ts
-ui.table(data)         // Print data in a formatted table
-colors.red.bold(text)  // Provides simple text styling   
+app      // Command instance for defining CLI metadata and commands
+cmd      // Shorthand for app.cmd()
+mixins   // Load shared command modules from ~/bin.src/mixins/
+globby   // Glob matching via the globby package
+$        // Shell command tagged template
 ```
 
-## CSV
+## globby
 
-Script.js also includes utilities for handling CSV data.
+Find files using glob patterns:
 
 ```ts
-csv.parse(text) // Parse CSV string into an array of objects
+const files = await globby(['src/**/*.ts', '!**/*.test.ts'])
 ```

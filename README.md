@@ -1,86 +1,79 @@
-# 🧩 Script.js 🧩
+# Script.js
 
-**Write shell scripts in JavaScript** and leverage the power of JavaScript’s simplicity and flexibility to make your shell scripting easier and faster. Why struggle with the complexity of Bash or other shell scripting languages when you already know JavaScript? Script.js allows you to write and run complex shell scripts using JavaScript, saving you time and reducing errors.
+**Write shell scripts in JavaScript** and leverage the power of JavaScript's simplicity and flexibility to make your shell scripting easier and faster. Why struggle with the complexity of Bash or other shell scripting languages when you already know JavaScript? Script.js allows you to write and run complex shell scripts using JavaScript, saving you time and reducing errors.
 
 **Show your ❤️ and support by starring this project and following the author, [Guten Ye](https://github.com/gutenye)!**
 
-[![Stars](https://img.shields.io/github/stars/gutenye/script.js?style=social)](https://github.com/gutenye/script.js) [![NPM Version](https://img.shields.io/npm/v/@gutenye/script.js)](https://www.npmjs.com/package/@gutenye/script.js) [![License](https://img.shields.io/github/license/gutenye/script.js?color=blue)](https://github.com/gutenye/script.js/blob/main/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/gutenye/script.js#-contribute)
+[![Stars](https://img.shields.io/github/stars/gutenye/script.js?style=social)](https://github.com/gutenye/script.js) [![NPM Version](https://img.shields.io/npm/v/@gutenye/script.js)](https://www.npmjs.com/package/@gutenye/script.js) [![License](https://img.shields.io/github/license/gutenye/script.js?color=blue)](https://github.com/gutenye/script.js/blob/main/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/gutenye/script.js#contribute)
 
-## 🌟 Features
+## Features
 
-- **Fast to write**: The most important factor in script writing is **speed**. With Script.js, you can quickly open the editor, write a few lines of code, and run it instantly. Thanks to global commands, you don’t need to worry about import statements, and more. Writing a script is enjoyable and efficient.
-- **Fun to run**: A major benefit of using a script is **autocompletion**. Script.js includes built-in autocompletion support. Running a script is fun and seamless.
-- **JavaScript Power**: Writing complex scripts in JavaScript and access the entire JavaScript ecosystem.
-- **Familiar Syntax**: Write your shell commands just like you would in Bash, with full support for redirection, pipes, environment variables, and more.
+- **Fast to write**: Global commands mean no imports needed. Open the editor, write a few lines, and run it.
+- **Fun to run**: Built-in autocompletion support via Carapace.
+- **JavaScript Power**: Access the entire JavaScript ecosystem.
 - **Subcommands**: Create and organize subcommands effortlessly.
-- **Help Documentation**: Auto-generate command help documentation for better user experience.
-- **Fast Execution**: Fast to execute your scripts.
+- **Help Documentation**: Auto-generated command help with argument validation.
+- **Fast Execution**: Powered by Bun for fast startup and execution.
 
-## 🚀 Getting Started
+## Getting Started
 
-### 1️⃣ Install
+### 1. Install
 
 First, make sure [Bun](https://bun.sh) and [Carapace](https://github.com/carapace-sh/carapace-bin) are installed.
-
-To install Script.js, run:
 
 ```sh
 npm install -g @gutenye/script.js
 ```
 
-### 2️⃣ Write Your First Script
+### 2. Write Your First Script
 
-Create a file named `hello.js` and add the following code:
+Create a file named `hello` and add the following code:
 
 ```ts
 #!/usr/bin/env script.js
 
-app
-  .name('hello.js')
-  .enableCompletion()
+app.meta('hello')
 
-app.command('greetings [files...]')
-  .completion({
-    positionalany: ['$files'],
-  })
-  .action((files, options) => {
-    $`
-      ls -l ${files}
-      echo ${files} | wc -l
-    `
+app.cmd('greetings', 'Say hello')
+  .add('[...files]', 'Files', ['$files'])
+  .add((files, ctx) => {
+    $`ls -l ${files}`
   })
 ```
 
-### 3️⃣ Run the script
+### 3. Run the script
 
 You can use `<Tab>` to autocomplete arguments or options while using the script.
 
 ```sh
-chmod +x hello.js   # Make the script executable
-./hello.js          # First run to create completion file
-./hello.js <Tab>    # Use Tab key for autocompletion
+chmod +x hello         # Make the script executable
+./hello                # First run to create completion file
+./hello <Tab>          # Use Tab key for autocompletion
 ```
 
-## 📖 Documentation
+## Documentation
 
 - [Create Commands](./docs/Create%20Commands.md): Create commands and subcommands
 - [Completion](./docs/Completion.md): Customize the autocompletion
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
 - [Ake](./src/ake): A task runner supports shell autocompletion
 
-## 🙇 Thanks
+## v2
 
-- [Bun](https://github.com/oven-sh/bun): Incredibly fast JavaScript runtime, bundler, test runner, and package manager – all in one
+v2 is a complete rewrite from scratch. It removes heavy dependencies, replacing them with a lightweight, custom-built CLI framework. A cleaner syntax, the smallest set of global variables, and using vanilla JavaScript as much as possible. You should be able to write scripts quickly without looking up documentation — if you know JavaScript, you know the API.
+
+See [Migration from v1](./docs/Migration.md) for a full migration guide.
+
+Looking for v1 documentation [here](https://github.com/gutenye/script.js/tree/v1)
+
+## Thanks
+
+- [Bun](https://github.com/oven-sh/bun): Incredibly fast JavaScript runtime, bundler, test runner, and package manager
 - [Carapace](https://github.com/carapace-sh/carapace-bin): A multi-shell completion binary
-- [Zurk](https://github.com/webpod/zurk): A generic process spawner
-- [Zx](https://github.com/google/zx): A tool for writing better scripts
-- [Commander.js](https://github.com/tj/commander.js): node.js command-line interfaces made easy
 
-## 🤝 Contribute
+## Contribute
 
-We love contributions! Whether you’re fixing bugs, adding features, or improving documentation, your involvement makes this project better.
-
-**How to Contribute:**
+We love contributions! Whether you're fixing bugs, adding features, or improving documentation, your involvement makes this project better.
 
 1. Fork the Repository
 2. Open a Pull Request on Github
