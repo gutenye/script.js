@@ -1,5 +1,6 @@
 import { Argument } from './Argument'
 import { Option } from './Option'
+import { parseArgv } from './parseArgv'
 
 class Command {
   name?: string
@@ -31,15 +32,16 @@ class Command {
   }
 
   async run() {
-    const args = Bun.argv.slice(2)
-    const commandName = args[0]
+    const argv = Bun.argv.slice(2)
+    const commandName = argv[0]
     const command = this.#findCommand(commandName)
     if (command) {
-      const context: Context = {
-        args,
-      }
-      const options = {}
-      await command.action?.(args, options, context)
+      const commandArgv = argv.slice(1)
+      const { positionals, options } = parseArgv(
+        commandArgv, command.arguments, command.options,
+      )
+      const context: Context = { args: commandArgv }
+      await command.action?.(...positionals, options, context)
     } else {
       console.log(this.name, this.description)
       console.log(JSON.stringify(this.commands, null, 2))
@@ -50,22 +52,23 @@ class Command {
     if (typeof args[0] === 'function') {
       this.action = args[0]
     } else {
-      let [inputName, description, completion] = args
+      let [inputName, description, completionOrDefault] = args
+
       if (typeof description !== 'string') {
-        if (completion) {
+        if (completionOrDefault) {
           throw new Error(
-            'Invalid third argument for ${name}, should be a(name, description, completion) format',
+            'Invalid third argument, should be a(name, description, completion) format',
           )
         }
-        completion = description
+        completionOrDefault = description
         description = ''
       }
 
       const name = inputName.trim()
       if (name.startsWith('-')) {
-        this.options.push(new Option(name, description, completion))
+        this.options.push(new Option(name, description, completionOrDefault))
       } else {
-        this.arguments.push(new Argument(name, description, completion))
+        this.arguments.push(new Argument(name, description, completionOrDefault))
       }
     }
 
