@@ -76,12 +76,27 @@ class ShellCommand {
     return this.text().split('\n').filter(Boolean)
   }
 
+  // biome-ignore lint/suspicious/noThenProperty: <explanation>
+  then(resolve?: (value: void) => void) {
+    this.inheritRun()
+    resolve?.()
+  }
+
   toString() {
     return this.text()
   }
 }
 
-const CAPTURED_PROPS = ['text', 'json', 'lines', 'exitCode', 'cwd', 'env', 'quiet']
+const CAPTURED_PROPS = [
+  'text',
+  'json',
+  'lines',
+  'exitCode',
+  'cwd',
+  'env',
+  'quiet',
+  'then',
+]
 const CHAINABLE_PROPS = ['cwd', 'env', 'quiet']
 
 export function $(
