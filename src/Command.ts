@@ -2,7 +2,7 @@ import { Argument } from './Argument'
 import { Option } from './Option'
 import { parseArgv } from './parseArgv'
 
-class Command {
+export class Command {
   name?: string
   description?: string
   aliases: string[] = []
