@@ -63,18 +63,6 @@ describe('.env()', () => {
   })
 })
 
-describe('.quiet()', () => {
-  test('suppresses inherit fallback, returns self for chaining', () => {
-    const cmd = $`echo quiet-test`.quiet()
-    expect(cmd).toBeDefined()
-  })
-
-  test('can chain .quiet().text()', () => {
-    const result = $`echo quiet`.quiet().text()
-    expect(result).toBe('quiet')
-  })
-})
-
 describe('$.cwd() / $.env()', () => {
   test('$.cwd() sets default working directory', () => {
     const tmp = realpathSync('/tmp')

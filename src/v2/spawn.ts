@@ -24,7 +24,6 @@ class ShellCommand {
   #result: ReturnType<typeof Bun.spawnSync> | undefined
   #cwd: string | undefined
   #env: Record<string, string> | undefined
-  #quiet = false
 
   constructor(command: string) {
     this.#command = command
@@ -64,11 +63,6 @@ class ShellCommand {
 
   env(vars: Record<string, string>) {
     this.#env = vars
-    return this
-  }
-
-  quiet() {
-    this.#quiet = true
     return this
   }
 
@@ -117,10 +111,9 @@ const CAPTURED_PROPS = [
   'exitCode',
   'cwd',
   'env',
-  'quiet',
   'then',
 ]
-const CHAINABLE_PROPS = ['cwd', 'env', 'quiet']
+const CHAINABLE_PROPS = ['cwd', 'env']
 
 function $tag(strings: TemplateStringsArray, ...values: any[]): ShellCommand {
   const command = buildCommand(strings, values)
