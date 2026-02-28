@@ -90,6 +90,40 @@ describe('buildSpec()', () => {
     })
   })
 
+  test('passes through $files macro in positional completion', () => {
+    const c = new Command()
+    c.define('myapp')
+    c.command('open').a('<file>', 'File', ['$files'])
+    const spec = buildSpec(c)
+    expect(spec.commands?.[0].completion?.positional).toEqual([['$files']])
+  })
+
+  test('passes through $dirs and shell command macros in positionalany', () => {
+    const c = new Command()
+    c.define('myapp')
+    c.command('run').a('[...targets]', 'Targets', [
+      '$dirs',
+      '$(mycmd _complete)',
+    ])
+    const spec = buildSpec(c)
+    expect(spec.commands?.[0].completion?.positionalany).toEqual([
+      '$dirs',
+      '$(mycmd _complete)',
+    ])
+  })
+
+  test('passes through macros in flag completion', () => {
+    const c = new Command()
+    c.define('myapp')
+    c.command('build').a('--config <path>', 'Config', [
+      '$files([.json, .yaml])',
+    ])
+    const spec = buildSpec(c)
+    expect(spec.commands?.[0].completion?.flag).toEqual({
+      config: ['$files([.json, .yaml])'],
+    })
+  })
+
   test('recurses into subcommands', () => {
     const c = new Command()
     c.define('myapp')
