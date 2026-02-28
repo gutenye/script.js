@@ -66,7 +66,7 @@ chmod +x hello.js   # Make the script executable
 - [Create Commands](./docs/Create%20Commands.md): Create commands and subcommands
 - [Completion](./docs/Completion.md): Customize the autocompletion
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
-- [Ake](./src/ake): Run script in any project with autocompletion support
+- [Ake](./src/ake): A task runner supports shell autocompletion
 
 ## 🙇 Thanks
 

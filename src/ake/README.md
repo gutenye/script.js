@@ -1,6 +1,6 @@
 # Ake
 
-Run script in any project with autocompletion support
+> A task runner supports shell autocompletion
 
 ## Start
 
