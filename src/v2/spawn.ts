@@ -33,6 +33,17 @@ class ShellCommand {
     return this.#result
   }
 
+  inheritExec() {
+    const opts: Parameters<typeof Bun.spawnSync>[1] = {
+      stdio: ['inherit', 'inherit', 'inherit'],
+    }
+    const cwd = this.#cwd ?? $defaults.cwd
+    const env = this.#env ?? $defaults.env
+    if (cwd !== undefined) opts.cwd = cwd
+    if (env !== undefined) opts.env = env
+    Bun.spawnSync(['sh', '-c', this.#command], opts)
+  }
+
   cwd(path: string) {
     this.#cwd = path
     return this
@@ -46,17 +57,6 @@ class ShellCommand {
   quiet() {
     this.#quiet = true
     return this
-  }
-
-  inheritRun() {
-    const opts: Parameters<typeof Bun.spawnSync>[1] = {
-      stdio: ['inherit', 'inherit', 'inherit'],
-    }
-    const cwd = this.#cwd ?? $defaults.cwd
-    const env = this.#env ?? $defaults.env
-    if (cwd !== undefined) opts.cwd = cwd
-    if (env !== undefined) opts.env = env
-    Bun.spawnSync(['sh', '-c', this.#command], opts)
   }
 
   get exitCode() {
@@ -78,7 +78,7 @@ class ShellCommand {
 
   // biome-ignore lint/suspicious/noThenProperty: <explanation>
   then(resolve?: (value: void) => void) {
-    this.inheritRun()
+    this.inheritExec()
     resolve?.()
   }
 
@@ -129,7 +129,7 @@ export function $(
 
   queueMicrotask(() => {
     if (!captured) {
-      output.inheritRun()
+      output.inheritExec()
     }
   })
 
