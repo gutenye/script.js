@@ -58,6 +58,14 @@ chmod +x hello         # Make the script executable
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
 - [Ake](./src/ake): A task runner supports shell autocompletion
 
+## v2
+
+v2 is a complete rewrite from scratch. It removes heavy dependencies, replacing them with a lightweight, custom-built CLI framework. A cleaner syntax, the smallest set of global variables, and using vanilla JavaScript as much as possible. You should be able to write scripts quickly without looking up documentation — if you know JavaScript, you know the API.
+
+See [Migration from v1](./docs/Migration.md) for a full migration guide.
+
+Looking for v1 documentation [here](https://github.com/gutenye/script.js/tree/v1)
+
 ## Thanks
 
 - [Bun](https://github.com/oven-sh/bun): Incredibly fast JavaScript runtime, bundler, test runner, and package manager
