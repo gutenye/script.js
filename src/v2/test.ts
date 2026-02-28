@@ -20,7 +20,6 @@ cmd('cmd1 | c1', 'Command 1')
     const args = ['arg 1', 'arg 2']
     console.log(1)
     $`bun -e 'console.log(process.argv.slice(1))' 1 $(echo 2) ${name} ${args}`
-    // await Promise.resolve()
     console.log(2)
   })
 
