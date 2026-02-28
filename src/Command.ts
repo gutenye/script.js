@@ -154,7 +154,9 @@ export class Command {
         const maxLen = Math.max(...this.arguments.map((a) => a.name.length))
         for (const arg of this.arguments) {
           const padded = arg.name.padEnd(maxLen + 2)
-          lines.push(`  ${padded}${arg.description || ''}`)
+          const choices = Command.#choicesText(arg.completion)
+          const desc = [arg.description, choices].filter(Boolean).join(' ')
+          lines.push(`  ${padded}${desc}`)
         }
       }
       if (this.options.length > 0) {
@@ -164,7 +166,11 @@ export class Command {
         const maxLen = Math.max(...flags.map((f) => f.length))
         for (let i = 0; i < this.options.length; i++) {
           const padded = flags[i].padEnd(maxLen + 2)
-          lines.push(`  ${padded}${this.options[i].description || ''}`)
+          const choices = Command.#choicesText(this.options[i].completion)
+          const desc = [this.options[i].description, choices]
+            .filter(Boolean)
+            .join(' ')
+          lines.push(`  ${padded}${desc}`)
         }
       }
     }
@@ -188,6 +194,12 @@ export class Command {
     options: Record<string, any>,
     context: Context,
   ) {
+    const error = Command.#validateChoices(command, positionals)
+    if (error) {
+      console.log(command.helpText())
+      console.error(`\n${error}`)
+      return process.exit(1)
+    }
     const args = [...positionals]
     if (command.options.length > 0) {
       args.push(options)
@@ -198,6 +210,36 @@ export class Command {
 
   #argsText() {
     return this.arguments.map(String).join(' ')
+  }
+
+  static #validateChoices(
+    command: Command,
+    positionals: any[],
+  ): string | null {
+    for (let i = 0; i < command.arguments.length; i++) {
+      const arg = command.arguments[i]
+      const value = positionals[i]
+      if (value == null) continue
+      if (typeof arg.completion === 'function') continue
+      if (arg.completion.length === 0) continue
+      if (arg.completion.some((c) => c.startsWith('$') || /^[<\[]/.test(c))) continue
+      const values = arg.variadic ? value : [value]
+      for (const v of values) {
+        if (!arg.completion.includes(v)) {
+          return `Invalid value for ${arg.name}: '${v}' (expected: ${arg.completion.join(', ')})`
+        }
+      }
+    }
+    return null
+  }
+
+  static #choicesText(completion: string[] | (() => string[])): string {
+    const values =
+      typeof completion === 'function' ? completion() : completion
+    if (values.length === 0) return ''
+    const text = values.join(', ')
+    if (text.length <= 40) return `(${text})`
+    return `(${text.slice(0, 37)}...)`
   }
 
   #findCommand(name: string) {

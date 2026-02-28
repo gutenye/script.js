@@ -188,7 +188,7 @@ Examples:
     const c = new Command()
     c.meta('myapp', 'My app')
     c.command('deploy', 'Deploy app')
-      .a('<env>', 'Target environment')
+      .a('<env>', 'Target environment', ['staging', 'production'])
       .a('-p | --port <n>', 'Port number')
       .a(() => {})
 
@@ -204,6 +204,7 @@ Examples:
 
     expect(logs[0]).toContain('deploy')
     expect(logs[0]).toContain('env')
+    expect(logs[0]).toContain('(staging, production)')
     expect(logs[0]).toContain('--port')
     expect(mockExit).toHaveBeenCalledWith(0)
   })
@@ -293,5 +294,80 @@ describe('invoke()', () => {
     expect(c.invoke('nonexistent', 'arg')).rejects.toThrow(
       'Unknown command: nonexistent',
     )
+  })
+})
+
+describe('choices validation', () => {
+  test('errors when value not in choices', async () => {
+    const c = new Command()
+    c.command('open', 'Open')
+      .a('<platform>', 'Platform', ['ios', 'android'])
+      .a(() => {})
+
+    const logs: string[] = []
+    const errors: string[] = []
+    const origLog = console.log
+    const origError = console.error
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    console.error = (...args: any[]) => errors.push(args.join(' '))
+    process.exit = mockExit
+    await c.run(['open', 'web'])
+    console.log = origLog
+    console.error = origError
+    process.exit = origExit
+
+    expect(errors[0]).toContain("Invalid value for platform: 'web'")
+    expect(errors[0]).toContain('ios, android')
+    expect(mockExit).toHaveBeenCalledWith(1)
+  })
+
+  test('passes when value is in choices', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('open', 'Open')
+      .a('<platform>', 'Platform', ['ios', 'android'])
+      .a(action)
+
+    await c.run(['open', 'ios'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  test('skips validation for macros like $files', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('open', 'Open')
+      .a('<file>', 'File', ['$files'])
+      .a(action)
+
+    await c.run(['open', 'anything.txt'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  test('skips validation for function completions', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('open', 'Open')
+      .a('<target>', 'Target', () => ['a', 'b'])
+      .a(action)
+
+    await c.run(['open', 'c'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  test('skips validation when no choices defined', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('open', 'Open')
+      .a('<url>', 'URL')
+      .a(action)
+
+    await c.run(['open', 'https://example.com'])
+
+    expect(action).toHaveBeenCalledTimes(1)
   })
 })
