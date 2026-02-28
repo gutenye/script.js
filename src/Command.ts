@@ -33,20 +33,24 @@ export class Command {
 
   async run(argv = Bun.argv.slice(2)) {
     const commandName = argv[0]
-    const command = this.#findCommand(commandName)
-    if (command) {
-      const commandArgv = argv.slice(1)
-      const { positionals, options } = parseArgv(
-        commandArgv,
-        command.arguments,
-        command.options,
-      )
-      const context: Context = { args: commandArgv }
-      await command.action?.(...positionals, options, context)
-    } else {
-      console.log(this.name, this.description)
-      console.log(JSON.stringify(this.commands, null, 2))
+    if (!commandName) {
+      console.log(this.helpText())
+      return process.exit(0)
     }
+    const command = this.#findCommand(commandName)
+    if (!command) {
+      console.error(this.helpText())
+      console.error(`\nUnknown command: ${commandName}`)
+      return process.exit(1)
+    }
+    const commandArgv = argv.slice(1)
+    const { positionals, options } = parseArgv(
+      commandArgv,
+      command.arguments,
+      command.options,
+    )
+    const context: Context = { args: commandArgv }
+    await command.action?.(...positionals, options, context)
   }
 
   add(...args: any[]) {
@@ -76,6 +80,22 @@ export class Command {
     }
 
     return this
+  }
+
+  helpText() {
+    const lines: string[] = []
+    const name = this.name || 'app'
+    lines.push(`Usage: ${name} <command>`)
+    if (this.commands.length > 0) {
+      lines.push('')
+      lines.push('Commands:')
+      const maxLen = Math.max(...this.commands.map((c) => (c.name || '').length))
+      for (const cmd of this.commands) {
+        const padded = (cmd.name || '').padEnd(maxLen + 2)
+        lines.push(`  ${padded}${cmd.description || ''}`)
+      }
+    }
+    return lines.join('\n')
   }
 
   #findCommand(name: string) {

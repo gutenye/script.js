@@ -95,18 +95,43 @@ describe('run()', () => {
     expect(action).toHaveBeenCalledTimes(1)
   })
 
-  test('prints help when no command matches', async () => {
+  test('prints help and error when command not found', async () => {
     const c = new Command()
     c.define('myapp', 'My app')
 
-    const logs: string[] = []
-    const orig = console.log
-    console.log = (...args: any[]) => logs.push(args.join(' '))
+    const errors: string[] = []
+    const origError = console.error
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.error = (...args: any[]) => errors.push(args.join(' '))
+    process.exit = mockExit
     await c.run(['nonexistent'])
-    console.log = orig
+    console.error = origError
+    process.exit = origExit
+
+    expect(errors[0]).toContain('myapp')
+    expect(errors[1]).toContain('Unknown command: nonexistent')
+    expect(mockExit).toHaveBeenCalledWith(1)
+  })
+
+  test('prints help when no arguments provided', async () => {
+    const c = new Command()
+    c.define('myapp', 'My app')
+    c.command('build', 'Build project')
+
+    const logs: string[] = []
+    const origLog = console.log
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.exit = mockExit
+    await c.run([])
+    console.log = origLog
+    process.exit = origExit
 
     expect(logs[0]).toContain('myapp')
-    expect(logs[0]).toContain('My app')
+    expect(logs[0]).toContain('build')
+    expect(mockExit).toHaveBeenCalledWith(0)
   })
 
   test('passes parsed positionals and options to action', async () => {
