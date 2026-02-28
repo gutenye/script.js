@@ -10,6 +10,7 @@ export class Command {
   arguments: Argument[] = []
   commands: Command[] = []
   options: Option[] = []
+  #defaultCommand?: Command
   #extraHelp?: string
   a = this.add.bind(this)
   cmd = this.command.bind(this)
@@ -30,19 +31,37 @@ export class Command {
     console.log(this.helpText())
   }
 
-  command(inputName: string, description = '') {
+  command(inputName?: string, description = '') {
     const command = new Command()
-    const { name, aliases } = this.#parseAliases(inputName)
-    command.name = name
-    command.aliases = aliases
-    command.description = description
-    this.commands.push(command)
+    if (inputName) {
+      const { name, aliases } = this.#parseAliases(inputName)
+      command.name = name
+      command.aliases = aliases
+      command.description = description
+      this.commands.push(command)
+    } else {
+      this.#defaultCommand = command
+    }
     return command
   }
 
   async run(argv = Bun.argv.slice(2)) {
     const commandName = argv[0]
-    if (!commandName || commandName === '-h') {
+    if (commandName === '-h') {
+      console.log(this.helpText())
+      return process.exit(0)
+    }
+    if (!commandName) {
+      if (this.#defaultCommand) {
+        const { positionals, options } = parseArgv(
+          argv,
+          this.#defaultCommand.arguments,
+          this.#defaultCommand.options,
+        )
+        const context: Context = { args: argv }
+        await this.#defaultCommand.action?.(...positionals, options, context)
+        return
+      }
       console.log(this.helpText())
       return process.exit(0)
     }

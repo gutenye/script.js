@@ -208,6 +208,17 @@ Examples:
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
+  test('runs default command when no arguments provided', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('build', 'Build project')
+    c.command().a(action)
+
+    await c.run([])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
   test('passes parsed positionals and options to action', async () => {
     const c = new Command()
     const action = mock()
