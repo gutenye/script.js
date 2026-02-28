@@ -2,6 +2,16 @@ import { describe, expect, test } from 'bun:test'
 import { realpathSync } from 'node:fs'
 import { $ } from '../spawn'
 
+describe('throw error', () => {
+  test('$`cmd` does not throw on non-zero exit', async () => {
+    expect(async () => await $`exit 1`).not.toThrow()
+  })
+
+  test('$`cmd`.text() throws on non-zero exit', () => {
+    expect(() => $`exit 1`.text()).toThrow()
+  })
+})
+
 describe('$', () => {
   test('text() captures stdout trimmed', () => {
     const result = $`echo hello`.text()

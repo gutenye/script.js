@@ -6,6 +6,19 @@ const defaults: {
   env: undefined,
 }
 
+export class ShellError extends Error {
+  exitCode: number
+  stdout: string
+  stderr: string
+
+  constructor(command: string, result: ReturnType<typeof Bun.spawnSync>) {
+    super(`Command failed with exit code ${result.exitCode}: ${command}`)
+    this.exitCode = result.exitCode
+    this.stdout = (result.stdout ?? '').toString()
+    this.stderr = (result.stderr ?? '').toString()
+  }
+}
+
 class ShellCommand {
   #command: string
   #result: ReturnType<typeof Bun.spawnSync> | undefined
@@ -64,8 +77,11 @@ class ShellCommand {
   }
 
   text() {
-    const { stdout } = this.#pipeExec()
-    return (stdout ?? '').toString().trim()
+    const result = this.#pipeExec()
+    if (result.exitCode !== 0) {
+      throw new ShellError(this.#command, result)
+    }
+    return (result.stdout ?? '').toString().trimEnd()
   }
 
   json() {
