@@ -140,7 +140,7 @@ describe('run()', () => {
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
-  test('appends extra help text from help()', async () => {
+  test('appends extra help text from help(text)', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
     c.command('build', 'Build project')

@@ -22,9 +22,12 @@ export class Command {
     return this
   }
 
-  help(text: string) {
-    this.#extraHelp = text.trim()
-    return this
+  help(text?: string) {
+    if (text != null) {
+      this.#extraHelp = text.trim()
+      return this
+    }
+    console.log(this.helpText())
   }
 
   command(inputName: string, description = '') {
