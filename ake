@@ -1,3 +1,5 @@
+#!/usr/bin/env script.js
+
 await mixins('package-manager', 'test')
 
 globalThis.PACKAGE_MANAGER = 'bun'

@@ -1,0 +1,191 @@
+#!/usr/bin/env script.js
+
+/*
+PROJECT_DIR: ~/dev/work/<namespace>/<project></project>
+AKE_PROJECT_DIR: ~/bin.src/ake/<namespace>/<project>
+                 ^^^^^^^^^^^^^ ---------------------
+                 AKE_DIR       PROJECT_FULL_NAME
+*/
+
+import { akeFindDir } from "./ake-find-dir";
+
+const NAME = "ake";
+const AKE_DIR = `${HOME}/bin.src/ake`;
+const AKE_TEMPLATE = "template.js";
+
+app.name(NAME).addHelpText(
+  "after",
+  `
+Global variables
+  PROJECT_DIR   # for invoke ake in subdir
+  PROJECT_NAME  # for completion
+  $p\`cmd\`     # run cmd in PROJECT_DIR
+
+cd (ake _dir)   # cd to AKE_PROJECT_DIR
+  `.trimRight(),
+);
+
+async function main() {
+  const { ake, projectDir, akeUniqueName } = await findAke();
+  if (argv._[1]?.startsWith("_")) {
+    // _xx command pass to this ake file
+    return;
+  }
+  checkAkeExists(ake);
+  const projectName = akeUniqueName || "ake.unknown";
+  try {
+    globalThis.PROJECT_NAME = projectName;
+    globalThis.PROJECT_DIR = projectDir;
+    globalThis.$p = $({ cwd: projectDir });
+    await import(ake);
+  } catch (error) {
+    const content = await fs.readFile(ake, "utf8");
+    if (content.startsWith("#!/usr/bin/env script.js")) {
+      // js error
+      throw error;
+    } else {
+      const run = $({
+        stdio: "inherit",
+        env: { ...ENV, PROJECT_NAME: projectName, PROJECT_DIR: projectDir },
+      });
+      try {
+        const args = argv._.slice(1);
+        await run`${ake} ${args}`;
+      } catch (error) {
+        if (error instanceof ProcessOutput) {
+          process.exit(error.exitCode);
+        }
+      }
+    }
+  }
+}
+
+app
+  .command("_help", { hidden: true })
+  .alias("_h")
+  .description("Display this help")
+  .action(() => {
+    app.help();
+  });
+
+app
+  .command("_init", { hidden: true })
+  .description("Create ake file in current dir or $AKE_PROJECT_DIR")
+  .addArgument(
+    new app.Argument("<place>", "Place").choices(["local", "remote"]),
+  )
+  .action(async (place) => {
+    const { ake, akeProjectDir } = await findAke();
+    if (ake) {
+      exitWithError("Already have an ake file, cannot create a new one");
+    }
+    let target = "ake";
+    if (place === "remote") {
+      checkAkeProjectDirExists(akeProjectDir);
+      target = `${akeProjectDir}/ake`;
+    }
+    await cp(`${AKE_DIR}/${AKE_TEMPLATE}`, target);
+    edit(target);
+  });
+
+app
+  .command("_edit [files...]", { hidden: true })
+  .description("Edit files in $AKE_PROJECT_DIR")
+  .completion({
+    positionalany: [`$(${NAME} _complete _edit)`],
+  })
+  .action(async (files) => {
+    const { ake, akeProjectDir } = await findAke();
+    if (files.length === 0) {
+      checkAkeExists(ake);
+      return edit(ake);
+    }
+    checkAkeProjectDirExists(akeProjectDir);
+    edit(files.map((v) => `${akeProjectDir}${v}`));
+  });
+
+app
+  .command("_ls", { hidden: true })
+  .description("List files in $AKE_PROJECT_DIR")
+  .action(() => {
+    const { akeProjectdir } = findDir();
+    checkAkeProjectDirExists(akeProjectdir);
+    $`ls ${akeProjectdir}`;
+  });
+
+app
+  .command("_dir", { hidden: true })
+  .description("print $AKE_PROJECT_DIR")
+  .action(() => {
+    const { akeProjectDir } = findDir();
+    checkAkeProjectDirExists(akeProjectDir);
+    echo(akeProjectDir);
+  });
+
+app
+  .command("_note", { hidden: true })
+  .description("Edit note file")
+  .action(async () => {
+    const { akeProjectDir } = findDir();
+    checkAkeProjectDirExists(akeProjectDir);
+    await mkdir(akeProjectDir);
+    edit(`${akeProjectDir}/note.gnote`);
+  });
+
+async function edit(path_s, options = {}) {
+  const paths = _.castArray(path_s);
+  const editor =
+    ENV.TERM_PROGRAM === "vscode"
+      ? ENV.CURSOR_TRACE_ID
+        ? "cursor"
+        : "code"
+      : ENV.EDITOR;
+  return $`${editor} ${paths}`;
+}
+
+async function findAke() {
+  const { akeProjectDir, ...rest } = findDir();
+  const paths = [CWD, akeProjectDir]
+    .filter(Boolean)
+    .map((dir) => path.join(dir, "ake"));
+  const akes = [];
+  for (const p of paths) {
+    if (await fs.exists(p)) {
+      akes.push(p);
+    }
+  }
+  if (akes.length >= 2) {
+    exitWithError("you have two ake files, merge it first");
+  }
+  const ake = akes[0];
+  return { ...rest, ake, akeProjectDir };
+}
+
+function findDir() {
+  const { projectDir, projectFullName, akeUniqueName } = akeFindDir();
+  if (!projectDir) {
+    return {};
+  }
+  return {
+    projectDir,
+    projectFullName,
+    akeUniqueName,
+    akeProjectDir: `${AKE_DIR}/${projectFullName}`,
+  };
+}
+
+function checkAkeExists(ake) {
+  if (!ake) {
+    exitWithError(
+      "ake file not found\nUse `ake _init <local | remote>` to create one.",
+    );
+  }
+}
+
+function checkAkeProjectDirExists(akeProjectDir) {
+  if (!akeProjectDir) {
+    exitWithError(`Not inside '<namespace>/<project>' directory`);
+  }
+}
+
+await main();

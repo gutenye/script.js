@@ -8,7 +8,9 @@
   "type": "module",
   "files": ["src", "tsconfig.json", "build", "!**/__tests__"],
   "bin": {
-    "script.js": "src/script.ts"
+    "script.js": "src/script.ts",
+    "a": "src/ake.ts",
+    "akectl": "src/akectl.ts"
   },
   "scripts": {
     "test": "bun test",
