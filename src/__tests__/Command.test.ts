@@ -140,6 +140,30 @@ describe('run()', () => {
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
+  test('appends extra help text from help()', async () => {
+    const c = new Command()
+    c.meta('myapp', 'My app')
+    c.command('build', 'Build project')
+    c.help(`
+Examples:
+  myapp build
+    `)
+
+    const logs: string[] = []
+    const origLog = console.log
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.exit = mockExit
+    await c.run([])
+    console.log = origLog
+    process.exit = origExit
+
+    expect(logs[0]).toContain('Examples:')
+    expect(logs[0]).toContain('myapp build')
+    expect(logs[0]).not.toMatch(/\n\s+$/)
+  })
+
   test('prints help when -h flag is passed', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')

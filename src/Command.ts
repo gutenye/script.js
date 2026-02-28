@@ -10,6 +10,7 @@ export class Command {
   arguments: Argument[] = []
   commands: Command[] = []
   options: Option[] = []
+  #extraHelp?: string
   a = this.add.bind(this)
   cmd = this.command.bind(this)
 
@@ -18,6 +19,11 @@ export class Command {
     this.name = name
     this.aliases = aliases
     this.description = description
+    return this
+  }
+
+  help(text: string) {
+    this.#extraHelp = text.trim()
     return this
   }
 
@@ -132,6 +138,10 @@ export class Command {
           lines.push(`  ${padded}${this.options[i].description || ''}`)
         }
       }
+    }
+    if (this.#extraHelp) {
+      lines.push('')
+      lines.push(this.#extraHelp)
     }
     return lines.join('\n')
   }
