@@ -75,7 +75,7 @@ class Command {
 
   #findCommand(name: string) {
     return this.commands.find(
-      (command) => command.name === name || command.aliases.include(name),
+      (command) => command.name === name || command.aliases.includes(name),
     )
   }
 

@@ -12,6 +12,7 @@ cmd('cmd1 | c1', 'Command 1')
     'unknown',
   ])
   .a('<name>', 'Name')
+  .a('-l | --long')
   .a((ctx) => {
     console.log('cmd')
     $`echo ${ctx.args}`
