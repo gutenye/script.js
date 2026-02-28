@@ -370,5 +370,42 @@ describe('choices validation', () => {
 
     expect(action).toHaveBeenCalledTimes(1)
   })
+
+  test('errors when required option value is missing', async () => {
+    const c = new Command()
+    c.command('run', 'Run')
+      .a('-d | --device <device>', 'Device')
+      .a(() => {})
+
+    const logs: string[] = []
+    const errors: string[] = []
+    const origLog = console.log
+    const origError = console.error
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    console.error = (...args: any[]) => errors.push(args.join(' '))
+    process.exit = mockExit
+    await c.run(['run', '--device'])
+    console.log = origLog
+    console.error = origError
+    process.exit = origExit
+
+    expect(errors[0]).toContain('Missing required value for option')
+    expect(errors[0]).toContain('--device')
+    expect(mockExit).toHaveBeenCalledWith(1)
+  })
+
+  test('passes when required option has value', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('run', 'Run')
+      .a('-d | --device <device>', 'Device')
+      .a(action)
+
+    await c.run(['run', '--device', 'iphone'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
 })
 

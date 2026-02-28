@@ -194,7 +194,9 @@ export class Command {
     options: Record<string, any>,
     context: Context,
   ) {
-    const error = Command.#validateChoices(command, positionals)
+    const error =
+      Command.#validateOptions(command, options) ??
+      Command.#validateChoices(command, positionals)
     if (error) {
       console.log(command.helpText())
       console.error(`\n${error}`)
@@ -210,6 +212,18 @@ export class Command {
 
   #argsText() {
     return this.arguments.map(String).join(' ')
+  }
+
+  static #validateOptions(
+    command: Command,
+    options: Record<string, any>,
+  ): string | null {
+    for (const opt of command.options) {
+      if (opt.required && options[opt.attributeName] == null) {
+        return `Missing required value for option: ${opt}`
+      }
+    }
+    return null
   }
 
   static #validateChoices(
