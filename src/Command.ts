@@ -93,12 +93,13 @@ export class Command {
       lines.push(`Usage: ${name} <command>`)
       lines.push('')
       lines.push('Commands:')
-      const maxLen = Math.max(
-        ...this.commands.map((c) => (c.name || '').length),
+      const labels = this.commands.map((c) =>
+        [c.name, ...c.aliases].sort((a, b) => a.length - b.length).join(', '),
       )
-      for (const cmd of this.commands) {
-        const padded = (cmd.name || '').padEnd(maxLen + 2)
-        lines.push(`  ${padded}${cmd.description || ''}`)
+      const maxLen = Math.max(...labels.map((l) => l.length))
+      for (let i = 0; i < this.commands.length; i++) {
+        const padded = labels[i].padEnd(maxLen + 2)
+        lines.push(`  ${padded}${this.commands[i].description || ''}`)
       }
     } else {
       const args = this.arguments.map((a) =>
