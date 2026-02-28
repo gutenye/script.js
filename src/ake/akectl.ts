@@ -14,7 +14,6 @@ const NAME = 'akectl'
 const ENV = process.env
 
 app.define(NAME)
-// .enableCompletion()
 
 cmd('init', 'Create ake file')
   .a('<place>', 'Place', ['local', 'remote'])

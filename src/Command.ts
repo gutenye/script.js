@@ -37,7 +37,9 @@ export class Command {
     if (command) {
       const commandArgv = argv.slice(1)
       const { positionals, options } = parseArgv(
-        commandArgv, command.arguments, command.options,
+        commandArgv,
+        command.arguments,
+        command.options,
       )
       const context: Context = { args: commandArgv }
       await command.action?.(...positionals, options, context)
@@ -67,7 +69,9 @@ export class Command {
       if (name.startsWith('-')) {
         this.options.push(new Option(name, description, completionOrDefault))
       } else {
-        this.arguments.push(new Argument(name, description, completionOrDefault))
+        this.arguments.push(
+          new Argument(name, description, completionOrDefault),
+        )
       }
     }
 

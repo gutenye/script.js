@@ -1,8 +1,8 @@
 import nodeFs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import type { Command } from './Command'
 import * as yaml from 'yaml'
+import type { Command } from './Command'
 
 export type CompletionValue = string[] | (() => string[])
 
@@ -33,7 +33,7 @@ function resolveCompletion(completion: CompletionValue): string[] {
 }
 
 export function buildSpec(command: Command): CarapaceSpec {
-  const spec: CarapaceSpec = { name: command.name! }
+  const spec: CarapaceSpec = { name: command.name as string }
 
   if (command.description) {
     spec.description = command.description
@@ -101,11 +101,13 @@ function getCarapaceSpecsDir(): string {
     case 'darwin':
       return path.join(homeDir, 'Library/Application Support/carapace/specs')
     case 'win32': {
-      const localAppData = process.env.LOCALAPPDATA || path.join(homeDir, 'AppData/Local')
+      const localAppData =
+        process.env.LOCALAPPDATA || path.join(homeDir, 'AppData/Local')
       return path.join(localAppData, 'carapace/specs')
     }
     default: {
-      const configHome = process.env.XDG_CONFIG_HOME || path.join(homeDir, '.config')
+      const configHome =
+        process.env.XDG_CONFIG_HOME || path.join(homeDir, '.config')
       return path.join(configHome, 'carapace/specs')
     }
   }
@@ -116,7 +118,10 @@ type InstallOptions = {
   specsDir?: string
 }
 
-export async function installCompletion(command: Command, options: InstallOptions = {}) {
+export async function installCompletion(
+  command: Command,
+  options: InstallOptions = {},
+) {
   try {
     if (!command.name && options.scriptPath) {
       const basename = path.basename(options.scriptPath)

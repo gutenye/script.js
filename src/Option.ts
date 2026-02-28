@@ -11,11 +11,15 @@ export class Option {
   completion: string[] | (() => string[])
   defaultValue: any
 
-  constructor(rawFlags: string, description = '', defaultValueOrCompletion: any = undefined) {
+  constructor(
+    rawFlags: string,
+    description = '',
+    defaultValueOrCompletion: any = undefined,
+  ) {
     this.flags = rawFlags
     this.description = description
 
-    const parts = rawFlags.split('|').map(s => s.trim())
+    const parts = rawFlags.split('|').map((s) => s.trim())
     for (const part of parts) {
       if (part.startsWith('--')) {
         this.long = part.split(/\s/)[0]
@@ -44,7 +48,10 @@ export class Option {
       this.attributeName = ''
     }
 
-    if (Array.isArray(defaultValueOrCompletion) || typeof defaultValueOrCompletion === 'function') {
+    if (
+      Array.isArray(defaultValueOrCompletion) ||
+      typeof defaultValueOrCompletion === 'function'
+    ) {
       this.completion = defaultValueOrCompletion
       this.defaultValue = undefined
     } else {
