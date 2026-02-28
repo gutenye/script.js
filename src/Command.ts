@@ -13,7 +13,7 @@ export class Command {
   a = this.add.bind(this)
   cmd = this.command.bind(this)
 
-  define(inputName: string, description = '') {
+  meta(inputName: string, description = '') {
     const { name, aliases } = this.#parseAliases(inputName)
     this.name = name
     this.aliases = aliases

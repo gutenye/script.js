@@ -1,10 +1,10 @@
 import { describe, expect, mock, test } from 'bun:test'
 import { Command, app, cmd } from '../Command'
 
-describe('define()', () => {
+describe('meta()', () => {
   test('sets name and description', () => {
     const c = new Command()
-    c.define('myapp | m', 'My application')
+    c.meta('myapp | m', 'My application')
     expect(c.name).toBe('myapp')
     expect(c.description).toBe('My application')
     expect(c.aliases).toEqual(['m'])
@@ -97,7 +97,7 @@ describe('run()', () => {
 
   test('prints help and error when command not found', async () => {
     const c = new Command()
-    c.define('myapp', 'My app')
+    c.meta('myapp', 'My app')
     c.command('build | b', 'Build project')
 
     const logs: string[] = []
@@ -122,7 +122,7 @@ describe('run()', () => {
 
   test('prints help when no arguments provided', async () => {
     const c = new Command()
-    c.define('myapp', 'My app')
+    c.meta('myapp', 'My app')
     c.command('build | b', 'Build project')
 
     const logs: string[] = []
@@ -142,7 +142,7 @@ describe('run()', () => {
 
   test('prints help when -h flag is passed', async () => {
     const c = new Command()
-    c.define('myapp', 'My app')
+    c.meta('myapp', 'My app')
     c.command('build', 'Build project')
 
     const logs: string[] = []
@@ -162,7 +162,7 @@ describe('run()', () => {
 
   test('prints command help when command -h is passed', async () => {
     const c = new Command()
-    c.define('myapp', 'My app')
+    c.meta('myapp', 'My app')
     c.command('deploy', 'Deploy app')
       .a('<env>', 'Target environment')
       .a('-p | --port <n>', 'Port number')

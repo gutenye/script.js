@@ -13,7 +13,7 @@ import {
 const NAME = 'akectl'
 const ENV = process.env
 
-app.define(NAME)
+app.meta(NAME)
 
 cmd('init', 'Create ake file')
   .a('<place>', 'Place', ['local', 'remote'])
