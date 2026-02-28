@@ -1,3 +1,9 @@
-#!/usr/bin/env bun
+#!/usr/bin/env script.js
 
-console.log("ake-local");
+app
+  .enableAkeCompletion()
+
+app.command('greetings')
+  .action(() => {
+    console.log('greetings')
+  })

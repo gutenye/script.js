@@ -4,7 +4,7 @@ import fs from '../utils/fs'
 const HOME = os.homedir()
 const CWD = process.cwd()
 
-export const STORAGE_DIR = `${HOME}/bin.src/ake.v2`
+export const STORAGE_DIR = `${HOME}/bin.src/ake`
 export const TEMPLATE_NAME = 'template'
 
 export async function findAkeFiles(): Promise<string[]> {
@@ -23,25 +23,15 @@ export async function findAkeFiles(): Promise<string[]> {
 }
 
 export function getRemoteDir() {
-  const name = CWD.replaceAll('/', '_')
-  return `${STORAGE_DIR}/${name}`
+  return `${STORAGE_DIR}/${getUniqueName()}`
 }
 
-// TODO: remove this function
-async function pathExists(path: string) {
-  try {
-    await fs.access(path)
-    return true
-  } catch (error) {
-    if (isNodeError(error) && error.code === 'ENOENT') {
-      return false
-    }
-    throw error
-  }
+export function getCompletionName() {
+  return `ake.${getUniqueName()}`
 }
 
-function isNodeError(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && 'code' in error
+export function getUniqueName() {
+  return CWD.replaceAll('/', '_')
 }
 
 export function exitWithError(message: string, help?: string): never {

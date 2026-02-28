@@ -1,8 +1,14 @@
 import { Command as BaseCommand } from '@gutenye/commander-completion-carapace'
 
-export * from '@gutenye/commander-completion-carapace'
+import { getCompletionName as getAkeCompletionName } from './ake/shared'
 
 export class Command extends BaseCommand {
+  enableAkeCompletion(options = {}) {
+    this.name(getAkeCompletionName())
+    this.enableCompletion(options)
+    return this
+  }
+
   createCommand(name) {
     return new Command(name)
   }
@@ -49,3 +55,5 @@ export class Command extends BaseCommand {
 }
 
 export const program = new Command()
+
+export * from '@gutenye/commander-completion-carapace'

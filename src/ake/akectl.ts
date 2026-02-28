@@ -35,8 +35,23 @@ app
     const templateFile = `${STORAGE_DIR}/${TEMPLATE_NAME}`
     if (await fs.pathExists(templateFile)) {
       await fs.copy(templateFile, target)
+    } else {
+      await fs.writeFile(target, '')
+      await fs.chmod(target, 0o755)
     }
     await openEditor(target)
+  })
+
+app
+  .command('edit')
+  .description('Edit ake file')
+  .action(async () => {
+    const akeFiles = await findAkeFiles()
+    const akeFile = akeFiles[0]
+    if (!akeFile) {
+      exitWithError('No ake file found')
+    }
+    await openEditor(akeFile)
   })
 
 async function openEditor(inputPaths: string | string[], options = {}) {
