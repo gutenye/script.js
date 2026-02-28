@@ -1,4 +1,5 @@
 export class Argument {
+  rawName: string
   name: string
   description: string
   required: boolean
@@ -11,6 +12,7 @@ export class Argument {
     description = '',
     completion: string[] | (() => string[]) = [],
   ) {
+    this.rawName = rawName.trim()
     const { name, required, variadic } = Argument.parseName(rawName)
     this.name = name
     this.required = required
@@ -18,6 +20,10 @@ export class Argument {
     this.description = description
     this.completion = completion
     this.defaultValue = undefined
+  }
+
+  toString() {
+    return this.rawName
   }
 
   static parseName(rawName: string) {

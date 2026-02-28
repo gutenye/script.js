@@ -1,5 +1,5 @@
 export class Option {
-  flags: string
+  rawFlags: string
   short?: string
   long?: string
   description: string
@@ -16,7 +16,7 @@ export class Option {
     description = '',
     defaultValueOrCompletion: any = undefined,
   ) {
-    this.flags = rawFlags
+    this.rawFlags = rawFlags
     this.description = description
 
     const parts = rawFlags.split('|').map((s) => s.trim())
@@ -58,6 +58,10 @@ export class Option {
       this.completion = []
       this.defaultValue = defaultValueOrCompletion
     }
+  }
+
+  toString() {
+    return this.rawFlags.replaceAll('|', ',')
   }
 
   isBoolean() {

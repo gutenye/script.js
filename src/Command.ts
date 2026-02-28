@@ -128,19 +128,21 @@ export class Command {
       lines.push(`Usage: ${name} <command>`)
       lines.push('')
       lines.push('Commands:')
-      const labels = this.commands.map((c) =>
-        [c.name, ...c.aliases].sort((a, b) => a.length - b.length).join(', '),
-      )
+      const labels = this.commands.map((c) => {
+        const names = [c.name, ...c.aliases]
+          .sort((a, b) => a.length - b.length)
+          .join(', ')
+        const args = c.#argsText()
+        return args ? `${names} ${args}` : names
+      })
       const maxLen = Math.max(...labels.map((l) => l.length))
       for (let i = 0; i < this.commands.length; i++) {
         const padded = labels[i].padEnd(maxLen + 2)
         lines.push(`  ${padded}${this.commands[i].description || ''}`)
       }
     } else {
-      const args = this.arguments.map((a) =>
-        a.required ? `<${a.name}>` : `[${a.name}]`,
-      )
-      const usage = [name, ...args].join(' ')
+      const args = this.#argsText()
+      const usage = args ? `${name} ${args}` : name
       lines.push(`Usage: ${usage}`)
       if (this.description) {
         lines.push('')
@@ -158,9 +160,7 @@ export class Command {
       if (this.options.length > 0) {
         lines.push('')
         lines.push('Options:')
-        const flags = this.options.map((o) =>
-          [o.short, o.long].filter(Boolean).join(', '),
-        )
+        const flags = this.options.map(String)
         const maxLen = Math.max(...flags.map((f) => f.length))
         for (let i = 0; i < this.options.length; i++) {
           const padded = flags[i].padEnd(maxLen + 2)
@@ -194,6 +194,10 @@ export class Command {
     }
     args.push(context)
     await command.action?.(...args)
+  }
+
+  #argsText() {
+    return this.arguments.map(String).join(' ')
   }
 
   #findCommand(name: string) {

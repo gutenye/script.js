@@ -123,7 +123,7 @@ describe('run()', () => {
   test('prints help when no arguments provided', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.command('build | b', 'Build project')
+    c.command('build | b', 'Build project').a('<target>')
 
     const logs: string[] = []
     const origLog = console.log
@@ -136,7 +136,7 @@ describe('run()', () => {
     process.exit = origExit
 
     expect(logs[0]).toContain('myapp')
-    expect(logs[0]).toContain('b, build')
+    expect(logs[0]).toContain('b, build <target>')
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
