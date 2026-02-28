@@ -221,6 +221,19 @@ Examples:
     expect(ctx.argv).toEqual([])
   })
 
+  test('falls through to default command when command not found', async () => {
+    const c = new Command()
+    const action = mock()
+    c.command('build', 'Build project')
+    c.command().a(action)
+
+    await c.run(['unknown-cmd', '--foo'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+    const [ctx] = action.mock.calls[0]
+    expect(ctx.argv).toEqual(['unknown-cmd', '--foo'])
+  })
+
   test('passes only context when command has no arguments or options', async () => {
     const c = new Command()
     const action = mock()

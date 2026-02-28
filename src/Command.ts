@@ -53,20 +53,16 @@ export class Command {
     }
     if (!commandName) {
       if (this.#defaultCommand) {
-        const { positionals, options } = parseArgv(
-          argv,
-          this.#defaultCommand.arguments,
-          this.#defaultCommand.options,
-        )
-        const context: Context = { argv }
-        await this.#invokeAction(this.#defaultCommand, positionals, options, context)
-        return
+        return this.#runDefault(argv)
       }
       console.log(this.helpText())
       return process.exit(0)
     }
     const command = this.#findCommand(commandName)
     if (!command) {
+      if (this.#defaultCommand) {
+        return this.#runDefault(argv)
+      }
       console.log(this.helpText())
       console.error(`\nUnknown command: ${commandName}`)
       return process.exit(1)
@@ -166,6 +162,13 @@ export class Command {
       lines.push(this.#extraHelp)
     }
     return lines.join('\n')
+  }
+
+  async #runDefault(argv: string[]) {
+    const cmd = this.#defaultCommand!
+    const { positionals, options } = parseArgv(argv, cmd.arguments, cmd.options)
+    const context: Context = { argv }
+    await this.#invokeAction(cmd, positionals, options, context)
   }
 
   async #invokeAction(
