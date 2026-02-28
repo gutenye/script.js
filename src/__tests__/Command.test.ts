@@ -372,9 +372,7 @@ describe('choices validation', () => {
   test('skips validation for macros like $files', async () => {
     const c = new Command()
     const action = mock()
-    c.command('open', 'Open')
-      .a('<file>', 'File', ['$files'])
-      .a(action)
+    c.command('open', 'Open').a('<file>', 'File', ['$files']).a(action)
 
     await c.run(['open', 'anything.txt'])
 
@@ -396,9 +394,7 @@ describe('choices validation', () => {
   test('skips validation when no choices defined', async () => {
     const c = new Command()
     const action = mock()
-    c.command('open', 'Open')
-      .a('<url>', 'URL')
-      .a(action)
+    c.command('open', 'Open').a('<url>', 'URL').a(action)
 
     await c.run(['open', 'https://example.com'])
 
@@ -433,13 +429,10 @@ describe('choices validation', () => {
   test('passes when required option has value', async () => {
     const c = new Command()
     const action = mock()
-    c.command('run', 'Run')
-      .a('-d | --device <device>', 'Device')
-      .a(action)
+    c.command('run', 'Run').a('-d | --device <device>', 'Device').a(action)
 
     await c.run(['run', '--device', 'iphone'])
 
     expect(action).toHaveBeenCalledTimes(1)
   })
 })
-

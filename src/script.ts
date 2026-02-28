@@ -3,8 +3,8 @@
 import path from 'node:path'
 import { globby } from 'globby'
 import { app, cmd } from './Command'
-import { mixins } from './mixins'
 import { installCompletion } from './completion'
+import { mixins } from './mixins'
 import { $ } from './spawn'
 
 globalThis.$ = $

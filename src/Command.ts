@@ -185,7 +185,7 @@ export class Command {
   }
 
   async #runDefault(argv: string[]) {
-    const cmd = this.#defaultCommand!
+    const cmd = this.#defaultCommand as Command
     const { positionals, options } = parseArgv(argv, cmd.arguments, cmd.options)
     const context: Context = { argv }
     await this.#invokeAction(cmd, positionals, options, context)
@@ -229,17 +229,15 @@ export class Command {
     return null
   }
 
-  static #validateChoices(
-    command: Command,
-    positionals: any[],
-  ): string | null {
+  static #validateChoices(command: Command, positionals: any[]): string | null {
     for (let i = 0; i < command.arguments.length; i++) {
       const arg = command.arguments[i]
       const value = positionals[i]
       if (value == null) continue
       if (typeof arg.completion === 'function') continue
       if (arg.completion.length === 0) continue
-      if (arg.completion.some((c) => c.startsWith('$') || /^[<\[]/.test(c))) continue
+      if (arg.completion.some((c) => c.startsWith('$') || /^[<\[]/.test(c)))
+        continue
       const values = arg.variadic ? value : [value]
       for (const v of values) {
         if (!arg.completion.includes(v)) {
@@ -251,8 +249,7 @@ export class Command {
   }
 
   static #choicesText(completion: string[] | (() => string[])): string {
-    const values =
-      typeof completion === 'function' ? completion() : completion
+    const values = typeof completion === 'function' ? completion() : completion
     if (values.length === 0) return ''
     const text = values.join(', ')
     if (text.length <= 40) return `(${text})`
