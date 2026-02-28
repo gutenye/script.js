@@ -6,7 +6,7 @@ Run script in any directory with autocompletion support
 
 1. Create an ake file
 
-edit `./ake` file
+edit `./ake` file, and make it executable `chmod +x ake`
 
 ```ts
 #!/usr/bin/env script.js
@@ -30,16 +30,15 @@ a greetings   # find the ake file and runs it
 - Follow [guide](./completions) to setup
 
 ```sh
-a <Tab> # uses ./ake file's completion
+a <Tab> # uses ake file's completion
 ```
 
 ## Use a template
 
 Create `~/bin.src/ake/template`
 
-
 ## Put ake file in another location 
 
-```
-akectl init remote # create in remote directory, does not touch current project
+```sh
+akectl init remote # create in ~/bin.src/ake/<dir>
 ```
