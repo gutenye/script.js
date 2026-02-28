@@ -1,4 +1,4 @@
-export const $defaults: {
+const defaults: {
   cwd: string | undefined
   env: Record<string, string> | undefined
 } = {
@@ -24,8 +24,8 @@ class ShellCommand {
         stdout: 'pipe',
         stderr: 'inherit',
       }
-      const cwd = this.#cwd ?? $defaults.cwd
-      const env = this.#env ?? $defaults.env
+      const cwd = this.#cwd ?? defaults.cwd
+      const env = this.#env ?? defaults.env
       if (cwd !== undefined) opts.cwd = cwd
       if (env !== undefined) opts.env = env
       this.#result = Bun.spawnSync(['sh', '-c', this.#command], opts)
@@ -37,8 +37,8 @@ class ShellCommand {
     const opts: Parameters<typeof Bun.spawnSync>[1] = {
       stdio: ['inherit', 'inherit', 'inherit'],
     }
-    const cwd = this.#cwd ?? $defaults.cwd
-    const env = this.#env ?? $defaults.env
+    const cwd = this.#cwd ?? defaults.cwd
+    const env = this.#env ?? defaults.env
     if (cwd !== undefined) opts.cwd = cwd
     if (env !== undefined) opts.env = env
     Bun.spawnSync(['sh', '-c', this.#command], opts)
@@ -65,7 +65,7 @@ class ShellCommand {
 
   text() {
     const { stdout } = this.#pipeExec()
-    return (stdout ?? '').toString()
+    return (stdout ?? '').toString().trim()
   }
 
   json() {
@@ -73,13 +73,20 @@ class ShellCommand {
   }
 
   lines() {
-    return this.text().split('\n').filter(Boolean)
+    const lines = this.text().split('\n')
+    // fix '' issue
+    if (lines.length === 1 && lines[0] === '') {
+      return []
+    } else {
+      // fix '  a\n  b\n' issue, space at start
+      return lines.map((v) => v.trim())
+    }
   }
 
-  // biome-ignore lint/suspicious/noThenProperty: <explanation>
-  then(resolve?: (value: void) => void) {
+  // biome-ignore lint/suspicious/noThenProperty: thenable for await $`cmd`
+  then(resolve?: (value: undefined) => void) {
     this.inheritExec()
-    resolve?.()
+    resolve?.(undefined)
   }
 
   toString() {
@@ -99,10 +106,7 @@ const CAPTURED_PROPS = [
 ]
 const CHAINABLE_PROPS = ['cwd', 'env', 'quiet']
 
-export function $(
-  strings: TemplateStringsArray,
-  ...values: any[]
-): ShellCommand {
+function $tag(strings: TemplateStringsArray, ...values: any[]): ShellCommand {
   const command = buildCommand(strings, values)
   const output = new ShellCommand(command)
 
@@ -135,6 +139,15 @@ export function $(
 
   return proxy
 }
+
+$tag.cwd = (path: string) => {
+  defaults.cwd = path
+}
+$tag.env = (vars: Record<string, string>) => {
+  defaults.env = vars
+}
+
+export { $tag as $ }
 
 function buildCommand(strings: TemplateStringsArray, values: any[]) {
   let result = ''

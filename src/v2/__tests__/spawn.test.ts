@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test'
 import { realpathSync } from 'node:fs'
-import { $, $defaults } from '../spawn'
+import { $ } from '../spawn'
 
 describe('$', () => {
-  test('text() captures stdout', () => {
+  test('text() captures stdout trimmed', () => {
     const result = $`echo hello`.text()
-    expect(result).toBe('hello\n')
+    expect(result).toBe('hello')
   })
 
   test('json() parses stdout as JSON', () => {
@@ -32,7 +32,7 @@ describe('$', () => {
   test('interpolates arrays as separate arguments', () => {
     const args = ['arg 1', 'arg 2']
     const result = $`echo ${args}`.text()
-    expect(result).toBe('arg 1 arg 2\n')
+    expect(result).toBe('arg 1 arg 2')
   })
 })
 
@@ -40,14 +40,16 @@ describe('.cwd()', () => {
   test('sets working directory for command', () => {
     const cwd = realpathSync('/tmp')
     const result = $`pwd`.cwd(cwd).text()
-    expect(result.trim()).toBe(cwd)
+    expect(result).toBe(cwd)
   })
 })
 
 describe('.env()', () => {
   test('sets environment variables for command', () => {
-    const result = $`echo $TEST_VAR`.env({ ...process.env, TEST_VAR: 'hello' }).text()
-    expect(result.trim()).toBe('hello')
+    const result = $`echo $TEST_VAR`
+      .env({ ...process.env, TEST_VAR: 'hello' })
+      .text()
+    expect(result).toBe('hello')
   })
 })
 
@@ -59,31 +61,31 @@ describe('.quiet()', () => {
 
   test('can chain .quiet().text()', () => {
     const result = $`echo quiet`.quiet().text()
-    expect(result).toBe('quiet\n')
+    expect(result).toBe('quiet')
   })
 })
 
-describe('global defaults', () => {
-  test('$defaults.cwd sets default working directory', () => {
-    const prev = $defaults.cwd
-    $defaults.cwd = realpathSync('/tmp')
+describe('$.cwd() / $.env()', () => {
+  test('$.cwd() sets default working directory', () => {
+    const tmp = realpathSync('/tmp')
+    $.cwd(tmp)
     const result = $`pwd`.text()
-    expect(result.trim()).toBe(realpathSync('/tmp'))
-    $defaults.cwd = prev
+    expect(result).toBe(tmp)
+    $.cwd(undefined as any)
   })
 
-  test('$defaults.env sets default environment variables', () => {
-    const prev = $defaults.env
-    $defaults.env = { ...process.env, TEST_GLOBAL: 'global_val' }
+  test('$.env() sets default environment variables', () => {
+    $.env({ ...process.env, TEST_GLOBAL: 'global_val' })
     const result = $`echo $TEST_GLOBAL`.text()
-    expect(result.trim()).toBe('global_val')
-    $defaults.env = prev
+    expect(result).toBe('global_val')
+    $.env(undefined as any)
   })
 
-  test('per-call .cwd() overrides global default', () => {
-    $defaults.cwd = '/var'
-    const result = $`pwd`.cwd(realpathSync('/tmp')).text()
-    expect(result.trim()).toBe(realpathSync('/tmp'))
-    $defaults.cwd = undefined
+  test('per-call .cwd() overrides $.cwd()', () => {
+    $.cwd('/var')
+    const tmp = realpathSync('/tmp')
+    const result = $`pwd`.cwd(tmp).text()
+    expect(result).toBe(tmp)
+    $.cwd(undefined as any)
   })
 })
