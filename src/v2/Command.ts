@@ -1,3 +1,6 @@
+import { Argument } from './Argument'
+import { Option } from './Option'
+
 class Command {
   name?: string
   description?: string
@@ -56,17 +59,9 @@ class Command {
 
       const name = inputName.trim()
       if (name.startsWith('-')) {
-        this.options.push({
-          name,
-          description,
-          completion,
-        })
+        this.options.push(new Option(name, description, completion))
       } else {
-        this.arguments.push({
-          name,
-          description,
-          completion,
-        })
+        this.arguments.push(new Argument(name, description, completion))
       }
     }
 
@@ -95,15 +90,3 @@ export function $(command: string) {
 export const app = new Command()
 
 export const cmd = app.cmd
-
-type Argument = {
-  name: string
-  description: string
-  completion: string[]
-}
-
-type Option = {
-  name: string
-  description: string
-  completion: string[]
-}
