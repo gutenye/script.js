@@ -1,6 +1,17 @@
-class ShellOutput {
+export const $defaults: {
+  cwd: string | undefined
+  env: Record<string, string> | undefined
+} = {
+  cwd: undefined,
+  env: undefined,
+}
+
+class ShellCommand {
   #command: string
   #result: ReturnType<typeof Bun.spawnSync> | undefined
+  #cwd: string | undefined
+  #env: Record<string, string> | undefined
+  #quiet = false
 
   constructor(command: string) {
     this.#command = command
@@ -8,13 +19,44 @@ class ShellOutput {
 
   #exec() {
     if (!this.#result) {
-      this.#result = Bun.spawnSync(['sh', '-c', this.#command], {
+      const opts: Parameters<typeof Bun.spawnSync>[1] = {
         stdin: 'inherit',
         stdout: 'pipe',
         stderr: 'inherit',
-      })
+      }
+      const cwd = this.#cwd ?? $defaults.cwd
+      const env = this.#env ?? $defaults.env
+      if (cwd !== undefined) opts.cwd = cwd
+      if (env !== undefined) opts.env = env
+      this.#result = Bun.spawnSync(['sh', '-c', this.#command], opts)
     }
     return this.#result
+  }
+
+  cwd(path: string) {
+    this.#cwd = path
+    return this
+  }
+
+  env(vars: Record<string, string>) {
+    this.#env = vars
+    return this
+  }
+
+  quiet() {
+    this.#quiet = true
+    return this
+  }
+
+  inheritRun() {
+    const opts: Parameters<typeof Bun.spawnSync>[1] = {
+      stdio: ['inherit', 'inherit', 'inherit'],
+    }
+    const cwd = this.#cwd ?? $defaults.cwd
+    const env = this.#env ?? $defaults.env
+    if (cwd !== undefined) opts.cwd = cwd
+    if (env !== undefined) opts.env = env
+    Bun.spawnSync(['sh', '-c', this.#command], opts)
   }
 
   get exitCode() {
@@ -39,33 +81,40 @@ class ShellOutput {
   }
 }
 
+const CAPTURED_PROPS = ['text', 'json', 'lines', 'exitCode', 'cwd', 'env', 'quiet']
+const CHAINABLE_PROPS = ['cwd', 'env', 'quiet']
+
 export function $(
   strings: TemplateStringsArray,
   ...values: any[]
-): ShellOutput {
+): ShellCommand {
   const command = buildCommand(strings, values)
-  const output = new ShellOutput(command)
+  const output = new ShellCommand(command)
 
   let captured = false
   const proxy = new Proxy(output, {
     get(target, prop, receiver) {
-      if (
-        prop === 'text' ||
-        prop === 'json' ||
-        prop === 'lines' ||
-        prop === 'exitCode'
-      ) {
+      if (CAPTURED_PROPS.includes(prop as string)) {
         captured = true
       }
-      return Reflect.get(target, prop, receiver)
+      const value = Reflect.get(target, prop, target)
+      if (typeof value === 'function') {
+        const bound = value.bind(target)
+        if (CHAINABLE_PROPS.includes(prop as string)) {
+          return (...args: any[]) => {
+            bound(...args)
+            return receiver
+          }
+        }
+        return bound
+      }
+      return value
     },
   })
 
   queueMicrotask(() => {
     if (!captured) {
-      Bun.spawnSync(['sh', '-c', command], {
-        stdio: ['inherit', 'inherit', 'inherit'],
-      })
+      output.inheritRun()
     }
   })
 
