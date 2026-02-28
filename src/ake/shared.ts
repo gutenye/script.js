@@ -1,3 +1,4 @@
+import nodeFs from 'node:fs'
 import os from 'node:os'
 import fs from '../utils/fs'
 
@@ -31,7 +32,8 @@ export function getCompletionName() {
 }
 
 export function getUniqueName() {
-  return CWD.replaceAll('/', '_')
+  // use sync method to avoid using await in app.enableAkeCompletion()
+  return nodeFs.realpathSync(CWD).replaceAll('/', '_')
 }
 
 export function exitWithError(message: string, help?: string): never {
