@@ -1,3 +1,9 @@
+## [2.1.0](https://github.com/gutenye/script.js/compare/v2.0.0...v2.1.0) (2026-03-01)
+
+### Features
+
+* validate required arguments and error on missing values ([9dfdf58](https://github.com/gutenye/script.js/commit/9dfdf588bcad073fd2e24193a890f80491a896b9))
+
 ## [2.0.0](https://github.com/gutenye/script.js/compare/v1.0.1...v2.0.0) (2026-03-01)
 
 ### ⚠ BREAKING CHANGES
