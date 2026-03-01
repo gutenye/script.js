@@ -153,6 +153,18 @@ app.enableCompletion();
 // v2 — removed, completion is built-in
 ```
 
+## `pathExists`
+
+```ts
+// v1
+await fs.pathExists(path)
+
+// v2 — use a local helper
+async function pathExists(p) {
+  try { await fs.access(p); return true } catch { return false }
+}
+```
+
 ## Platform-Specific Actions
 
 ```ts
