@@ -1,3 +1,17 @@
+## [2.0.0](https://github.com/gutenye/script.js/compare/v1.0.1...v2.0.0) (2026-03-01)
+
+### ⚠ BREAKING CHANGES
+
+* Complete rewrite with new API. See docs/Migration.md.
+
+Made-with: Cursor
+
+### Features
+
+* add ake support ([#1](https://github.com/gutenye/script.js/issues/1)) ([e0e8be8](https://github.com/gutenye/script.js/commit/e0e8be85bdfb853d15a7492e2ee5693d66094ca5))
+* support both script.js shebang and direct import usage ([d88478e](https://github.com/gutenye/script.js/commit/d88478e1c2b3408a054fc160fa671d89cfee5b4a))
+* v2 rewrite — remove v1 dependencies ([da21c0e](https://github.com/gutenye/script.js/commit/da21c0eb008b3a222d18346b003b92aecfdcebfb))
+
 ## [1.0.1](https://github.com/gutenye/script.js/compare/v1.0.0...v1.0.1) (2025-09-17)
 
 ### Bug Fixes
