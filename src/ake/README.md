@@ -12,7 +12,7 @@ npm install -g @gutenye/script.js
 
 1. Create an ake file
 
-edit `./ake` file, and make it executable `chmod +x ake`
+Create a `./ake` file, and make it executable `chmod +x ake`
 
 ```ts
 #!/usr/bin/env bun
@@ -47,4 +47,5 @@ Create `~/bin.src/ake/template`
 ```sh
 akectl init local  # create a ake file from template in currenct directory
 akectl init remote  # create in ~/bin.src/ake/<dir>, doesn't touch original project files
+akectl edit # Opens a editor to edit the ake file
 ```
