@@ -4,17 +4,26 @@
 
 ## Start
 
+Install it
+
+```sh
+npm install -g @gutenye/script.js
+```
+
 1. Create an ake file
 
 edit `./ake` file, and make it executable `chmod +x ake`
 
 ```ts
-#!/usr/bin/env script.js
+#!/usr/bin/env bun
 
-app.cmd('greetings')
-  .add(() => {
-    console.log('greetings')
-  })
+import { app, $ } from "@gutenye/script.js";
+
+app.cmd("greetings").add(() => {
+  $`echo greetings`;
+});
+
+await app.run();
 ```
 
 2. Run it
@@ -23,7 +32,7 @@ app.cmd('greetings')
 ake greetings   # find the ake file and runs it
 ```
 
-3. Supports Shell Completion 
+3. Supports Shell Completion
 
 - Follow [guide](./completions) to setup
 
@@ -31,14 +40,11 @@ ake greetings   # find the ake file and runs it
 ake <Tab> # uses ake file's completion
 ```
 
-## Use a template
+## Use a template / another location
 
 Create `~/bin.src/ake/template`
 
-## Put ake file in another location
-
-Doesn't touch original project files
-
 ```sh
-akectl init remote # create in ~/bin.src/ake/<dir>
+akectl init local  # create a ake file from template in currenct directory
+akectl init remote  # create in ~/bin.src/ake/<dir>, doesn't touch original project files
 ```
