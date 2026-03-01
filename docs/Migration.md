@@ -27,8 +27,9 @@ CWD;
 ENV.MY_VAR;
 
 // v2
-const { HOME, PWD } = process.env;
 const ENV = process.env;
+ENV.HOME;
+ENV.PWD;
 const PROJECT_DIR = import.meta.dirname;
 ```
 
