@@ -210,6 +210,7 @@ export class Command {
     context: Context,
   ) {
     const error =
+      Command.#validateRequired(command, positionals) ??
       Command.#validateOptions(command, options) ??
       Command.#validateChoices(command, positionals)
     if (error) {
@@ -227,6 +228,19 @@ export class Command {
 
   #argsText() {
     return this.arguments.map(String).join(' ')
+  }
+
+  static #validateRequired(
+    command: Command,
+    positionals: any[],
+  ): string | null {
+    for (let i = 0; i < command.arguments.length; i++) {
+      const arg = command.arguments[i]
+      if (arg.required && positionals[i] == null) {
+        return `Missing required argument: ${arg.rawName}`
+      }
+    }
+    return null
   }
 
   static #validateOptions(

@@ -432,4 +432,26 @@ describe('choices validation', () => {
 
     expect(action).toHaveBeenCalledTimes(1)
   })
+
+  test('errors when required argument is missing', async () => {
+    const c = new Command()
+    c.cmd('greet', 'Greet').a('<name>', 'Name').a(() => {})
+
+    const logs: string[] = []
+    const errors: string[] = []
+    const origLog = console.log
+    const origError = console.error
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    console.error = (...args: any[]) => errors.push(args.join(' '))
+    process.exit = mockExit
+    await c.parse(['greet'])
+    console.log = origLog
+    console.error = origError
+    process.exit = origExit
+
+    expect(errors[0]).toContain('Missing required argument: <name>')
+    expect(mockExit).toHaveBeenCalledWith(1)
+  })
 })
