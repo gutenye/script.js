@@ -77,7 +77,7 @@ describe('run()', () => {
       .a('-v | --verbose')
       .a(action)
 
-    await c.run(['build', 'production', '-v'])
+    await c.parse(['build', 'production', '-v'])
 
     expect(action).toHaveBeenCalledTimes(1)
     const [target, options, context] = action.mock.calls[0]
@@ -91,7 +91,7 @@ describe('run()', () => {
     const action = mock()
     c.command('build | b', 'Build').a(action)
 
-    await c.run(['b'])
+    await c.parse(['b'])
     expect(action).toHaveBeenCalledTimes(1)
   })
 
@@ -101,7 +101,7 @@ describe('run()', () => {
     const build = c.command('build', 'Build')
     build.command('xcode', 'Build with Xcode').a('<config>').a(action)
 
-    await c.run(['build', 'xcode', 'release'])
+    await c.parse(['build', 'xcode', 'release'])
 
     expect(action).toHaveBeenCalledTimes(1)
     const [config] = action.mock.calls[0]
@@ -120,7 +120,7 @@ describe('run()', () => {
     const mockExit = mock() as any
     console.log = (...args: any[]) => logs.push(args.join(' '))
     process.exit = mockExit
-    await c.run(['build', '-h'])
+    await c.parse(['build', '-h'])
     console.log = origLog
     process.exit = origExit
 
@@ -143,7 +143,7 @@ describe('run()', () => {
     console.log = (...args: any[]) => logs.push(args.join(' '))
     console.error = (...args: any[]) => errors.push(args.join(' '))
     process.exit = mockExit
-    await c.run(['nonexistent'])
+    await c.parse(['nonexistent'])
     console.log = origLog
     console.error = origError
     process.exit = origExit
@@ -165,7 +165,7 @@ describe('run()', () => {
     const mockExit = mock() as any
     console.log = (...args: any[]) => logs.push(args.join(' '))
     process.exit = mockExit
-    await c.run([])
+    await c.parse([])
     console.log = origLog
     process.exit = origExit
 
@@ -189,7 +189,7 @@ Examples:
     const mockExit = mock() as any
     console.log = (...args: any[]) => logs.push(args.join(' '))
     process.exit = mockExit
-    await c.run([])
+    await c.parse([])
     console.log = origLog
     process.exit = origExit
 
@@ -209,7 +209,7 @@ Examples:
     const mockExit = mock() as any
     console.log = (...args: any[]) => logs.push(args.join(' '))
     process.exit = mockExit
-    await c.run(['-h'])
+    await c.parse(['-h'])
     console.log = origLog
     process.exit = origExit
 
@@ -232,7 +232,7 @@ Examples:
     const mockExit = mock() as any
     console.log = (...args: any[]) => logs.push(args.join(' '))
     process.exit = mockExit
-    await c.run(['deploy', '-h'])
+    await c.parse(['deploy', '-h'])
     console.log = origLog
     process.exit = origExit
 
@@ -249,7 +249,7 @@ Examples:
     c.command('build', 'Build project')
     c.command().a(action)
 
-    await c.run([])
+    await c.parse([])
 
     expect(action).toHaveBeenCalledTimes(1)
     const [ctx] = action.mock.calls[0]
@@ -262,7 +262,7 @@ Examples:
     c.command('build', 'Build project')
     c.command().a(action)
 
-    await c.run(['unknown-cmd', '--foo'])
+    await c.parse(['unknown-cmd', '--foo'])
 
     expect(action).toHaveBeenCalledTimes(1)
     const [ctx] = action.mock.calls[0]
@@ -274,7 +274,7 @@ Examples:
     const action = mock()
     c.command('run', 'Run it').a(action)
 
-    await c.run(['run'])
+    await c.parse(['run'])
 
     expect(action).toHaveBeenCalledTimes(1)
     expect(action.mock.calls[0]).toHaveLength(1)
@@ -291,7 +291,7 @@ Examples:
       .a('-p | --port <n>')
       .a(action)
 
-    await c.run(['deploy', 'staging', 'a.js', 'b.js', '--port', '8080'])
+    await c.parse(['deploy', 'staging', 'a.js', 'b.js', '--port', '8080'])
 
     const [env, files, options] = action.mock.calls[0]
     expect(env).toBe('staging')
@@ -347,7 +347,7 @@ describe('choices validation', () => {
     console.log = (...args: any[]) => logs.push(args.join(' '))
     console.error = (...args: any[]) => errors.push(args.join(' '))
     process.exit = mockExit
-    await c.run(['open', 'web'])
+    await c.parse(['open', 'web'])
     console.log = origLog
     console.error = origError
     process.exit = origExit
@@ -364,7 +364,7 @@ describe('choices validation', () => {
       .a('<platform>', 'Platform', ['ios', 'android'])
       .a(action)
 
-    await c.run(['open', 'ios'])
+    await c.parse(['open', 'ios'])
 
     expect(action).toHaveBeenCalledTimes(1)
   })
@@ -374,7 +374,7 @@ describe('choices validation', () => {
     const action = mock()
     c.command('open', 'Open').a('<file>', 'File', ['$files']).a(action)
 
-    await c.run(['open', 'anything.txt'])
+    await c.parse(['open', 'anything.txt'])
 
     expect(action).toHaveBeenCalledTimes(1)
   })
@@ -386,7 +386,7 @@ describe('choices validation', () => {
       .a('<target>', 'Target', () => ['a', 'b'])
       .a(action)
 
-    await c.run(['open', 'c'])
+    await c.parse(['open', 'c'])
 
     expect(action).toHaveBeenCalledTimes(1)
   })
@@ -396,7 +396,7 @@ describe('choices validation', () => {
     const action = mock()
     c.command('open', 'Open').a('<url>', 'URL').a(action)
 
-    await c.run(['open', 'https://example.com'])
+    await c.parse(['open', 'https://example.com'])
 
     expect(action).toHaveBeenCalledTimes(1)
   })
@@ -416,7 +416,7 @@ describe('choices validation', () => {
     console.log = (...args: any[]) => logs.push(args.join(' '))
     console.error = (...args: any[]) => errors.push(args.join(' '))
     process.exit = mockExit
-    await c.run(['run', '--device'])
+    await c.parse(['run', '--device'])
     console.log = origLog
     console.error = origError
     process.exit = origExit
@@ -431,7 +431,7 @@ describe('choices validation', () => {
     const action = mock()
     c.command('run', 'Run').a('-d | --device <device>', 'Device').a(action)
 
-    await c.run(['run', '--device', 'iphone'])
+    await c.parse(['run', '--device', 'iphone'])
 
     expect(action).toHaveBeenCalledTimes(1)
   })

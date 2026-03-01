@@ -1,0 +1,9 @@
+#!/usr/bin/env bun --env-file ''
+
+import { $, app } from "@gutenye/script.js";
+
+app.cmd("greetings").a(() => {
+  console.log("greetings");
+});
+
+await app.run();

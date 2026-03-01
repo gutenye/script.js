@@ -1,5 +1,6 @@
 import { Argument } from './Argument'
 import { Option } from './Option'
+import { installCompletion } from './completion'
 import { parseArgv } from './parseArgv'
 
 export class Command {
@@ -12,8 +13,6 @@ export class Command {
   options: Option[] = []
   #defaultCommand?: Command
   #extraHelp?: string
-  a = this.add.bind(this)
-  cmd = this.command.bind(this)
 
   meta(inputName: string, description = '') {
     const { name, aliases } = this.#parseAliases(inputName)
@@ -31,6 +30,8 @@ export class Command {
     console.log(this.helpText())
   }
 
+  cmd = this.command.bind(this)
+
   command(inputName?: string, description = '') {
     const command = new Command()
     if (inputName) {
@@ -47,7 +48,7 @@ export class Command {
 
   async invoke(text: string, ...args: any[]) {
     if (args.length === 0) {
-      return this.run(text.split(/ +/))
+      return this.parse(text.split(/ +/))
     }
     const command = this.#findCommand(text)
     if (!command) {
@@ -56,7 +57,18 @@ export class Command {
     return command.action?.(...args)
   }
 
-  async run(argv = Bun.argv.slice(2)) {
+  async runViaScriptJs() {
+    installCompletion(this, { scriptPath: Bun.argv[2] })
+    return this.parse(Bun.argv.slice(3))
+  }
+
+  // runViaBun
+  async run() {
+    installCompletion(this, { scriptPath: Bun.main })
+    return this.parse(Bun.argv.slice(2))
+  }
+
+  async parse(argv: string[]) {
     const commandName = argv[0]
     if (commandName === '-h') {
       console.log(this.helpText())
@@ -80,7 +92,7 @@ export class Command {
     }
     const commandArgv = argv.slice(1)
     if (command.commands.length > 0 || command.#defaultCommand) {
-      return command.run(commandArgv)
+      return command.parse(commandArgv)
     }
     if (commandArgv.includes('-h')) {
       console.log(command.helpText())
@@ -94,6 +106,8 @@ export class Command {
     const context: Context = { argv: commandArgv }
     await this.#invokeAction(command, positionals, options, context)
   }
+
+  a = this.add.bind(this)
 
   add(...args: any[]) {
     if (typeof args[0] === 'function') {

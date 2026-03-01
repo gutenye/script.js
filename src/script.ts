@@ -2,7 +2,6 @@
 
 import path from 'node:path'
 import { app } from './Command'
-import { installCompletion } from './completion'
 import { $ } from './spawn'
 
 globalThis.$ = $
@@ -15,5 +14,4 @@ if (!scriptPath) {
 }
 
 await import(path.resolve(scriptPath))
-installCompletion(app, { scriptPath })
-await app.run(Bun.argv.slice(3))
+await app.runViaScriptJs()

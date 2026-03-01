@@ -1,9 +1,0 @@
-#!/usr/bin/env script.js
-
-app
-  .enableAkeCompletion()
-
-app.command('greetings')
-  .action(() => {
-    console.log('greetings')
-  })

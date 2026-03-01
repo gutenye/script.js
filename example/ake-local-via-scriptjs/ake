@@ -1,0 +1,6 @@
+#!/usr/bin/env script.js
+
+app.cmd('greetings')
+  .a(() => {
+    console.log('greetings')
+  })

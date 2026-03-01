@@ -6,6 +6,10 @@
   "license": "MIT",
   "repository": "github:gutenye/script.js",
   "type": "module",
+  "exports": {
+    "bun": "./src/index.ts",
+    "default": "./src/index.ts"
+  },
   "files": ["src", "tsconfig.json", "build", "!**/__tests__"],
   "bin": {
     "script.js": "src/script.ts",
