@@ -6,7 +6,7 @@ The goal is a cleaner syntax, the smallest set of global variables, and using va
 
 **What's new:**
 - Unified `.add()` method for arguments, options, and actions — one method does it all
-- `cmd()` shorthand for defining commands with inline aliases (`cmd('build | b', 'Build')`)
+- `app.cmd()` for defining commands with inline aliases (`app.cmd('build | b', 'Build')`)
 - Built-in argument validation with choices, required option checks, and auto-generated help
 - Default commands, recursive subcommands, `invoke()` for programmatic execution
 - `-h` flag support at every level (app and subcommand)
@@ -55,6 +55,7 @@ app.command('cmd1').alias('c').description('Description')
 
 // v2
 app.meta('hello', 'Description')
+
 app.cmd('cmd1 | c', 'Description')
   .add('<arg>', 'Description')
   .add('-v | --verbose', 'Description')
@@ -168,10 +169,10 @@ The following v1 globals are removed in v2. Use npm packages directly:
 
 | Feature | Example |
 |---------|---------|
-| `cmd()` shorthand | `cmd('build', 'Build')` |
+| `app.cmd()` with aliases | `app.cmd('build \| b', 'Build')` |
 | `.add()` unified API | `.add('<arg>')`, `.add('-v \| --verbose')`, `.add(fn)` |
-| Default command | `cmd().add((ctx) => {})` |
+| Default command | `app.cmd().add((ctx) => {})` |
 | Argument validation | `.add('<platform>', 'Platform', ['ios', 'android'])` |
 | `invoke()` | `await app.invoke('build production')` |
-| Recursive subcommands | `cmd('build').command('xcode', 'Xcode')` |
+| Recursive subcommands | `app.cmd('build').cmd('xcode', 'Xcode')` |
 | `-h` flag | `./app -h`, `./app cmd -h` |

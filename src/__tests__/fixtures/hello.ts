@@ -1,4 +1,4 @@
-cmd('greet', 'Greet someone')
+app.cmd('greet', 'Greet someone')
   .a('<name>', 'Name to greet')
   .a('-u | --uppercase')
   .a((name: string, opts: any) => {

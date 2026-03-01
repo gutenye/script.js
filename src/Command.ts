@@ -271,8 +271,6 @@ export class Command {
 
 export const app = new Command()
 
-export const cmd = app.cmd
-
 type Context = {
   argv: string[]
 }

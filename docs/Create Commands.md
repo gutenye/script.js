@@ -95,7 +95,7 @@ For standalone scripts (not inside a project with `package.json`), just `import`
 import _ from 'lodash-es'
 import chalk from 'chalk'
 
-cmd('greet', 'Say hello')
+app.cmd('greet', 'Say hello')
   .add('<name>')
   .add((name) => {
     console.log(chalk.green(_.capitalize(name)))
@@ -126,7 +126,7 @@ npm install --dev chalk
 
 import chalk from 'chalk'
 
-cmd('build', 'Build project')
+app.cmd('build', 'Build project')
   .add(() => {
     console.log(chalk.blue('Building...'))
   })

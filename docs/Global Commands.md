@@ -43,6 +43,5 @@ $`cat ${files}`                   // cat a.txt b.txt
 
 ```ts
 app      // Command instance for defining CLI metadata and commands
-cmd      // Shorthand for app.cmd()
 $        // Shell command tagged template
 ```

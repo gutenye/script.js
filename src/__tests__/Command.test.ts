@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test'
-import { Command, app, cmd } from '../Command'
+import { Command, app } from '../Command'
 
 describe('meta()', () => {
   test('sets name and description', () => {

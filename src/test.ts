@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 
-import { app, cmd } from './Command'
+import { app } from './Command'
 import { $ } from './spawn'
 
-cmd('cmd1 | c1', 'Command 1')
+app.cmd('cmd1 | c1', 'Command 1')
   .a('<platform>', 'Platform', [
     'ios',
     'android',

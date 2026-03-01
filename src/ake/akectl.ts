@@ -15,7 +15,7 @@ const ENV = process.env
 
 app.meta(NAME)
 
-cmd('init', 'Create ake file')
+app.cmd('init', 'Create ake file')
   .a('<place>', 'Place', ['local', 'remote'])
   .a(async (place: string) => {
     const akeFiles = await findAkeFiles()
@@ -38,7 +38,7 @@ cmd('init', 'Create ake file')
     await openEditor(target)
   })
 
-cmd('edit', 'Edit ake file').a(async () => {
+app.cmd('edit', 'Edit ake file').a(async () => {
   const akeFiles = await findAkeFiles()
   const akeFile = akeFiles[0]
   if (!akeFile) {

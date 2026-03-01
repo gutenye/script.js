@@ -8,7 +8,7 @@ The autocompletion feature in Script.js allows you to add powerful shell autocom
 ```ts
 app.meta('hello')
 
-cmd('cmd1', 'Description')
+app.cmd('cmd1', 'Description')
   .add('[arg1]', 'Description', ['value1', 'value2'])  // complete with choices
   .add('[arg2]', 'Description', ['$files'])             // complete with file names
   .add('[...rest]', 'Description', ['$files'])           // variadic, complete with file names

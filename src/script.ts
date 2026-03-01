@@ -1,13 +1,12 @@
 #!/usr/bin/env bun --env-file ''
 
 import path from 'node:path'
-import { app, cmd } from './Command'
+import { app } from './Command'
 import { installCompletion } from './completion'
 import { $ } from './spawn'
 
 globalThis.$ = $
 globalThis.app = app
-globalThis.cmd = cmd
 
 const scriptPath = Bun.argv[2]
 if (!scriptPath) {
