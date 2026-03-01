@@ -31,7 +31,7 @@ export class Argument {
     const trimmed = rawName.trim()
     const required = trimmed.startsWith('<')
     const variadic = trimmed.includes('...')
-    const inner = trimmed.replace(/[<>\[\]\.]/g, '').trim()
+    const inner = trimmed.replace(/[<>[\].]/g, '').trim()
     const eqIndex = inner.indexOf('=')
     const name = eqIndex !== -1 ? inner.slice(0, eqIndex) : inner
     const defaultValue = eqIndex !== -1 ? inner.slice(eqIndex + 1) : undefined

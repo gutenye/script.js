@@ -1,13 +1,13 @@
 import { Argument } from './Argument'
-import { Option } from './Option'
 import { installCompletion } from './completion'
+import { Option } from './Option'
 import { parseArgv } from './parseArgv'
 
 export class Command {
   name?: string
   description?: string
   aliases: string[] = []
-  action: (...args: any[]) => void | Promise<void>
+  action!: (...args: any[]) => void | Promise<void>
   arguments: Argument[] = []
   commands: Command[] = []
   options: Option[] = []
@@ -66,7 +66,7 @@ export class Command {
     return this.parse(Bun.argv.slice(2))
   }
 
-  async parse(argv: string[]) {
+  async parse(argv: string[]): Promise<void> {
     const commandName = argv[0]
     if (commandName === '-h') {
       console.log(this.helpText())
@@ -145,7 +145,7 @@ export class Command {
       lines.push('Commands:')
       const labels = this.commands.map((c) => {
         const names = [c.name, ...c.aliases]
-          .sort((a, b) => a.length - b.length)
+          .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
           .join(', ')
         const args = c.#argsText()
         return args ? `${names} ${args}` : names
@@ -248,7 +248,7 @@ export class Command {
       if (value == null) continue
       if (typeof arg.completion === 'function') continue
       if (arg.completion.length === 0) continue
-      if (arg.completion.some((c) => c.startsWith('$') || /^[<\[]/.test(c)))
+      if (arg.completion.some((c) => c.startsWith('$') || /^[<[]/.test(c)))
         continue
       const values = arg.variadic ? value : [value]
       for (const v of values) {

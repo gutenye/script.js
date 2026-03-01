@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test'
-import { Command, app } from '../Command'
+import { Command } from '../Command'
 
 describe('meta()', () => {
   test('sets name and description', () => {
@@ -72,10 +72,7 @@ describe('run()', () => {
   test('dispatches to matching command by name', async () => {
     const c = new Command()
     const action = mock()
-    c.cmd('build', 'Build project')
-      .a('<target>')
-      .a('-v | --verbose')
-      .a(action)
+    c.cmd('build', 'Build project').a('<target>').a('-v | --verbose').a(action)
 
     await c.parse(['build', 'production', '-v'])
 

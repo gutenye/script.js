@@ -27,6 +27,7 @@ ENV.MY_VAR
 // v2
 const { HOME, PWD } = process.env
 const ENV = process.env
+const PROJECT_DIR = import.meta.dirname
 ```
 
 ## Shell Commands

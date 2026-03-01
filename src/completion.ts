@@ -2,8 +2,8 @@ import nodeFs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import * as yaml from 'yaml'
-import type { Command } from './Command'
 import { getCompletionName } from './ake/shared'
+import type { Command } from './Command'
 
 export type CompletionValue = string[] | (() => string[])
 

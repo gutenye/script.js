@@ -4,8 +4,8 @@ import path from 'node:path'
 import { app } from './Command'
 import { $ } from './spawn'
 
-globalThis.$ = $
-globalThis.app = app
+;(globalThis as any).$ = $
+;(globalThis as any).app = app
 
 const scriptPath = Bun.argv[2]
 if (!scriptPath) {

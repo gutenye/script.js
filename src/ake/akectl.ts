@@ -3,11 +3,11 @@
 import { castArray } from 'lodash-es'
 import fs from '../utils/fs'
 import {
-  STORAGE_DIR,
-  TEMPLATE_NAME,
   exitWithError,
   findAkeFiles,
   getRemoteDir,
+  STORAGE_DIR,
+  TEMPLATE_NAME,
 } from './shared'
 
 const NAME = 'akectl'
@@ -15,7 +15,8 @@ const ENV = process.env
 
 app.meta(NAME)
 
-app.cmd('init', 'Create ake file')
+app
+  .cmd('init', 'Create ake file')
   .a('<place>', 'Place', ['local', 'remote'])
   .a(async (place: string) => {
     const akeFiles = await findAkeFiles()
@@ -47,7 +48,7 @@ app.cmd('edit', 'Edit ake file').a(async () => {
   await openEditor(akeFile)
 })
 
-async function openEditor(inputPaths: string | string[], options = {}) {
+async function openEditor(inputPaths: string | string[]) {
   const paths = castArray(inputPaths)
   const editor =
     ENV.TERM_PROGRAM === 'vscode'

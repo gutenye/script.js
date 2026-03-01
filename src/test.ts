@@ -3,7 +3,8 @@
 import { app } from './Command'
 import { $ } from './spawn'
 
-app.cmd('cmd1 | c1', 'Command 1')
+app
+  .cmd('cmd1 | c1', 'Command 1')
   .a('<platform>', 'Platform', [
     'ios',
     'android',
@@ -14,7 +15,7 @@ app.cmd('cmd1 | c1', 'Command 1')
   ])
   .a('<name>', 'Name')
   .a('-l | --long')
-  .a(async (platform, options, ctx) => {
+  .a(async (platform: string, options: any, ctx: any) => {
     console.log(platform, options, ctx)
     const name = 'Mike Smith'
     const args = ['arg 1', 'arg 2']

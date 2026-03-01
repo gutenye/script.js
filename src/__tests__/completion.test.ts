@@ -101,10 +101,7 @@ describe('buildSpec()', () => {
   test('passes through $dirs and shell command macros in positionalany', () => {
     const c = new Command()
     c.meta('myapp')
-    c.cmd('run').a('[...targets]', 'Targets', [
-      '$dirs',
-      '$(mycmd _complete)',
-    ])
+    c.cmd('run').a('[...targets]', 'Targets', ['$dirs', '$(mycmd _complete)'])
     const spec = buildSpec(c)
     expect(spec.commands?.[0].completion?.positionalany).toEqual([
       '$dirs',
@@ -115,9 +112,7 @@ describe('buildSpec()', () => {
   test('passes through macros in flag completion', () => {
     const c = new Command()
     c.meta('myapp')
-    c.cmd('build').a('--config <path>', 'Config', [
-      '$files([.json, .yaml])',
-    ])
+    c.cmd('build').a('--config <path>', 'Config', ['$files([.json, .yaml])'])
     const spec = buildSpec(c)
     expect(spec.commands?.[0].completion?.flag).toEqual({
       config: ['$files([.json, .yaml])'],

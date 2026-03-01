@@ -75,7 +75,7 @@ async function inputJson(input: ReadFileArgs[0], options?: ReadFileArgs[1]) {
     return
   }
   try {
-    return JSON.parse(text)
+    return JSON.parse(text as string)
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`[inputJson] ${error.message} from '${input}'`)
@@ -90,7 +90,7 @@ async function inputJson(input: ReadFileArgs[0], options?: ReadFileArgs[1]) {
 async function readJson(input: ReadFileArgs[0], options?: ReadFileArgs[1]) {
   const text = await fs.readFile(cleanPath(input), options)
   try {
-    return JSON.parse(text)
+    return JSON.parse(text as string)
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`[readJson] ${error.message} from '${input}'`)
