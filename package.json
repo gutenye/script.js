@@ -2,7 +2,15 @@
   "name": "@gutenye/script.js",
   "version": "1.1.0",
   "description": "Write shell scripts in JavaScript",
-  "keywords": ["shell", "script", "bash", "exec", "spawn", "zx", "bunshell"],
+  "keywords": [
+    "shell",
+    "script",
+    "bash",
+    "exec",
+    "spawn",
+    "zx",
+    "bunshell"
+  ],
   "license": "MIT",
   "repository": "github:gutenye/script.js",
   "type": "module",
@@ -10,10 +18,16 @@
     "bun": "./src/index.ts",
     "default": "./src/index.ts"
   },
-  "files": ["src", "tsconfig.json", "build", "!**/__tests__"],
+  "files": [
+    "src",
+    "tsconfig.json",
+    "build",
+    "!**/__tests__"
+  ],
   "bin": {
     "script.js": "src/script.ts",
     "a": "src/ake.ts",
+    "ake": "src/ake.ts",
     "akectl": "src/akectl.ts"
   },
   "scripts": {

@@ -20,7 +20,7 @@ app.cmd('greetings')
 2. Run it
 
 ```sh
-a greetings   # find the ake file and runs it
+ake greetings   # find the ake file and runs it
 ```
 
 3. Supports Shell Completion 
@@ -28,7 +28,7 @@ a greetings   # find the ake file and runs it
 - Follow [guide](./completions) to setup
 
 ```sh
-a <Tab> # uses ake file's completion
+ake <Tab> # uses ake file's completion
 ```
 
 ## Use a template
