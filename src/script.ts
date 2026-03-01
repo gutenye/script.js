@@ -1,7 +1,6 @@
 #!/usr/bin/env bun --env-file ''
 
 import path from 'node:path'
-import { globby } from 'globby'
 import { app, cmd } from './Command'
 import { installCompletion } from './completion'
 import { $ } from './spawn'
@@ -9,7 +8,6 @@ import { $ } from './spawn'
 globalThis.$ = $
 globalThis.app = app
 globalThis.cmd = cmd
-globalThis.globby = globby
 
 const scriptPath = Bun.argv[2]
 if (!scriptPath) {

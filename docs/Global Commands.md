@@ -44,14 +44,5 @@ $`cat ${files}`                   // cat a.txt b.txt
 ```ts
 app      // Command instance for defining CLI metadata and commands
 cmd      // Shorthand for app.cmd()
-globby   // Glob matching via the globby package
 $        // Shell command tagged template
-```
-
-## globby
-
-Find files using glob patterns:
-
-```ts
-const files = await globby(['src/**/*.ts', '!**/*.test.ts'])
 ```

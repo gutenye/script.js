@@ -1,6 +1,6 @@
 # Migration from v1 to v2
 
-v2 is a complete rewrite from scratch. It removes heavy dependencies like `commander`, `zx`, `lodash-es`, `chalk`, `csv-parse`, `table`, and `tiny-invariant` — replacing them with a lightweight, custom-built CLI framework that only depends on `globby` and `yaml`.
+v2 is a complete rewrite from scratch. It removes heavy dependencies like `commander`, `zx`, `lodash-es`, `chalk`, `csv-parse`, `table`, and `tiny-invariant` — replacing them with a lightweight, custom-built CLI framework that only depends on `yaml`.
 
 The goal is a cleaner syntax, the smallest set of global variables, and using vanilla JavaScript as much as possible. You should be able to write scripts quickly without looking up documentation — if you know JavaScript, you know the API. Features like `process.env`, `process.platform`, `node:fs/promises`, and template literal `$` are standard JavaScript/Bun patterns, not library-specific abstractions.
 
@@ -127,6 +127,7 @@ mkdir(dir)
 
 // v2 — use globby + node:fs
 import fs from 'node:fs/promises'
+import { globby } from 'globby'
 const files = await globby(['~/*.txt'])
 await fs.cp(source, dest)
 await fs.rename(source, dest)
@@ -172,6 +173,5 @@ The following v1 globals are removed in v2. Use npm packages directly:
 | Default command | `cmd().add((ctx) => {})` |
 | Argument validation | `.add('<platform>', 'Platform', ['ios', 'android'])` |
 | `invoke()` | `await app.invoke('build production')` |
-| `globby` global | `await globby(['src/**/*.ts'])` |
 | Recursive subcommands | `cmd('build').command('xcode', 'Xcode')` |
 | `-h` flag | `./app -h`, `./app cmd -h` |
