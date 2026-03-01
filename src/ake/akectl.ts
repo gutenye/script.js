@@ -4,11 +4,11 @@ import { castArray } from 'lodash-es'
 import fs from '../utils/fs'
 import {
   AKE_FILENAMES,
+  STORAGE_DIR,
+  TEMPLATE_NAME,
   exitWithError,
   findAkeFiles,
   getRemoteDir,
-  STORAGE_DIR,
-  TEMPLATE_NAME,
 } from './shared'
 
 const NAME = 'akectl'

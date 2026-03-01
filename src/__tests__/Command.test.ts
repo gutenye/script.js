@@ -435,7 +435,9 @@ describe('choices validation', () => {
 
   test('errors when required argument is missing', async () => {
     const c = new Command()
-    c.cmd('greet', 'Greet').a('<name>', 'Name').a(() => {})
+    c.cmd('greet', 'Greet')
+      .a('<name>', 'Name')
+      .a(() => {})
 
     const logs: string[] = []
     const errors: string[] = []

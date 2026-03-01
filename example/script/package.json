@@ -1,8 +1,6 @@
 {
   "name": "example",
-  "workspaces": [
-    "pkg1"
-  ],
+  "workspaces": ["pkg1"],
   "dependencies": {
     "pkg1": "workspace:*"
   }
