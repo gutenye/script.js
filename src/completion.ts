@@ -2,7 +2,7 @@ import nodeFs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import * as yaml from 'yaml'
-import { getCompletionName } from './ake/shared'
+import { AKE_FILENAMES, getCompletionName } from './ake/shared'
 import type { Command } from './Command'
 
 export type CompletionValue = string[] | (() => string[])
@@ -126,7 +126,7 @@ export async function installCompletion(
   try {
     if (!command.name && options.scriptPath) {
       const basename = path.basename(options.scriptPath)
-      if (basename === 'ake') {
+      if (AKE_FILENAMES.includes(basename)) {
         command.name = getCompletionName()
       }
     }

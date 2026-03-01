@@ -3,6 +3,7 @@
 import { castArray } from 'lodash-es'
 import fs from '../utils/fs'
 import {
+  AKE_FILENAMES,
   exitWithError,
   findAkeFiles,
   getRemoteDir,
@@ -23,11 +24,11 @@ app
     if (akeFiles.length > 0) {
       exitWithError('Already have an ake file, cannot create a new one')
     }
-    let target = 'ake'
+    let target = AKE_FILENAMES[0]
     if (place === 'remote') {
       const remoteDir = getRemoteDir()
       await fs.mkdirp(remoteDir)
-      target = `${remoteDir}/ake`
+      target = `${remoteDir}/${AKE_FILENAMES[0]}`
     }
     const templateFile = `${STORAGE_DIR}/${TEMPLATE_NAME}`
     if (await fs.pathExists(templateFile)) {

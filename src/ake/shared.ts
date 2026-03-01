@@ -5,6 +5,7 @@ import fs from '../utils/fs'
 const HOME = os.homedir()
 const CWD = process.cwd()
 
+export const AKE_FILENAMES = ['ake', 'ake.ts']
 export const STORAGE_DIR = `${HOME}/bin.src/ake`
 export const TEMPLATE_NAME = 'template'
 
@@ -14,10 +15,12 @@ export async function findAkeFiles(): Promise<string[]> {
   const dirsToCheck = [localDir, remoteDir]
 
   const akeFiles = await Promise.all(
-    dirsToCheck.map(async (dir) => {
-      const akeFile = `${dir}/ake`
-      return (await fs.pathExists(akeFile)) ? akeFile : null
-    }),
+    dirsToCheck.flatMap((dir) =>
+      AKE_FILENAMES.map(async (name) => {
+        const akeFile = `${dir}/${name}`
+        return (await fs.pathExists(akeFile)) ? akeFile : null
+      }),
+    ),
   )
 
   return akeFiles.filter(Boolean) as string[]
