@@ -14,7 +14,7 @@ describe('meta()', () => {
 describe('command()', () => {
   test('creates subcommand and adds to commands list', () => {
     const c = new Command()
-    const sub = c.command('deploy | d', 'Deploy app')
+    const sub = c.cmd('deploy | d', 'Deploy app')
     expect(sub.name).toBe('deploy')
     expect(sub.aliases).toEqual(['d'])
     expect(sub.description).toBe('Deploy app')
@@ -72,7 +72,7 @@ describe('run()', () => {
   test('dispatches to matching command by name', async () => {
     const c = new Command()
     const action = mock()
-    c.command('build', 'Build project')
+    c.cmd('build', 'Build project')
       .a('<target>')
       .a('-v | --verbose')
       .a(action)
@@ -89,7 +89,7 @@ describe('run()', () => {
   test('dispatches to matching command by alias', async () => {
     const c = new Command()
     const action = mock()
-    c.command('build | b', 'Build').a(action)
+    c.cmd('build | b', 'Build').a(action)
 
     await c.parse(['b'])
     expect(action).toHaveBeenCalledTimes(1)
@@ -98,8 +98,8 @@ describe('run()', () => {
   test('dispatches to subcommand', async () => {
     const c = new Command()
     const action = mock()
-    const build = c.command('build', 'Build')
-    build.command('xcode', 'Build with Xcode').a('<config>').a(action)
+    const build = c.cmd('build', 'Build')
+    build.cmd('xcode', 'Build with Xcode').a('<config>').a(action)
 
     await c.parse(['build', 'xcode', 'release'])
 
@@ -110,9 +110,9 @@ describe('run()', () => {
 
   test('prints subcommand help with -h', async () => {
     const c = new Command()
-    const build = c.command('build', 'Build')
-    build.command('xcode', 'Build with Xcode')
-    build.command('gradle', 'Build with Gradle')
+    const build = c.cmd('build', 'Build')
+    build.cmd('xcode', 'Build with Xcode')
+    build.cmd('gradle', 'Build with Gradle')
 
     const logs: string[] = []
     const origLog = console.log
@@ -132,7 +132,7 @@ describe('run()', () => {
   test('prints help and error when command not found', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.command('build | b', 'Build project')
+    c.cmd('build | b', 'Build project')
 
     const logs: string[] = []
     const errors: string[] = []
@@ -157,7 +157,7 @@ describe('run()', () => {
   test('prints help when no arguments provided', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.command('build | b', 'Build project').a('<target>')
+    c.cmd('build | b', 'Build project').a('<target>')
 
     const logs: string[] = []
     const origLog = console.log
@@ -177,7 +177,7 @@ describe('run()', () => {
   test('appends extra help text from help(text)', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.command('build', 'Build project')
+    c.cmd('build', 'Build project')
     c.help(`
 Examples:
   myapp build
@@ -201,7 +201,7 @@ Examples:
   test('prints help when -h flag is passed', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.command('build', 'Build project')
+    c.cmd('build', 'Build project')
 
     const logs: string[] = []
     const origLog = console.log
@@ -221,7 +221,7 @@ Examples:
   test('prints command help when command -h is passed', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.command('deploy', 'Deploy app')
+    c.cmd('deploy', 'Deploy app')
       .a('<env>', 'Target environment', ['staging', 'production'])
       .a('-p | --port <n>', 'Port number')
       .a(() => {})
@@ -246,8 +246,8 @@ Examples:
   test('runs default command when no arguments provided', async () => {
     const c = new Command()
     const action = mock()
-    c.command('build', 'Build project')
-    c.command().a(action)
+    c.cmd('build', 'Build project')
+    c.cmd().a(action)
 
     await c.parse([])
 
@@ -259,8 +259,8 @@ Examples:
   test('falls through to default command when command not found', async () => {
     const c = new Command()
     const action = mock()
-    c.command('build', 'Build project')
-    c.command().a(action)
+    c.cmd('build', 'Build project')
+    c.cmd().a(action)
 
     await c.parse(['unknown-cmd', '--foo'])
 
@@ -272,7 +272,7 @@ Examples:
   test('passes only context when command has no arguments or options', async () => {
     const c = new Command()
     const action = mock()
-    c.command('run', 'Run it').a(action)
+    c.cmd('run', 'Run it').a(action)
 
     await c.parse(['run'])
 
@@ -285,7 +285,7 @@ Examples:
   test('passes parsed positionals and options to action', async () => {
     const c = new Command()
     const action = mock()
-    c.command('deploy', 'Deploy')
+    c.cmd('deploy', 'Deploy')
       .a('<env>')
       .a('[...files]')
       .a('-p | --port <n>')
@@ -304,7 +304,7 @@ describe('invoke()', () => {
   test('parses string as argv and runs command', async () => {
     const c = new Command()
     const action = mock()
-    c.command('build', 'Build').a('<target>').a(action)
+    c.cmd('build', 'Build').a('<target>').a(action)
 
     await c.invoke('build production')
 
@@ -316,7 +316,7 @@ describe('invoke()', () => {
   test('calls command action directly with args', async () => {
     const c = new Command()
     const action = mock()
-    c.command('build', 'Build').a(action)
+    c.cmd('build', 'Build').a(action)
 
     await c.invoke('build', 'arg1', 'arg2')
 
@@ -334,7 +334,7 @@ describe('invoke()', () => {
 describe('choices validation', () => {
   test('errors when value not in choices', async () => {
     const c = new Command()
-    c.command('open', 'Open')
+    c.cmd('open', 'Open')
       .a('<platform>', 'Platform', ['ios', 'android'])
       .a(() => {})
 
@@ -360,7 +360,7 @@ describe('choices validation', () => {
   test('passes when value is in choices', async () => {
     const c = new Command()
     const action = mock()
-    c.command('open', 'Open')
+    c.cmd('open', 'Open')
       .a('<platform>', 'Platform', ['ios', 'android'])
       .a(action)
 
@@ -372,7 +372,7 @@ describe('choices validation', () => {
   test('skips validation for macros like $files', async () => {
     const c = new Command()
     const action = mock()
-    c.command('open', 'Open').a('<file>', 'File', ['$files']).a(action)
+    c.cmd('open', 'Open').a('<file>', 'File', ['$files']).a(action)
 
     await c.parse(['open', 'anything.txt'])
 
@@ -382,7 +382,7 @@ describe('choices validation', () => {
   test('skips validation for function completions', async () => {
     const c = new Command()
     const action = mock()
-    c.command('open', 'Open')
+    c.cmd('open', 'Open')
       .a('<target>', 'Target', () => ['a', 'b'])
       .a(action)
 
@@ -394,7 +394,7 @@ describe('choices validation', () => {
   test('skips validation when no choices defined', async () => {
     const c = new Command()
     const action = mock()
-    c.command('open', 'Open').a('<url>', 'URL').a(action)
+    c.cmd('open', 'Open').a('<url>', 'URL').a(action)
 
     await c.parse(['open', 'https://example.com'])
 
@@ -403,7 +403,7 @@ describe('choices validation', () => {
 
   test('errors when required option value is missing', async () => {
     const c = new Command()
-    c.command('run', 'Run')
+    c.cmd('run', 'Run')
       .a('-d | --device <device>', 'Device')
       .a(() => {})
 
@@ -429,7 +429,7 @@ describe('choices validation', () => {
   test('passes when required option has value', async () => {
     const c = new Command()
     const action = mock()
-    c.command('run', 'Run').a('-d | --device <device>', 'Device').a(action)
+    c.cmd('run', 'Run').a('-d | --device <device>', 'Device').a(action)
 
     await c.parse(['run', '--device', 'iphone'])
 

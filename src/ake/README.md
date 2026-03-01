@@ -11,10 +11,8 @@ edit `./ake` file, and make it executable `chmod +x ake`
 ```ts
 #!/usr/bin/env script.js
 
-app.enableAkeCompletion()
-
-app.command('greetings')
-  action(() => {
+app.cmd('greetings')
+  .add(() => {
     console.log('greetings')
   })
 ```

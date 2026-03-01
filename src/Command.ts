@@ -30,9 +30,7 @@ export class Command {
     console.log(this.helpText())
   }
 
-  cmd = this.command.bind(this)
-
-  command(inputName?: string, description = '') {
+  cmd(inputName?: string, description = '') {
     const command = new Command()
     if (inputName) {
       const { name, aliases } = this.#parseAliases(inputName)
