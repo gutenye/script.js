@@ -32,31 +32,33 @@ npm install -g @gutenye/script.js
 ```ts
 #!/usr/bin/env script.js
 
-app.meta('hello')
+app.meta("hello");
 
-app.cmd('greetings', 'Say hello')
-  .add('[...files]', 'Files', ['$files'])
+app
+  .cmd("greetings", "Say hello")
+  .add("[...files]", "Files", ["$files"])
   .add((files, ctx) => {
-    $`ls -l ${files}`
-  })
+    $`ls -l ${files}`;
+  });
 ```
 
 **Via import** — use as a library in any Bun script:
 
 ```ts
-#!/usr/bin/env bun --env-file ''
+#!/usr/bin/env bun
 
-import { app, $ } from '@gutenye/script.js'
+import { app, $ } from "@gutenye/script.js";
 
-app.meta('hello')
+app.meta("hello");
 
-app.cmd('greetings', 'Say hello')
-  .add('[...files]', 'Files', ['$files'])
+app
+  .cmd("greetings", "Say hello")
+  .add("[...files]", "Files", ["$files"])
   .add((files, ctx) => {
-    $`ls -l ${files}`
-  })
+    $`ls -l ${files}`;
+  });
 
-await app.run()
+await app.run();
 ```
 
 ### 3. Run the script
