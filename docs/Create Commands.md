@@ -83,10 +83,61 @@ await app.invoke('cmd1 arg1 --verbose')
 await app.invoke('cmd1', arg1, arg2)
 ```
 
-## Mixins
+## Using Shared Scripts & Node Modules
 
-Load shared command modules from `~/bin.src/mixins/`:
+### Standalone Scripts
+
+For standalone scripts (not inside a project with `package.json`), just `import` any npm package. Bun auto-installs missing dependencies on first run:
 
 ```ts
-await mixins('mobile', 'exodus.link')
+#!/usr/bin/env script.js
+
+import _ from 'lodash-es'
+import chalk from 'chalk'
+
+cmd('greet', 'Say hello')
+  .add('<name>')
+  .add((name) => {
+    console.log(chalk.green(_.capitalize(name)))
+  })
+```
+
+No `npm install` needed — Bun resolves and caches the package automatically.
+
+### Shared Scripts
+
+To reuse scripts across multiple commands, use standard `import` with the full path:
+
+```ts
+import '/Users/<user>/bin.src/mixins/mobile'
+import '/Users/<user>/bin.src/mixins/exodus.link'
+```
+
+### Project Scripts
+
+For scripts inside a project directory (with `package.json`), add dependencies as dev dependencies. The script can use all deps in your project:
+
+```sh
+npm install --dev chalk
+```
+
+```ts
+#!/usr/bin/env script.js
+
+import chalk from 'chalk'
+
+cmd('build', 'Build project')
+  .add(() => {
+    console.log(chalk.blue('Building...'))
+  })
+```
+
+### Node Built-ins
+
+Node built-in modules are always available:
+
+```ts
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import os from 'node:os'
 ```

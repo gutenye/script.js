@@ -134,6 +134,19 @@ await fs.rm(dir, { recursive: true })
 await fs.mkdir(dir, { recursive: true })
 ```
 
+## Mixins
+
+```ts
+// v1
+await mixins('mobile', 'exodus.link')
+
+// v2 — use standard imports with full paths
+import '/Users/<user>/bin.src/mixins/mobile'
+import '/Users/<user>/bin.src/mixins/exodus.link'
+```
+
+The `mixins()` global is removed. Use standard `import` with the full path instead. This is simpler, gives you IDE autocomplete and type checking, and follows standard JavaScript conventions.
+
 ## Removed Globals
 
 The following v1 globals are removed in v2. Use npm packages directly:
@@ -148,6 +161,7 @@ The following v1 globals are removed in v2. Use npm packages directly:
 | `fs`, `nodePath` | `import fs from 'node:fs/promises'` |
 | `$t`, `$l` | `$\`cmd\`.text()`, `$\`cmd\`.lines()` |
 | `exitWithError` | inline `console.error` + `process.exit(1)` |
+| `mixins()` | `import '/full/path/to/mixin'` |
 
 ## New in v2
 
@@ -159,6 +173,5 @@ The following v1 globals are removed in v2. Use npm packages directly:
 | Argument validation | `.add('<platform>', 'Platform', ['ios', 'android'])` |
 | `invoke()` | `await app.invoke('build production')` |
 | `globby` global | `await globby(['src/**/*.ts'])` |
-| `mixins()` | `await mixins('mobile', 'exodus.link')` |
 | Recursive subcommands | `cmd('build').command('xcode', 'Xcode')` |
 | `-h` flag | `./app -h`, `./app cmd -h` |

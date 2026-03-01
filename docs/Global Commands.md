@@ -44,7 +44,6 @@ $`cat ${files}`                   // cat a.txt b.txt
 ```ts
 app      // Command instance for defining CLI metadata and commands
 cmd      // Shorthand for app.cmd()
-mixins   // Load shared command modules from ~/bin.src/mixins/
 globby   // Glob matching via the globby package
 $        // Shell command tagged template
 ```

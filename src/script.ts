@@ -4,13 +4,11 @@ import path from 'node:path'
 import { globby } from 'globby'
 import { app, cmd } from './Command'
 import { installCompletion } from './completion'
-import { mixins } from './mixins'
 import { $ } from './spawn'
 
 globalThis.$ = $
 globalThis.app = app
 globalThis.cmd = cmd
-globalThis.mixins = mixins
 globalThis.globby = globby
 
 const scriptPath = Bun.argv[2]

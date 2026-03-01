@@ -53,7 +53,7 @@ chmod +x hello         # Make the script executable
 
 ## Documentation
 
-- [Create Commands](./docs/Create%20Commands.md): Create commands and subcommands
+- [Create Commands](./docs/Create%20Commands.md): Create commands, subcommands, and manage dependencies
 - [Completion](./docs/Completion.md): Customize the autocompletion
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
 - [Ake](./src/ake): A task runner supports shell autocompletion
