@@ -1,3 +1,9 @@
+## [2.2.0](https://github.com/gutenye/script.js/compare/v2.1.0...v2.2.0) (2026-03-01)
+
+### Features
+
+* support ake.ts as an ake filename ([fcd0fb4](https://github.com/gutenye/script.js/commit/fcd0fb4882dd6c447a66c7aa7b1c0b2ed3bc75fa))
+
 ## [2.1.0](https://github.com/gutenye/script.js/compare/v2.0.0...v2.1.0) (2026-03-01)
 
 ### Features
