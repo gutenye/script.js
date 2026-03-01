@@ -29,11 +29,5 @@
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
-  },
-  "files": {},
-  "assist": {
-    "actions": {
-      "recommended": true
-    }
   }
 }
