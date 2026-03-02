@@ -5,6 +5,7 @@
     "": {
       "name": "@gutenye/script.js",
       "dependencies": {
+        "@gutenye/script.js": "^2.3.0",
         "yaml": "^2.6.0",
       },
       "devDependencies": {
@@ -53,6 +54,8 @@
     "@colors/colors": ["@colors/colors@1.5.0", "", {}, "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ=="],
 
     "@fastify/busboy": ["@fastify/busboy@2.1.1", "", {}, "sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA=="],
+
+    "@gutenye/script.js": ["@gutenye/script.js@2.3.0", "", { "dependencies": { "yaml": "^2.6.0" }, "peerDependencies": { "typescript": "^5.7.2" }, "bin": { "script.js": "src/script.ts", "a": "src/ake.ts", "ake": "src/ake.ts", "akectl": "src/akectl.ts" } }, "sha512-hAOHckdmQ3BuwtqO9DLlim5hoA2E4ORrv/KvgffpBpU/UuFc2oInCrHeSmqvUtMOgudoJl1aIA9nx6ZsdA1Sxw=="],
 
     "@octokit/auth-token": ["@octokit/auth-token@6.0.0", "", {}, "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="],
 
