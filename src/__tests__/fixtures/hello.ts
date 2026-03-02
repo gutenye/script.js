@@ -1,8 +1,8 @@
 app
   .cmd('greet', 'Greet someone')
-  .a('<name>', 'Name to greet')
-  .a('-u | --uppercase')
-  .a((name: string, opts: any) => {
+  .add('<name>', 'Name to greet')
+  .add('-u | --uppercase')
+  .add((name: string, opts: any) => {
     if (opts.uppercase) {
       console.log(`HELLO ${name.toUpperCase()}`)
     } else {

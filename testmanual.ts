@@ -2,9 +2,9 @@
 
 app
   .cmd('greet | g', 'Greet someone')
-  .a('<name>', 'Name to greet', ['John', 'Mike'])
-  .a('-u | --uppercase')
-  .a((name: string, options: any, context: any) => {
+  .add('<name>', 'Name to greet', ['John', 'Mike'])
+  .add('-u | --uppercase')
+  .add((name: string, options: any, context: any) => {
     console.log({
       name,
       options,

@@ -5,7 +5,7 @@ import { $ } from './spawn'
 
 app
   .cmd('cmd1 | c1', 'Command 1')
-  .a('<platform>', 'Platform', [
+  .add('<platform>', 'Platform', [
     'ios',
     'android',
     'windows',
@@ -13,9 +13,9 @@ app
     'linux',
     'unknown',
   ])
-  .a('<name>', 'Name')
-  .a('-l | --long')
-  .a(async (platform: string, options: any, ctx: any) => {
+  .add('<name>', 'Name')
+  .add('-l | --long')
+  .add(async (platform: string, options: any, ctx: any) => {
     console.log(platform, options, ctx)
     const name = 'Mike Smith'
     const args = ['arg 1', 'arg 2']

@@ -18,8 +18,8 @@ app.meta(NAME)
 
 app
   .cmd('init', 'Create ake file')
-  .a('<place>', 'Place', ['local', 'remote'])
-  .a(async (place: string) => {
+  .add('<place>', 'Place', ['local', 'remote'])
+  .add(async (place: string) => {
     const akeFiles = await findAkeFiles()
     if (akeFiles.length > 0) {
       exitWithError('Already have an ake file, cannot create a new one')
@@ -40,7 +40,7 @@ app
     await openEditor(target)
   })
 
-app.cmd('edit', 'Edit ake file').a(async () => {
+app.cmd('edit', 'Edit ake file').add(async () => {
   const akeFiles = await findAkeFiles()
   const akeFile = akeFiles[0]
   if (!akeFile) {

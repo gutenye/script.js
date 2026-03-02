@@ -105,8 +105,6 @@ export class Command {
     await this.#invokeAction(command, positionals, options, context)
   }
 
-  a = this.add.bind(this)
-
   add(...args: any[]) {
     if (typeof args[0] === 'function') {
       this.action = args[0]
@@ -116,7 +114,7 @@ export class Command {
       if (typeof description !== 'string') {
         if (completionOrDefault) {
           throw new Error(
-            'Invalid third argument, should be a(name, description, completion) format',
+            'Invalid third argument, should be add(name, description, completion) format',
           )
         }
         completionOrDefault = description
