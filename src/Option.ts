@@ -10,6 +10,7 @@ export class Option {
   attributeName: string
   completion: string[] | (() => string[])
   defaultValue: any
+  inlineDefaultValue?: string
 
   constructor(
     rawFlags: string,
@@ -38,6 +39,11 @@ export class Option {
     this.variadic = rawFlags.includes('...')
     this.negate = this.long?.startsWith('--no-') ?? false
 
+    const inlineDefaultMatch = rawFlags.match(/\[[\w.]+=(.*?)\]/)
+    if (inlineDefaultMatch) {
+      this.inlineDefaultValue = inlineDefaultMatch[1]
+    }
+
     if (this.long) {
       let key = this.long.replace(/^--/, '')
       if (this.negate) key = key.replace(/^no-/, '')
@@ -53,10 +59,10 @@ export class Option {
       typeof defaultValueOrCompletion === 'function'
     ) {
       this.completion = defaultValueOrCompletion
-      this.defaultValue = undefined
+      this.defaultValue = this.inlineDefaultValue
     } else {
       this.completion = []
-      this.defaultValue = defaultValueOrCompletion
+      this.defaultValue = defaultValueOrCompletion ?? this.inlineDefaultValue
     }
   }
 

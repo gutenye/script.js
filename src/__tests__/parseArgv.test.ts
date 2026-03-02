@@ -88,6 +88,12 @@ describe('parseArgv', () => {
     expect(result.options.output).toBe('default.txt')
   })
 
+  test('uses inline default from [value=default] when option absent', () => {
+    const opts = [new Option('-o | --output [file=out.txt]')]
+    const result = parseArgv([], [], opts)
+    expect(result.options.output).toBe('out.txt')
+  })
+
   test('mixes positionals and options', () => {
     const args = [new Argument('<dir>')]
     const opts = [new Option('-v | --verbose'), new Option('-p | --port <n>')]

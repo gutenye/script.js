@@ -64,6 +64,17 @@ describe('Option', () => {
     expect(opt.attributeName).toBe('stringA')
   })
 
+  test('parses inline default from [value=default]', () => {
+    const opt = new Option('--output [file=out.txt]')
+    expect(opt.optional).toBe(true)
+    expect(opt.defaultValue).toBe('out.txt')
+  })
+
+  test('inline default is overridden by explicit default', () => {
+    const opt = new Option('--output [file=out.txt]', '', 'override.txt')
+    expect(opt.defaultValue).toBe('override.txt')
+  })
+
   test('stores description and default', () => {
     const opt = new Option('-o | --output [file]', 'Output file', 'out.txt')
     expect(opt.description).toBe('Output file')
