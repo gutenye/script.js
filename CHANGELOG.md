@@ -1,3 +1,9 @@
+## [2.3.0](https://github.com/gutenye/script.js/compare/v2.2.0...v2.3.0) (2026-03-02)
+
+### Features
+
+* support inline default values in option syntax `[value=default]` ([bcb4d5d](https://github.com/gutenye/script.js/commit/bcb4d5d2d363d14a5533e384dc62411f8fd9ee03))
+
 ## [2.2.0](https://github.com/gutenye/script.js/compare/v2.1.0...v2.2.0) (2026-03-01)
 
 ### Features
