@@ -1,3 +1,9 @@
+## [2.6.0](https://github.com/gutenye/script.js/compare/v2.5.0...v2.6.0) (2026-03-03)
+
+### Features
+
+* **completion:** log when spec file is updated ([5ca68c4](https://github.com/gutenye/script.js/commit/5ca68c4d1a71834d63d959c678f5a48de346549f))
+
 ## [2.5.0](https://github.com/gutenye/script.js/compare/v2.4.0...v2.5.0) (2026-03-03)
 
 ### Features
