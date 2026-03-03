@@ -15,3 +15,6 @@ end
 _setup_ake_complete ake
 # _setup_ake_complete ake <suffix>
 
+# for c in (string split '' abcdefghijklmnopqrstuvwxyz)
+# 	_setup_ake_complete ake $c
+# end
