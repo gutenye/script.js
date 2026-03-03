@@ -1,3 +1,9 @@
+## [2.5.0](https://github.com/gutenye/script.js/compare/v2.4.0...v2.5.0) (2026-03-03)
+
+### Features
+
+* **ake:** add install-bin command and SUFFIX env var support ([7f25ab4](https://github.com/gutenye/script.js/commit/7f25ab4ca57a91138077f996b2f1db0e60a8992a))
+
 ## [2.4.0](https://github.com/gutenye/script.js/compare/v2.3.0...v2.4.0) (2026-03-03)
 
 ### Features
