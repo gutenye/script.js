@@ -146,6 +146,7 @@ export async function installCompletion(
 
     fsSync.mkdirSync(specsDir, { recursive: true })
     fsSync.writeFileSync(filePath, result.text)
+    console.log(`Updated completion spec: ${filePath}`)
   } catch {
     // completion is supplementary — silently ignore errors
   }
