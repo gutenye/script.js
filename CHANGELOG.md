@@ -1,3 +1,9 @@
+## [2.4.0](https://github.com/gutenye/script.js/compare/v2.3.0...v2.4.0) (2026-03-03)
+
+### Features
+
+* support multiple ake files with arbitrary suffixes (akefoo, akea, etc.) ([9ae45de](https://github.com/gutenye/script.js/commit/9ae45deea75c1d0a0026aa5b755e68f01d01f90d))
+
 ## [2.3.0](https://github.com/gutenye/script.js/compare/v2.2.0...v2.3.0) (2026-03-02)
 
 ### Features
