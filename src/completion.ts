@@ -1,9 +1,9 @@
-import nodeFs from 'node:fs'
+import fsSync from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import * as yaml from 'yaml'
 import type { Command } from './Command'
-import { AKE_FILENAMES, getCompletionName } from './ake/shared'
+import { getAkeSuffix, getCompletionName } from './ake/shared'
 
 export type CompletionValue = string[] | (() => string[])
 
@@ -125,9 +125,9 @@ export async function installCompletion(
 ) {
   try {
     if (!command.name && options.scriptPath) {
-      const basename = path.basename(options.scriptPath)
-      if (AKE_FILENAMES.includes(basename)) {
-        command.name = getCompletionName()
+      const suffix = getAkeSuffix(path.basename(options.scriptPath))
+      if (suffix !== null) {
+        command.name = getCompletionName(suffix)
       }
     }
 
@@ -139,13 +139,13 @@ export async function installCompletion(
 
     let existing: string | undefined
     try {
-      existing = nodeFs.readFileSync(filePath, 'utf8')
+      existing = fsSync.readFileSync(filePath, 'utf8')
     } catch {}
 
     if (existing === result.text) return
 
-    nodeFs.mkdirSync(specsDir, { recursive: true })
-    nodeFs.writeFileSync(filePath, result.text)
+    fsSync.mkdirSync(specsDir, { recursive: true })
+    fsSync.writeFileSync(filePath, result.text)
   } catch {
     // completion is supplementary — silently ignore errors
   }

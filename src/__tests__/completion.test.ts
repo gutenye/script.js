@@ -203,4 +203,16 @@ describe('installCompletion()', () => {
     expect(files.length).toBe(1)
     expect(files[0]).toMatch(/^ake\..*\.yaml$/)
   })
+
+  test('auto-names suffixed ake scripts from scriptPath', async () => {
+    const c = new Command()
+    c.cmd('build', 'Build')
+    await installCompletion(c, {
+      specsDir: tmpDir,
+      scriptPath: '/some/path/akefoo',
+    })
+    const files = fs.readdirSync(tmpDir)
+    expect(files.length).toBe(1)
+    expect(files[0]).toMatch(/^akefoo\..*\.yaml$/)
+  })
 })

@@ -1,22 +1,38 @@
-import nodeFs from 'node:fs'
+import fsSync from 'node:fs'
+import path from 'node:path'
 import os from 'node:os'
 import fs from '../utils/fs'
 
 const HOME = os.homedir()
 const CWD = process.cwd()
 
-export const AKE_FILENAMES = ['ake', 'ake.ts']
 export const STORAGE_DIR = `${HOME}/bin.src/ake`
 export const TEMPLATE_NAME = 'template'
 
-export async function findAkeFiles(): Promise<string[]> {
+export function getAkeFilenames(suffix = ''): string[] {
+  const name = `ake${suffix}`
+  return [name, `${name}.ts`]
+}
+
+export function getAkeSuffix(name: string): string | null {
+  const base = name.replace(/\.ts$/, '')
+  if (!base.startsWith('ake') || base === 'akectl') return null
+  return base.slice(3)
+}
+
+export function getSuffix(): string {
+  return getAkeSuffix(path.basename(process.argv[1])) ?? ''
+}
+
+export async function findAkeFiles(suffix = ''): Promise<string[]> {
+  const filenames = getAkeFilenames(suffix)
   const localDir = CWD
   const remoteDir = getRemoteDir()
   const dirsToCheck = [localDir, remoteDir]
 
   const akeFiles = await Promise.all(
     dirsToCheck.flatMap((dir) =>
-      AKE_FILENAMES.map(async (name) => {
+      filenames.map(async (name) => {
         const akeFile = `${dir}/${name}`
         return (await fs.pathExists(akeFile)) ? akeFile : null
       }),
@@ -30,13 +46,13 @@ export function getRemoteDir() {
   return `${STORAGE_DIR}/${getUniqueName()}`
 }
 
-export function getCompletionName() {
-  return `ake.${getUniqueName()}`
+export function getCompletionName(suffix = '') {
+  return `ake${suffix}.${getUniqueName()}`
 }
 
 export function getUniqueName() {
   // use sync method to avoid using await in app.enableAkeCompletion()
-  return nodeFs.realpathSync(CWD).replaceAll('/', '_')
+  return fsSync.realpathSync(CWD).replaceAll('/', '_')
 }
 
 export function exitWithError(message: string, help?: string): never {

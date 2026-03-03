@@ -3,11 +3,11 @@
 import { castArray } from 'lodash-es'
 import fs from '../utils/fs'
 import {
-  AKE_FILENAMES,
   STORAGE_DIR,
   TEMPLATE_NAME,
   exitWithError,
   findAkeFiles,
+  getAkeFilenames,
   getRemoteDir,
 } from './shared'
 
@@ -19,16 +19,19 @@ app.meta(NAME)
 app
   .cmd('init', 'Create ake file')
   .add('<place>', 'Place', ['local', 'remote'])
-  .add(async (place: string) => {
-    const akeFiles = await findAkeFiles()
+  .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
+  .add(async (place: string, suffix: string) => {
+    suffix = suffix ?? ''
+    const akeFiles = await findAkeFiles(suffix)
     if (akeFiles.length > 0) {
       exitWithError('Already have an ake file, cannot create a new one')
     }
-    let target = AKE_FILENAMES[0]
+    const filenames = getAkeFilenames(suffix)
+    let target = filenames[0]
     if (place === 'remote') {
       const remoteDir = getRemoteDir()
       await fs.mkdirp(remoteDir)
-      target = `${remoteDir}/${AKE_FILENAMES[0]}`
+      target = `${remoteDir}/${filenames[0]}`
     }
     const templateFile = `${STORAGE_DIR}/${TEMPLATE_NAME}`
     if (await fs.pathExists(templateFile)) {
@@ -40,14 +43,19 @@ app
     await openEditor(target)
   })
 
-app.cmd('edit', 'Edit ake file').add(async () => {
-  const akeFiles = await findAkeFiles()
-  const akeFile = akeFiles[0]
-  if (!akeFile) {
-    exitWithError('No ake file found')
-  }
-  await openEditor(akeFile)
-})
+app
+  .cmd('edit', 'Edit ake file')
+  .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
+  .add(async (suffix: string) => {
+    suffix = suffix ?? ''
+    const akeFiles = await findAkeFiles(suffix)
+    const akeFile = akeFiles[0]
+    if (!akeFile) {
+      const name = `ake${suffix}`
+      exitWithError(`${name} file not found`)
+    }
+    await openEditor(akeFile)
+  })
 
 async function openEditor(inputPaths: string | string[]) {
   const paths = castArray(inputPaths)

@@ -22,14 +22,14 @@ bun run lint:ci       # CI lint with GitHub reporter
 
 ### Core modules
 
-| File | Purpose |
-|------|---------|
-| `Command.ts` | CLI command tree — subcommands, args, options, actions |
-| `Argument.ts` | Positional arg parsing (`<required>`, `[optional]`, `[...variadic]`) |
-| `Option.ts` | Flag parsing (`-b \| --boolean`, `-s \| --string <value>`) |
-| `parseArgv.ts` | Raw argv → positionals + options |
-| `spawn.ts` | `$` tagged template for shell execution (`Bun.spawnSync` + `sh -c`) |
-| `completion.ts` | Carapace YAML spec generation from command tree |
+| File            | Purpose                                                              |
+| --------------- | -------------------------------------------------------------------- |
+| `Command.ts`    | CLI command tree — subcommands, args, options, actions               |
+| `Argument.ts`   | Positional arg parsing (`<required>`, `[optional]`, `[...variadic]`) |
+| `Option.ts`     | Flag parsing (`-b \| --boolean`, `-s \| --string <value>`)           |
+| `parseArgv.ts`  | Raw argv → positionals + options                                     |
+| `spawn.ts`      | `$` tagged template for shell execution (`Bun.spawnSync` + `sh -c`)  |
+| `completion.ts` | Carapace YAML spec generation from command tree                      |
 
 ### Path aliases
 
@@ -41,6 +41,7 @@ bun run lint:ci       # CI lint with GitHub reporter
 - **Formatter:** Biome — spaces, single quotes, no semicolons (ASI)
 - **Linting:** Biome recommended rules, `noExplicitAny: off`, `noUselessElse: off`
 - **Commits:** Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, etc.) — drives semantic-release
+- **Comments:** Keep existing comments. Do not remove them during refactors.
 - **Exports:** Use `export` directly, avoid `export default`
 - **Imports:** Use `import type` for type-only imports (enforced by `verbatimModuleSyntax`)
 

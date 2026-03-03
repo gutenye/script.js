@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 
-import { exitWithError, findAkeFiles } from './shared'
+import { exitWithError, findAkeFiles, getSuffix } from './shared'
+
+const suffix = getSuffix()
 
 async function main() {
   const akeFile = await findAkeFile()
@@ -8,7 +10,7 @@ async function main() {
 }
 
 async function findAkeFile() {
-  const akeFiles = await findAkeFiles()
+  const akeFiles = await findAkeFiles(suffix)
 
   if (akeFiles.length >= 2) {
     exitWithError(
@@ -20,9 +22,10 @@ async function findAkeFile() {
   const akeFile = akeFiles[0]
 
   if (!akeFile) {
+    const name = `ake${suffix}`
     exitWithError(
-      'ake file not found',
-      'Use below commands to create one:\nakectl init local\nakectl init remote',
+      `${name} file not found`,
+      `Use below commands to create one:\nakectl init local${suffix ? ` ${suffix}` : ''}\nakectl init remote${suffix ? ` ${suffix}` : ''}`,
     )
   }
 
