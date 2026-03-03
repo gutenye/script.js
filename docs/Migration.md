@@ -157,12 +157,11 @@ app.enableCompletion();
 
 ```ts
 // v1
-await fs.pathExists(path)
+await fs.pathExists(path);
 
-// v2 — use a local helper
-async function pathExists(p) {
-  try { await fs.access(p); return true } catch { return false }
-}
+// v2
+import fs from "node:fs";
+fs.existsSync(path);
 ```
 
 ## Platform-Specific Actions
