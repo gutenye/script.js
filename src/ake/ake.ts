@@ -2,7 +2,7 @@
 
 import { exitWithError, findAkeFiles, getSuffix } from './shared'
 
-const suffix = getSuffix()
+const suffix = process.env.SUFFIX ?? getSuffix()
 
 async function main() {
   const akeFile = await findAkeFile()

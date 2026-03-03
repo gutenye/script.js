@@ -3,12 +3,12 @@
 import { castArray } from 'lodash-es'
 import fs from '../utils/fs'
 import {
-  STORAGE_DIR,
-  TEMPLATE_NAME,
   exitWithError,
   findAkeFiles,
   getAkeFilenames,
   getRemoteDir,
+  STORAGE_DIR,
+  TEMPLATE_NAME,
 } from './shared'
 
 const NAME = 'akectl'
@@ -41,6 +41,22 @@ app
       await fs.chmod(target, 0o755)
     }
     await openEditor(target)
+  })
+
+app
+  .cmd('install-bin', 'Create a wrapper script for ake with a suffix')
+  .add('<prefix>', 'Path prefix (e.g. ~/bin/ake, ~/bin/a)')
+  .add('<suffix>', 'Suffix to append (e.g. "foo" → ~/bin/akefoo)')
+  .add(async (prefix: string, suffix: string) => {
+    const target = `${prefix}${suffix}`
+    const content = `
+#!/usr/bin/env bash
+
+SUFFIX=${suffix} exec ${prefix} "$@"
+`.trim()
+    await fs.writeFile(target, content)
+    await fs.chmod(target, 0o755)
+    console.log(`created ${target}`)
   })
 
 app

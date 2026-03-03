@@ -40,6 +40,19 @@ ake greetings   # find the ake file and runs it
 ake <Tab> # uses ake file's completion
 ```
 
+## Use a template / another location
+
+Create `~/bin.src/ake/template`
+
+```sh
+akectl init local         # create an ake file from template in current directory
+akectl init local foo     # create an akefoo file
+akectl init remote        # create in ~/bin.src/ake/<dir>, doesn't touch original project files
+akectl init remote foo    # create akefoo in remote location
+akectl edit               # opens an editor to edit the ake file
+akectl edit foo           # opens an editor to edit the akefoo file
+```
+
 ## Organize Multiple Files
 
 For larger projects, split commands into separate files and import them.
@@ -83,33 +96,29 @@ await app.run();
 
 ## Multiple Ake Files
 
-You can have multiple ake files in the same directory, each for different tasks. Any file named `ake<suffix>` or `ake<suffix>.ts` is supported.
+Any file named `ake<suffix>` or `ake<suffix>.ts` is supported.
+
+1. Create a variant ake file
 
 ```sh
-# Create variant ake files
 akectl init local foo   # creates ./akefoo
-akectl init local bar   # creates ./akebar
-
-# Create symlinks so you can invoke them by name
-ln -sf $(which ake) ~/bin/akefoo
-ln -sf $(which ake) ~/bin/akebar
-
-# Run them
-akefoo greetings   # finds ./akefoo and runs it
-akebar deploy      # finds ./akebar and runs it
 ```
 
-Each variant gets its own shell completion spec automatically.
-
-## Use a template / another location
-
-Create `~/bin.src/ake/template`
+2. Create a wrapper script so you can invoke it by name
 
 ```sh
-akectl init local         # create an ake file from template in current directory
-akectl init local foo     # create an akefoo file
-akectl init remote        # create in ~/bin.src/ake/<dir>, doesn't touch original project files
-akectl init remote foo    # create akefoo in remote location
-akectl edit               # opens an editor to edit the ake file
-akectl edit foo           # opens an editor to edit the akefoo file
+akectl install-bin ~/bin/ake foo
+```
+
+3. Enable shell completion in `ake.fish`
+
+```fish
+_setup_ake_complete ake foo
+```
+
+4. Run it
+
+```sh
+akefoo greetings
+akefoo <Tab>   # with autocompletion
 ```
