@@ -40,6 +40,47 @@ ake greetings   # find the ake file and runs it
 ake <Tab> # uses ake file's completion
 ```
 
+## Organize Multiple Files
+
+For larger projects, split commands into separate files and import them.
+
+```
+project/
+├── ake              # entry point (executable)
+├── src/
+│   ├── index.ts     # imports all command files
+│   ├── cmd1.ts
+│   └── cmd2.ts
+```
+
+`src/cmd1.ts`
+
+```ts
+import { app } from "@gutenye/script.js";
+
+app.cmd("greetings").add(() => {
+  $`echo greetings`;
+});
+```
+
+`src/index.ts`
+
+```ts
+import "./cmd1";
+import "./cmd2";
+```
+
+`ake`
+
+```ts
+#!/usr/bin/env bun
+
+import { app } from "@gutenye/script.js";
+import "./src";
+
+await app.run();
+```
+
 ## Multiple Ake Files
 
 You can have multiple ake files in the same directory, each for different tasks. Any file named `ake<suffix>` or `ake<suffix>.ts` is supported.
