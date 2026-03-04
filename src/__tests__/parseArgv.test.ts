@@ -82,6 +82,12 @@ describe('parseArgv', () => {
     expect(result.options.output).toBe(true)
   })
 
+  test('option with optional value and inline default gives default when flag present without value', () => {
+    const opts = [new Option('--limit [price=0.01]')]
+    const result = parseArgv(['--limit'], [], opts)
+    expect(result.options.limit).toBe('0.01')
+  })
+
   test('uses default value when option absent', () => {
     const opts = [new Option('-o | --output [file]', '', 'default.txt')]
     const result = parseArgv([], [], opts)

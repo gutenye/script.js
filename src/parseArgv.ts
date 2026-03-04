@@ -54,7 +54,7 @@ export function parseArgv(
               options[opt.attributeName] = next
               i++
             } else {
-              options[opt.attributeName] = true
+              options[opt.attributeName] = opt.defaultValue ?? true
             }
           }
         } else {
