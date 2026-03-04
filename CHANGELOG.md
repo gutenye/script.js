@@ -1,3 +1,9 @@
+## [2.7.2](https://github.com/gutenye/script.js/compare/v2.7.1...v2.7.2) (2026-03-04)
+
+### Bug Fixes
+
+* add never return type to exitWithError ([045d8ca](https://github.com/gutenye/script.js/commit/045d8caede25725df95c9369fa31ba333ba0bc8b))
+
 ## [2.7.1](https://github.com/gutenye/script.js/compare/v2.7.0...v2.7.1) (2026-03-04)
 
 ### Bug Fixes
