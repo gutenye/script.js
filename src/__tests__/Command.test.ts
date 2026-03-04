@@ -72,7 +72,10 @@ describe('run()', () => {
   test('dispatches to matching command by name', async () => {
     const c = new Command()
     const action = mock()
-    c.cmd('build', 'Build project').add('<target>').add('-v | --verbose').add(action)
+    c.cmd('build', 'Build project')
+      .add('<target>')
+      .add('-v | --verbose')
+      .add(action)
 
     await c.parse(['build', 'production', '-v'])
 

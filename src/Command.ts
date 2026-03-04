@@ -1,6 +1,6 @@
 import { Argument } from './Argument'
-import { Option } from './Option'
 import { installCompletion } from './completion'
+import { Option } from './Option'
 import { parseArgv } from './parseArgv'
 
 export class Command {
