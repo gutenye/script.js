@@ -27,8 +27,6 @@ npm install -g @gutenye/script.js
 
 ### 2. Write Your First Script
 
-**Via script.js** — globals are set up automatically, no imports needed:
-
 ```ts
 #!/usr/bin/env script.js
 
@@ -40,25 +38,6 @@ app
   .add((files, ctx) => {
     $`ls -l ${files}`;
   });
-```
-
-**Via import** — use as a library in any Bun script:
-
-```ts
-#!/usr/bin/env bun
-
-import { app, $ } from "@gutenye/script.js";
-
-app.meta("hello");
-
-app
-  .cmd("greetings", "Say hello")
-  .add("[...files]", "Files", ["$files"])
-  .add((files, ctx) => {
-    $`ls -l ${files}`;
-  });
-
-await app.run();
 ```
 
 ### 3. Run the script

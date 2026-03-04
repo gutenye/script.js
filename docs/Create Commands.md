@@ -2,6 +2,42 @@
 
 Script.js makes it simple to define commands with arguments, options, and actions using a concise chainable API. Below are the steps and examples to help you get started.
 
+## Two Ways to Write Scripts
+
+**Via script.js** — globals are set up automatically, no imports needed:
+
+```ts
+#!/usr/bin/env script.js
+
+app.meta("hello");
+
+app
+  .cmd("greetings", "Say hello")
+  .add("[...files]", "Files", ["$files"])
+  .add((files, ctx) => {
+    $`ls -l ${files}`;
+  });
+```
+
+**Via import** — use as a library in any Bun script:
+
+```ts
+#!/usr/bin/env bun
+
+import { app, $ } from "@gutenye/script.js";
+
+app.meta("hello");
+
+app
+  .cmd("greetings", "Say hello")
+  .add("[...files]", "Files", ["$files"])
+  .add((files, ctx) => {
+    $`ls -l ${files}`;
+  });
+
+await app.run();
+```
+
 ## Basic Example
 
 ```ts
