@@ -60,11 +60,12 @@ export function buildSpec(command: Command): CarapaceSpec {
   for (const opt of command.options) {
     spec.flags = spec.flags || {}
     let flag = [opt.short, opt.long].filter(Boolean).join(', ')
+    const values = resolveCompletion(opt.completion)
     if (opt.required) flag += '='
     else if (opt.optional) flag += '=?'
+    else if (values.length > 0) flag += '='
     spec.flags[flag] = opt.description
 
-    const values = resolveCompletion(opt.completion)
     if (values.length > 0) {
       completion.flag = completion.flag || {}
       const key = opt.long?.replace(/^--/, '') || opt.attributeName

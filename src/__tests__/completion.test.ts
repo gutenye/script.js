@@ -90,6 +90,15 @@ describe('buildSpec()', () => {
     })
   })
 
+  test('marks boolean flag as value flag when completions are provided', () => {
+    const c = new Command()
+    c.meta('myapp')
+    c.cmd('build').add('--from', 'Source', ['1', '2'])
+    const spec = buildSpec(c)
+    expect(spec.commands?.[0].flags).toEqual({ '--from=': 'Source' })
+    expect(spec.commands?.[0].completion?.flag).toEqual({ from: ['1', '2'] })
+  })
+
   test('passes through $files macro in positional completion', () => {
     const c = new Command()
     c.meta('myapp')
