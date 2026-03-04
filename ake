@@ -1,10 +1,15 @@
 #!/usr/bin/env script.js
 
-await mixins('package-manager', 'test')
+import '/data/syncroot/env/bin.src/mixins/package-manager'
+import '/data/syncroot/env/bin.src/mixins/test'
 
 globalThis.PACKAGE_MANAGER = 'bun'
 
-const HELP = `
-`
-
-app.name('ake-script.js').addHelpText('after', HELP.trimEnd())
+app
+  .cmd('test')
+  .add('--from', 'Source', ['1', '2'])
+  .add((options) => {
+    console.log({
+      options,
+    })
+  })
