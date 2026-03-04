@@ -1,3 +1,9 @@
+## [2.9.0](https://github.com/gutenye/script.js/compare/v2.8.0...v2.9.0) (2026-03-04)
+
+### Features
+
+* export Options<T> type for typed option bags ([4b97dca](https://github.com/gutenye/script.js/commit/4b97dcae6d6a004e016b1e0f070dc910936a55f4))
+
 ## [2.8.0](https://github.com/gutenye/script.js/compare/v2.7.4...v2.8.0) (2026-03-04)
 
 ### Features
