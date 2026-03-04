@@ -1,6 +1,10 @@
 function _setup_ake_complete
 	set cmd $argv[1]
-	set suffix $argv[2]
+	if set -q argv[2]
+			set suffix $argv[2]
+	else
+			set suffix ''
+	end
 	complete --erase $cmd$suffix
 	complete --command $cmd$suffix --no-files --arguments "(_ake_complete $suffix)"
 end
