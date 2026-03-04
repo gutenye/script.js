@@ -1,3 +1,9 @@
+## [2.6.1](https://github.com/gutenye/script.js/compare/v2.6.0...v2.6.1) (2026-03-04)
+
+### Bug Fixes
+
+* use inline default value when optional flag is present without value ([d4cabcb](https://github.com/gutenye/script.js/commit/d4cabcb855eddd8b6bcfda11ccb7b55d6dc63690))
+
 ## [2.6.0](https://github.com/gutenye/script.js/compare/v2.5.0...v2.6.0) (2026-03-03)
 
 ### Features
