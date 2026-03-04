@@ -1,3 +1,9 @@
+## [2.7.1](https://github.com/gutenye/script.js/compare/v2.7.0...v2.7.1) (2026-03-04)
+
+### Bug Fixes
+
+* add leading newline to exitWithError message ([5ee1ebb](https://github.com/gutenye/script.js/commit/5ee1ebb5b895ff641724fb6067743d2ce473d66c))
+
 ## [2.7.0](https://github.com/gutenye/script.js/compare/v2.6.1...v2.7.0) (2026-03-04)
 
 ### Features
