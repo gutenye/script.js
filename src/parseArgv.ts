@@ -1,6 +1,10 @@
 import type { Argument } from './Argument'
 import type { Option } from './Option'
 
+export type Options<T = Record<string, any>> = T & {
+  $has(key: string): boolean
+}
+
 export function parseArgv(
   argv: string[],
   registeredArgs: Argument[],
