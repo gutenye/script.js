@@ -1,3 +1,10 @@
+## [2.7.3](https://github.com/gutenye/script.js/compare/v2.7.2...v2.7.3) (2026-03-04)
+
+### Bug Fixes
+
+* **ake:** default suffix to empty string in fish completion ([a73dab0](https://github.com/gutenye/script.js/commit/a73dab0ffab4763f9a5cd56e089340073eb567a5))
+* **completion:** mark boolean flags as value flags when completions are provided ([dd2c0f4](https://github.com/gutenye/script.js/commit/dd2c0f4818a37a51106a2f9146205e64eb06c614))
+
 ## [2.7.2](https://github.com/gutenye/script.js/compare/v2.7.1...v2.7.2) (2026-03-04)
 
 ### Bug Fixes
