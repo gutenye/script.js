@@ -1,3 +1,9 @@
+## [2.7.4](https://github.com/gutenye/script.js/compare/v2.7.3...v2.7.4) (2026-03-04)
+
+### Bug Fixes
+
+* **completion:** always use = for flags with completions ([a89cac7](https://github.com/gutenye/script.js/commit/a89cac79c656fc2244ca6d7fb271a61d15abe125))
+
 ## [2.7.3](https://github.com/gutenye/script.js/compare/v2.7.2...v2.7.3) (2026-03-04)
 
 ### Bug Fixes
