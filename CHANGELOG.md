@@ -1,3 +1,9 @@
+## [2.7.0](https://github.com/gutenye/script.js/compare/v2.6.1...v2.7.0) (2026-03-04)
+
+### Features
+
+* add exitWithError helper and update migration doc ([513d2dc](https://github.com/gutenye/script.js/commit/513d2dc8f5ceceb69aa90095317dce1821360c02))
+
 ## [2.6.1](https://github.com/gutenye/script.js/compare/v2.6.0...v2.6.1) (2026-03-04)
 
 ### Bug Fixes
