@@ -23,6 +23,19 @@ app.cmd('cmd1 | c', 'Description')       // c is an alias
   })
 ```
 
+## Option with Inline Default
+
+When an option has a default value via `[value=default]`, use `options.$has(key)` to check if the user explicitly provided it on the command line:
+
+```ts
+app.cmd('trade', 'Trade')
+  .add('--limit [price=0.1]')
+  .add((options) => {
+    console.log(options.limit)      // '0.1' whether or not --limit was passed
+    console.log(options.$has('limit')) // true only if --limit was explicitly passed
+  })
+```
+
 ## Subcommands
 
 ```ts

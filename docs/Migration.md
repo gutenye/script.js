@@ -245,3 +245,4 @@ The following v1 globals are removed in v2. Use npm packages directly:
 | `invoke()`               | `await app.invoke('build production')`                 |
 | Recursive subcommands    | `app.cmd('build').cmd('xcode', 'Xcode')`               |
 | `-h` flag                | `./app -h`, `./app cmd -h`                             |
+| `options.$has()`         | `options.$has('limit')` — true if explicitly provided  |

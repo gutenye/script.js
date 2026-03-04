@@ -116,4 +116,43 @@ describe('parseArgv', () => {
     expect(result.positionals).toEqual(['echo', ['-v', 'hello']])
     expect(result.options.verbose).toBeUndefined()
   })
+
+  describe('$has', () => {
+    test('returns true for explicitly provided options', () => {
+      const opts = [new Option('-v | --verbose'), new Option('-p | --port <n>')]
+      const result = parseArgv(['-v', '--port', '8080'], [], opts)
+      expect(result.options.$has('verbose')).toBe(true)
+      expect(result.options.$has('port')).toBe(true)
+    })
+
+    test('returns false for absent options', () => {
+      const opts = [new Option('-v | --verbose'), new Option('-p | --port <n>')]
+      const result = parseArgv(['-v'], [], opts)
+      expect(result.options.$has('verbose')).toBe(true)
+      expect(result.options.$has('port')).toBe(false)
+    })
+
+    test('distinguishes default from explicit for optional value with inline default', () => {
+      const opts = [new Option('--long [long=0.1]')]
+      const absent = parseArgv([], [], opts)
+      expect(absent.options.long).toBe('0.1')
+      expect(absent.options.$has('long')).toBe(false)
+
+      const present = parseArgv(['--long'], [], opts)
+      expect(present.options.long).toBe('0.1')
+      expect(present.options.$has('long')).toBe(true)
+    })
+
+    test('returns true for negate flags', () => {
+      const opts = [new Option('--no-color')]
+      const result = parseArgv(['--no-color'], [], opts)
+      expect(result.options.$has('color')).toBe(true)
+    })
+
+    test('returns false when no options provided', () => {
+      const opts = [new Option('-v | --verbose')]
+      const result = parseArgv([], [], opts)
+      expect(result.options.$has('verbose')).toBe(false)
+    })
+  })
 })

@@ -7,6 +7,7 @@ export function parseArgv(
   registeredOptions: Option[],
 ): { positionals: any[]; options: Record<string, any> } {
   const options: Record<string, any> = {}
+  const provided = new Set<string>()
   const rawPositionals: string[] = []
 
   for (const opt of registeredOptions) {
@@ -40,6 +41,7 @@ export function parseArgv(
 
       const opt = findOption(flag, registeredOptions)
       if (opt) {
+        provided.add(opt.attributeName)
         if (opt.negate) {
           options[opt.attributeName] = false
         } else if (opt.required) {
@@ -67,6 +69,8 @@ export function parseArgv(
 
     i++
   }
+
+  options.$has = (key: string) => provided.has(key)
 
   const positionals: any[] = []
   let posIdx = 0
