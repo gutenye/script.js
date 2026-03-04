@@ -7,7 +7,7 @@ globalThis.PACKAGE_MANAGER = 'bun'
 
 app
   .cmd('test')
-  .add('--from', 'Source', ['1', '2'])
+  .add('--from [value=1]', 'Source', ['1', '2'])
   .add((options) => {
     console.log({
       options,
