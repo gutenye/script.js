@@ -61,9 +61,9 @@ export function buildSpec(command: Command): CarapaceSpec {
     spec.flags = spec.flags || {}
     let flag = [opt.short, opt.long].filter(Boolean).join(', ')
     const values = resolveCompletion(opt.completion)
-    if (opt.required) flag += '='
+    if (values.length > 0) flag += '='
+    else if (opt.required) flag += '='
     else if (opt.optional) flag += '=?'
-    else if (values.length > 0) flag += '='
     spec.flags[flag] = opt.description
 
     if (values.length > 0) {
