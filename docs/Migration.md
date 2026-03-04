@@ -105,12 +105,9 @@ app.cmd().add(({ argv }) => {
 // v1
 exitWithError("message", help);
 
-// v2 — define a local helper or inline it
-function exitWithError(message, help) {
-  console.error(`Error: ${message}`);
-  if (help) console.log(`\n${help}`);
-  process.exit(1);
-}
+// v2
+import { exitWithError } from "@gutenye/script.js";
+exitWithError("message", help);
 ```
 
 ## `echo()`
