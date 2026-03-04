@@ -1,3 +1,9 @@
+## [2.8.0](https://github.com/gutenye/script.js/compare/v2.7.4...v2.8.0) (2026-03-04)
+
+### Features
+
+* add options.$has() to check if an option was explicitly provided ([c962ee0](https://github.com/gutenye/script.js/commit/c962ee0bc4466d60692faa3762dd5d9b08102236))
+
 ## [2.7.4](https://github.com/gutenye/script.js/compare/v2.7.3...v2.7.4) (2026-03-04)
 
 ### Bug Fixes
