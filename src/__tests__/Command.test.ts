@@ -369,6 +369,47 @@ describe('choices validation', () => {
     expect(action).toHaveBeenCalledTimes(1)
   })
 
+  test('validates key part of key\\tdescription format', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('run', 'Run')
+      .add('<mode>', 'Mode', [
+        '+full\tfull mode, 120s',
+        '+quick\tquick mode, 30s',
+        'country:GB\tmock geolocation',
+      ])
+      .add(action)
+
+    await c.parse(['run', 'country:GB'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  test('errors with key-only message for key\\tdescription format', async () => {
+    const c = new Command()
+    c.cmd('run', 'Run')
+      .add('<mode>', 'Mode', ['+full\tfull mode', '+quick\tquick mode'])
+      .add(() => {})
+
+    const errors: string[] = []
+    const origLog = console.log
+    const origError = console.error
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = () => {}
+    console.error = (...args: any[]) => errors.push(args.join(' '))
+    process.exit = mockExit
+    await c.parse(['run', 'invalid'])
+    console.log = origLog
+    console.error = origError
+    process.exit = origExit
+
+    expect(errors[0]).toContain("Invalid value for mode: 'invalid'")
+    expect(errors[0]).toContain('+full, +quick')
+    expect(errors[0]).not.toContain('full mode')
+    expect(mockExit).toHaveBeenCalledWith(1)
+  })
+
   test('skips validation for macros like $files', async () => {
     const c = new Command()
     const action = mock()

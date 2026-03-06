@@ -262,10 +262,12 @@ export class Command {
       if (arg.completion.length === 0) continue
       if (arg.completion.some((c) => c.startsWith('$') || /^[<[]/.test(c)))
         continue
+      // Extract keys from "key\tdescription" format for validation
+      const keys = arg.completion.map((c) => c.split('\t')[0])
       const values = arg.variadic ? value : [value]
       for (const v of values) {
-        if (!arg.completion.includes(v)) {
-          return `Invalid value for ${arg.name}: '${v}' (expected: ${arg.completion.join(', ')})`
+        if (!keys.includes(v)) {
+          return `Invalid value for ${arg.name}: '${v}' (expected: ${keys.join(', ')})`
         }
       }
     }
