@@ -1,3 +1,9 @@
+## [2.9.1](https://github.com/gutenye/script.js/compare/v2.9.0...v2.9.1) (2026-03-06)
+
+### Bug Fixes
+
+* handle key\tdescription format in choices validation ([5b4ba97](https://github.com/gutenye/script.js/commit/5b4ba97f6ea5af274b886f366e285690476ae379))
+
 ## [2.9.0](https://github.com/gutenye/script.js/compare/v2.8.0...v2.9.0) (2026-03-04)
 
 ### Features
