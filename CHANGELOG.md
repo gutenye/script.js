@@ -1,3 +1,9 @@
+## [2.10.0](https://github.com/gutenye/script.js/compare/v2.9.1...v2.10.0) (2026-03-20)
+
+### Features
+
+* **ake:** add --ci flag and creation log to akectl init ([6643128](https://github.com/gutenye/script.js/commit/6643128213d026df1899bcbcc85d03dfed43198a))
+
 ## [2.9.1](https://github.com/gutenye/script.js/compare/v2.9.0...v2.9.1) (2026-03-06)
 
 ### Bug Fixes
