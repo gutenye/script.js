@@ -70,6 +70,16 @@ app
   .add((arg, options, context) => {});
 ```
 
+## Variadic Arguments
+
+```ts
+// v1
+program.command("init <templates...>");
+
+// v2
+app.cmd("init", "Init").add("<...templates>", "Templates");
+```
+
 ## Help Text
 
 ```ts
@@ -141,13 +151,27 @@ $p`yarn install`;
 $`yarn install`;
 ```
 
-## `.enableCompletion()`
+## Completion
 
 ```ts
 // v1
+program
+  .command("init <templates...>")
+  .completion({
+    positional: [null, ["$files", "$chdir(~/.config/quick-create)"]],
+  });
+
+program
+  .command("init <templates...>")
+  .completion({
+    positionalany: ["$files", "$chdir(~/.config/quick-create)"],
+  });
+
 app.enableCompletion();
 
-// v2 — removed, completion is built-in
+// v2 — pass choices array in .add()
+app.cmd("init", "Init")
+  .add("<templates...>", "Templates", ["$files", "$chdir(~/.config/quick-create)"]);
 ```
 
 ## `pathExists`
