@@ -20,7 +20,8 @@ app
   .cmd('init', 'Create ake file')
   .add('<place>', 'Place', ['local', 'remote'])
   .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
-  .add(async (place: string, suffix: string) => {
+  .add('--ci', 'Skip opening editor')
+  .add(async (place: string, suffix: string, options: { ci?: boolean }) => {
     suffix = suffix ?? ''
     const akeFiles = await findAkeFiles(suffix)
     if (akeFiles.length > 0) {
@@ -40,7 +41,10 @@ app
       await fs.writeFile(target, '')
       await fs.chmod(target, 0o755)
     }
-    await openEditor(target)
+    console.log(`Created ${target}`)
+    if (!options.ci) {
+      await openEditor(target)
+    }
   })
 
 app
