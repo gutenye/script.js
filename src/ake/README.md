@@ -57,16 +57,13 @@ akectl edit foo           # opens an editor to edit the akefoo file
 
 For larger projects, split commands into separate files and import them.
 
-```
+```sh
 project/
 ├── ake              # entry point (executable)
-├── src/
-│   ├── index.ts     # imports all command files
-│   ├── cmd1.ts
-│   └── cmd2.ts
+├── src/commands/cmd1.ts
 ```
 
-`src/cmd1.ts`
+`src/commands/cmd1.ts`
 
 ```ts
 import { app } from "@gutenye/script.js";
@@ -76,20 +73,13 @@ app.cmd("greetings").add(() => {
 });
 ```
 
-`src/index.ts`
-
-```ts
-import "./cmd1";
-import "./cmd2";
-```
-
 `ake`
 
 ```ts
 #!/usr/bin/env bun
 
 import { app } from "@gutenye/script.js";
-import "./src";
+import "./src/commands/cmd1";
 
 await app.run();
 ```
