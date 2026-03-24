@@ -1,3 +1,9 @@
+## [2.10.1](https://github.com/gutenye/script.js/compare/v2.10.0...v2.10.1) (2026-03-24)
+
+### Bug Fixes
+
+* **ake:** resolve symlinks in PWD for fish completion cache key ([6a71734](https://github.com/gutenye/script.js/commit/6a717340bbb62f84874af7bb665c9e62f705a9e3))
+
 ## [2.10.0](https://github.com/gutenye/script.js/compare/v2.9.1...v2.10.0) (2026-03-20)
 
 ### Features
