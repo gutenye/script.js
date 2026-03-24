@@ -154,17 +154,11 @@ export class Command {
       lines.push(`Usage: ${name} <command>`)
       lines.push('')
       lines.push('Commands:')
-      const labels = this.commands.map((c) => {
-        const names = [c.name, ...c.aliases]
-          .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
-          .join(', ')
-        const args = c.#argsText()
-        return args ? `${names} ${args}` : names
-      })
-      const maxLen = Math.max(...labels.map((l) => l.length))
-      for (let i = 0; i < this.commands.length; i++) {
-        const padded = labels[i].padEnd(maxLen + 2)
-        lines.push(`  ${padded}${this.commands[i].description || ''}`)
+      const entries = this.#collectCommands()
+      const maxLen = Math.max(...entries.map((e) => e.label.length))
+      for (const entry of entries) {
+        const padded = entry.label.padEnd(maxLen + 2)
+        lines.push(`  ${padded}${entry.description}`)
       }
     } else {
       const args = this.#argsText()
@@ -293,6 +287,25 @@ export class Command {
     const text = values.join(', ')
     if (text.length <= 40) return `(${text})`
     return `(${text.slice(0, 37)}...)`
+  }
+
+  #collectCommands(prefix = ''): { label: string; description: string }[] {
+    const result: { label: string; description: string }[] = []
+    for (const c of this.commands) {
+      if (c.commands.length > 0) {
+        const childPrefix = prefix ? `${prefix} ${c.name}` : c.name!
+        result.push(...c.#collectCommands(childPrefix))
+      } else {
+        const names = [c.name, ...c.aliases]
+          .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
+          .join(', ')
+        const fullName = prefix ? `${prefix} ${names}` : names
+        const args = c.#argsText()
+        const label = args ? `${fullName} ${args}` : fullName
+        result.push({ label, description: c.description || '' })
+      }
+    }
+    return result
   }
 
   #findCommand(name: string) {

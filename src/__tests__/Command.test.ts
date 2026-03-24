@@ -32,6 +32,7 @@ describe('command()', () => {
     expect(c.commands[0].commands).toHaveLength(1)
     expect(c.commands[0].commands[0]).toBe(world)
   })
+
 })
 
 describe('add()', () => {
@@ -119,11 +120,17 @@ describe('run()', () => {
     expect(config).toBe('release')
   })
 
-  test('prints subcommand help with -h', async () => {
+  test('flattens nested subcommands in help text', async () => {
     const c = new Command()
-    const build = c.cmd('build', 'Build')
-    build.cmd('xcode', 'Build with Xcode')
-    build.cmd('gradle', 'Build with Gradle')
+    c.meta('myapp', 'My app')
+    c.cmd('dev | d', 'Start dev server')
+    c.cmd('osm scrape', 'Import from OpenStreetMap')
+    c.cmd('osm tags', 'List OSM tags')
+
+    const help = c.helpText()
+    expect(help).toContain('d, dev')
+    expect(help).toContain('osm scrape')
+    expect(help).toContain('osm tags')
 
     const logs: string[] = []
     const origLog = console.log
@@ -131,12 +138,12 @@ describe('run()', () => {
     const mockExit = mock() as any
     console.log = (...args: any[]) => logs.push(args.join(' '))
     process.exit = mockExit
-    await c.parse(['build', '-h'])
+    await c.parse(['osm', '-h'])
     console.log = origLog
     process.exit = origExit
 
-    expect(logs[0]).toContain('xcode')
-    expect(logs[0]).toContain('gradle')
+    expect(logs[0]).toContain('scrape')
+    expect(logs[0]).toContain('tags')
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
