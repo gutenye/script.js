@@ -1,3 +1,9 @@
+## [2.12.0](https://github.com/gutenye/script.js/compare/v2.11.0...v2.12.0) (2026-03-24)
+
+### Features
+
+* flatten nested subcommands in help text ([93176aa](https://github.com/gutenye/script.js/commit/93176aa4f8c1cf9797f9d1f11b43832d642d919d))
+
 ## [2.11.0](https://github.com/gutenye/script.js/compare/v2.10.1...v2.11.0) (2026-03-24)
 
 ### Features
