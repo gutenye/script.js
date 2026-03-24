@@ -21,6 +21,17 @@ describe('command()', () => {
     expect(c.commands).toHaveLength(1)
     expect(c.commands[0]).toBe(sub)
   })
+
+  test('space-separated name creates nested subcommands', () => {
+    const c = new Command()
+    const world = c.cmd('hello world', 'Greet the world')
+    expect(world.name).toBe('world')
+    expect(world.description).toBe('Greet the world')
+    expect(c.commands).toHaveLength(1)
+    expect(c.commands[0].name).toBe('hello')
+    expect(c.commands[0].commands).toHaveLength(1)
+    expect(c.commands[0].commands[0]).toBe(world)
+  })
 })
 
 describe('add()', () => {

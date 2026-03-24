@@ -1,3 +1,9 @@
+## [2.11.0] (2026-03-24)
+
+### Features
+
+* support space-separated names in cmd() for creating nested subcommands (`app.cmd('hello world')`)
+
 ## [2.10.1](https://github.com/gutenye/script.js/compare/v2.10.0...v2.10.1) (2026-03-24)
 
 ### Bug Fixes

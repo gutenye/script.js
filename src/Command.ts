@@ -34,10 +34,23 @@ export class Command {
     const command = new Command()
     if (inputName) {
       const { name, aliases } = this.#parseAliases(inputName)
-      command.name = name
+      const parts = name.split(/\s+/)
+      let parent: Command = this
+      for (let i = 0; i < parts.length - 1; i++) {
+        const existing = parent.#findCommand(parts[i])
+        if (existing) {
+          parent = existing
+        } else {
+          const intermediate = new Command()
+          intermediate.name = parts[i]
+          parent.commands.push(intermediate)
+          parent = intermediate
+        }
+      }
+      command.name = parts[parts.length - 1]
       command.aliases = aliases
       command.description = description
-      this.commands.push(command)
+      parent.commands.push(command)
     } else {
       this.#defaultCommand = command
     }

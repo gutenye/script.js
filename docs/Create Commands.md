@@ -41,22 +41,23 @@ await app.run();
 ## Basic Example
 
 ```ts
-app.meta('hello', 'Description')
+app.meta("hello", "Description");
 
-app.cmd('cmd1 | c', 'Description')       // c is an alias
-  .add('<arg1>', 'Description')         // <..> is required
-  .add('[arg2]', 'Description')         // [..] is optional
-  .add('[arg3=default]', 'Description') // default value
-  .add('[...rest]', 'Description')      // variadic
+app
+  .cmd("cmd1 | c", "Description") // c is an alias
+  .add("<arg1>", "Description") // <..> is required
+  .add("[arg2]", "Description") // [..] is optional
+  .add("[arg3=default]", "Description") // default value
+  .add("[...rest]", "Description") // variadic
 
-  .add('-b | --boolean', 'Description')
-  .add('-s | --string <value>', 'Description')
-  .add('-a | --array [values...]', 'Description')
+  .add("-b | --boolean", "Description")
+  .add("-s | --string <value>", "Description")
+  .add("-a | --array [values...]", "Description")
 
   .add((arg1, arg2, arg3, rest, options, context) => {
-    console.log(options) // { boolean: true, string: 'value', array: ['1', '2'] }
-    console.log(context.argv) // raw argv for this command
-  })
+    console.log(options); // { boolean: true, string: 'value', array: ['1', '2'] }
+    console.log(context.argv); // raw argv for this command
+  });
 ```
 
 ## Option with Inline Default
@@ -64,23 +65,21 @@ app.cmd('cmd1 | c', 'Description')       // c is an alias
 When an option has a default value via `[value=default]`, use `options.$has(key)` to check if the user explicitly provided it on the command line:
 
 ```ts
-import type { Options } from '@gutenye/script.js'
+import type { Options } from "@gutenye/script.js";
 
-app.cmd('trade', 'Trade')
-  .add('--limit [price=0.1]')
+app
+  .cmd("trade", "Trade")
+  .add("--limit [price=0.1]")
   .add((options: Options) => {
-    options.limit         // '0.1' whether or not --limit was passed
-    options.$has('limit') // true only if --limit was explicitly passed
-  })
+    options.limit; // '0.1' whether or not --limit was passed
+    options.$has("limit"); // true only if --limit was explicitly passed
+  });
 ```
 
 ## Subcommands
 
 ```ts
-const sub1 = app.cmd('sub1', 'Subcommand group')
-
-sub1.cmd('list', 'List items')
-  .add(() => { console.log('listing...') })
+app.cmd("sub1 list", "List items");
 ```
 
 Invoke with `hello sub1 list`
@@ -90,11 +89,12 @@ Invoke with `hello sub1 list`
 Define a default command that runs when no command is provided or when an unknown command is given:
 
 ```ts
-app.cmd()  // no arguments = default command
-  .add('[...args]')
+app
+  .cmd() // no arguments = default command
+  .add("[...args]")
   .add((args, context) => {
-    console.log('default:', context.argv)
-  })
+    console.log("default:", context.argv);
+  });
 ```
 
 ## Help
@@ -113,13 +113,13 @@ app.help(`
 Examples:
   hello cmd1 foo
   hello cmd1 --verbose
-`)
+`);
 ```
 
 Print help programmatically:
 
 ```ts
-app.help()  // prints help to stdout
+app.help(); // prints help to stdout
 ```
 
 ## Invoke
@@ -128,10 +128,10 @@ Execute a command programmatically:
 
 ```ts
 // Parse a string as argv
-await app.invoke('cmd1 arg1 --verbose')
+await app.invoke("cmd1 arg1 --verbose");
 
 // Call a command action directly with args
-await app.invoke('cmd1', arg1, arg2)
+await app.invoke("cmd1", arg1, arg2);
 ```
 
 ## Using Shared Scripts & Node Modules
@@ -143,14 +143,15 @@ For standalone scripts (not inside a project with `package.json`), just `import`
 ```ts
 #!/usr/bin/env script.js
 
-import _ from 'lodash-es'
-import chalk from 'chalk'
+import _ from "lodash-es";
+import chalk from "chalk";
 
-app.cmd('greet', 'Say hello')
-  .add('<name>')
+app
+  .cmd("greet", "Say hello")
+  .add("<name>")
   .add((name) => {
-    console.log(chalk.green(_.capitalize(name)))
-  })
+    console.log(chalk.green(_.capitalize(name)));
+  });
 ```
 
 No `npm install` needed — Bun resolves and caches the package automatically.
@@ -160,8 +161,8 @@ No `npm install` needed — Bun resolves and caches the package automatically.
 To reuse scripts across multiple commands, use standard `import` with the full path:
 
 ```ts
-import '/Users/<user>/bin.src/mixins/mobile'
-import '/Users/<user>/bin.src/mixins/exodus.link'
+import "/Users/<user>/bin.src/mixins/mobile";
+import "/Users/<user>/bin.src/mixins/exodus.link";
 ```
 
 ### Project Scripts
@@ -175,12 +176,11 @@ npm install --dev chalk
 ```ts
 #!/usr/bin/env script.js
 
-import chalk from 'chalk'
+import chalk from "chalk";
 
-app.cmd('build', 'Build project')
-  .add(() => {
-    console.log(chalk.blue('Building...'))
-  })
+app.cmd("build", "Build project").add(() => {
+  console.log(chalk.blue("Building..."));
+});
 ```
 
 ### Node Built-ins
@@ -188,7 +188,7 @@ app.cmd('build', 'Build project')
 Node built-in modules are always available:
 
 ```ts
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import os from 'node:os'
+import fs from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
 ```
