@@ -1,3 +1,9 @@
+## [2.13.0](https://github.com/gutenye/script.js/compare/v2.12.0...v2.13.0) (2026-03-24)
+
+### Features
+
+* add $.global shell preamble for aliases and functions ([1373ced](https://github.com/gutenye/script.js/commit/1373cedd0bcfb15cb12c8035f77c1fcba7aafec1))
+
 ## [2.12.0](https://github.com/gutenye/script.js/compare/v2.11.0...v2.12.0) (2026-03-24)
 
 ### Features
