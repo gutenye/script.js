@@ -1,3 +1,9 @@
+## [2.11.0](https://github.com/gutenye/script.js/compare/v2.10.1...v2.11.0) (2026-03-24)
+
+### Features
+
+* support space-separated names in cmd() for nested subcommands ([e78a9f0](https://github.com/gutenye/script.js/commit/e78a9f07186773053aab4a4688158fffc4492748))
+
 ## [2.11.0] (2026-03-24)
 
 ### Features
