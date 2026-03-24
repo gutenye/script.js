@@ -11,7 +11,7 @@ end
 
 function _ake_complete
 	set suffix $argv[1]
-	set unique_name (string replace --all '/' '_' $PWD)
+	set unique_name (string replace --all '/' '_' (realpath $PWD))
 	set name "ake$suffix.$unique_name"
 	_carapace_completer $name
 end
