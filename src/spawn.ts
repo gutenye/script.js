@@ -1,9 +1,11 @@
 const defaults: {
   cwd: string | undefined
   env: Record<string, string> | undefined
+  preamble: string
 } = {
   cwd: undefined,
   env: undefined,
+  preamble: '',
 }
 
 export class ShellError extends Error {
@@ -29,6 +31,10 @@ class ShellCommand {
     this.#command = command
   }
 
+  get #fullCommand() {
+    return defaults.preamble ? defaults.preamble + this.#command : this.#command
+  }
+
   #pipeExec() {
     if (!this.#result) {
       const opts: Parameters<typeof Bun.spawnSync>[1] = {
@@ -40,7 +46,7 @@ class ShellCommand {
       const env = this.#env ?? defaults.env
       if (cwd !== undefined) opts.cwd = cwd
       if (env !== undefined) opts.env = env
-      this.#result = Bun.spawnSync(['sh', '-c', this.#command], opts)
+      this.#result = Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
     }
     return this.#result
   }
@@ -53,7 +59,7 @@ class ShellCommand {
     const env = this.#env ?? defaults.env
     if (cwd !== undefined) opts.cwd = cwd
     if (env !== undefined) opts.env = env
-    Bun.spawnSync(['sh', '-c', this.#command], opts)
+    Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
   }
 
   cwd(path: string) {
@@ -154,6 +160,9 @@ $tag.cwd = (path: string) => {
 }
 $tag.env = (vars: Record<string, string>) => {
   defaults.env = vars
+}
+$tag.global = (strings: TemplateStringsArray, ...values: any[]) => {
+  defaults.preamble += buildCommand(strings, values) + '\n'
 }
 
 export { $tag as $ }

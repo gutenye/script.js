@@ -27,6 +27,20 @@ $.cwd('/tmp')                     // set default cwd for all commands
 $.env({ KEY: 'val' })             // set default env for all commands
 ```
 
+### Global Shell Preamble
+
+Define shell aliases, functions, or variables that are prepended to every `$` command:
+
+```ts
+$.global`
+alias gp="git push"
+e() { echo hello "$@"; }
+`
+
+$`e world`                        // prints: hello world
+$`gp`                             // runs: git push
+```
+
 ### Interpolation
 
 Values are automatically shell-escaped:

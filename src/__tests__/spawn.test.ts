@@ -87,3 +87,11 @@ describe('$.cwd() / $.env()', () => {
     $.cwd(undefined as any)
   })
 })
+
+describe('$.global', () => {
+  test('defines shell code available in subsequent commands', () => {
+    $.global`e() { echo hello "$@"; }`
+    const result = $`e world`.text()
+    expect(result).toBe('hello world')
+  })
+})
