@@ -1,15 +1,35 @@
 #!/usr/bin/env script.js
 
-import '/data/syncroot/env/bin.src/mixins/package-manager'
-import '/data/syncroot/env/bin.src/mixins/test'
+$.global`
+alias e="echo 1"
+`
 
-globalThis.PACKAGE_MANAGER = 'bun'
+// Test
+app.cmd('tw', 'Run tests in watch mode').add(({ argv }) => {
+  $`bun run test:watch ${argv}`
+})
+
+app.cmd('t', 'Run tests once').add(({ argv }) => {
+  $`bun run test ${argv}`
+})
+
+app.cmd('l', 'Run lint').add(({ argv }) => {
+  $`bun run lint ${argv}`
+})
+
+// Manual tests
 
 app
-  .cmd('test')
-  .add('--from [value=1]', 'Source', ['1', '2'])
-  .add((options) => {
+  .cmd('ask | a', 'Ask something')
+  .add((name: string, options: any, context: any) => {
+    $`e 2`
     console.log({
+      name,
       options,
+      context,
     })
   })
+
+app.cmd('ask history', 'Show question history')
+app.cmd('ask clear', 'Clear saved answers')
+app.cmd('greeting formal', 'Use formal greeting style')
