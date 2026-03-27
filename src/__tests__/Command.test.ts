@@ -171,6 +171,22 @@ describe('run()', () => {
     expect(help).not.toMatch(/^\s+greeting\s+$/m)
   })
 
+  test('preserves declaration order in help across interleaved subcommands', () => {
+    const c = new Command()
+    c.meta('myapp', 'My app')
+    c.cmd('ask | a', 'Ask something').add(() => {})
+    c.cmd('greeting formal', 'Use formal greeting style')
+    c.cmd('ask history', 'Show question history')
+    c.cmd('ask clear', 'Clear saved answers')
+
+    const help = c.helpText()
+    const lines = help.split('\n').filter((l) => l.startsWith('  '))
+    expect(lines[0]).toContain('a, ask')
+    expect(lines[1]).toContain('greeting formal')
+    expect(lines[2]).toContain('ask history')
+    expect(lines[3]).toContain('ask clear')
+  })
+
   test('prints help and error when command not found', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')

@@ -4,6 +4,8 @@ import { Option } from './Option'
 import { parseArgv } from './parseArgv'
 
 export class Command {
+  static #nextOrder = 0
+
   name?: string
   description?: string
   aliases: string[] = []
@@ -13,6 +15,7 @@ export class Command {
   options: Option[] = []
   #defaultCommand?: Command
   #extraHelp?: string
+  #order = Command.#nextOrder++
 
   meta(inputName: string, description = '') {
     const { name, aliases } = this.#parseAliases(inputName)
@@ -154,7 +157,7 @@ export class Command {
       lines.push(`Usage: ${name} <command>`)
       lines.push('')
       lines.push('Commands:')
-      const entries = this.#collectCommands()
+      const entries = this.#collectCommands().sort((a, b) => a.order - b.order)
       const maxLen = Math.max(...entries.map((e) => e.label.length))
       for (const entry of entries) {
         const padded = entry.label.padEnd(maxLen + 2)
@@ -289,8 +292,10 @@ export class Command {
     return `(${text.slice(0, 37)}...)`
   }
 
-  #collectCommands(prefix = ''): { label: string; description: string }[] {
-    const result: { label: string; description: string }[] = []
+  #collectCommands(
+    prefix = '',
+  ): { label: string; description: string; order: number }[] {
+    const result: { label: string; description: string; order: number }[] = []
     for (const c of this.commands) {
       if (c.description || c.action) {
         const names = [c.name, ...c.aliases]
@@ -299,7 +304,7 @@ export class Command {
         const fullName = prefix ? `${prefix} ${names}` : names
         const args = c.#argsText()
         const label = args ? `${fullName} ${args}` : fullName
-        result.push({ label, description: c.description || '' })
+        result.push({ label, description: c.description || '', order: c.#order })
       }
       if (c.commands.length > 0) {
         const childPrefix = prefix ? `${prefix} ${c.name}` : c.name!
