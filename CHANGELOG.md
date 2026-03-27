@@ -1,3 +1,9 @@
+## [2.13.1](https://github.com/gutenye/script.js/compare/v2.13.0...v2.13.1) (2026-03-27)
+
+### Bug Fixes
+
+* show parent command in help when it has description or action ([c5101ab](https://github.com/gutenye/script.js/commit/c5101ab479ec7c443b7b27d3c6f6eff4b69d095d))
+
 ## [2.13.0](https://github.com/gutenye/script.js/compare/v2.12.0...v2.13.0) (2026-03-24)
 
 ### Features
