@@ -1,3 +1,9 @@
+## [2.14.0](https://github.com/gutenye/script.js/compare/v2.13.1...v2.14.0) (2026-03-27)
+
+### Features
+
+* preserve declaration order in help output ([460b77b](https://github.com/gutenye/script.js/commit/460b77ba7c9fae39f5ed415137d48d6ab156ecd9))
+
 ## [2.13.1](https://github.com/gutenye/script.js/compare/v2.13.0...v2.13.1) (2026-03-27)
 
 ### Bug Fixes
