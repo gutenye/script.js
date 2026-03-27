@@ -292,10 +292,7 @@ export class Command {
   #collectCommands(prefix = ''): { label: string; description: string }[] {
     const result: { label: string; description: string }[] = []
     for (const c of this.commands) {
-      if (c.commands.length > 0) {
-        const childPrefix = prefix ? `${prefix} ${c.name}` : c.name!
-        result.push(...c.#collectCommands(childPrefix))
-      } else {
+      if (c.description || c.action) {
         const names = [c.name, ...c.aliases]
           .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
           .join(', ')
@@ -303,6 +300,10 @@ export class Command {
         const args = c.#argsText()
         const label = args ? `${fullName} ${args}` : fullName
         result.push({ label, description: c.description || '' })
+      }
+      if (c.commands.length > 0) {
+        const childPrefix = prefix ? `${prefix} ${c.name}` : c.name!
+        result.push(...c.#collectCommands(childPrefix))
       }
     }
     return result

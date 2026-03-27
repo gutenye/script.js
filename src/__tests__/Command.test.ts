@@ -147,6 +147,30 @@ describe('run()', () => {
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
+  test('includes parent command in help when it has description or action', () => {
+    const c = new Command()
+    c.meta('myapp', 'My app')
+    c.cmd('ask | a', 'Ask something').add(() => {})
+    c.cmd('ask history', 'Show question history')
+    c.cmd('ask clear', 'Clear saved answers')
+
+    const help = c.helpText()
+    expect(help).toContain('a, ask')
+    expect(help).toContain('Ask something')
+    expect(help).toContain('ask history')
+    expect(help).toContain('ask clear')
+  })
+
+  test('omits intermediate parent with no description or action from help', () => {
+    const c = new Command()
+    c.meta('myapp', 'My app')
+    c.cmd('greeting formal', 'Use formal greeting style')
+
+    const help = c.helpText()
+    expect(help).toContain('greeting formal')
+    expect(help).not.toMatch(/^\s+greeting\s+$/m)
+  })
+
   test('prints help and error when command not found', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
