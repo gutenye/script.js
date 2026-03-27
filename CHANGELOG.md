@@ -1,3 +1,9 @@
+## [2.14.1](https://github.com/gutenye/script.js/compare/v2.14.0...v2.14.1) (2026-03-27)
+
+### Bug Fixes
+
+* run parent command action when it has both action and subcommands ([df78154](https://github.com/gutenye/script.js/commit/df7815427431b864ef199ec78c6e12b8c12a6244))
+
 ## [2.14.0](https://github.com/gutenye/script.js/compare/v2.13.1...v2.14.0) (2026-03-27)
 
 ### Features
