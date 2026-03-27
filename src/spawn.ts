@@ -1,11 +1,11 @@
 const defaults: {
   cwd: string | undefined
   env: Record<string, string> | undefined
-  preamble: string
+  preambles: { text: string; cwd?: string }[]
 } = {
   cwd: undefined,
   env: undefined,
-  preamble: '',
+  preambles: [],
 }
 
 export class ShellError extends Error {
@@ -32,7 +32,12 @@ class ShellCommand {
   }
 
   get #fullCommand() {
-    return defaults.preamble ? defaults.preamble + this.#command : this.#command
+    const cwd = this.#cwd ?? defaults.cwd
+    const preamble = defaults.preambles
+      .filter((p) => !p.cwd || p.cwd === cwd)
+      .map((p) => p.text)
+      .join('')
+    return preamble ? preamble + this.#command : this.#command
   }
 
   #pipeExec() {
@@ -162,7 +167,14 @@ $tag.env = (vars: Record<string, string>) => {
   defaults.env = vars
 }
 $tag.global = (strings: TemplateStringsArray, ...values: any[]) => {
-  defaults.preamble += buildCommand(strings, values) + '\n'
+  const text = buildCommand(strings, values) + '\n'
+  const entry: { text: string; cwd?: string } = { text }
+  defaults.preambles.push(entry)
+  return {
+    cwd(path: string) {
+      entry.cwd = path
+    },
+  }
 }
 
 export { $tag as $ }

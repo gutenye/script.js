@@ -94,4 +94,15 @@ describe('$.global', () => {
     const result = $`e world`.text()
     expect(result).toBe('hello world')
   })
+
+  test('preserves order and includes unscoped + matching scoped preambles', () => {
+    const tmp = realpathSync('/tmp')
+    $.global`A=1`
+    $.global`B=2`.cwd(tmp)
+    $.global`C=3`
+    const withCwd = $`echo $A.$B.$C`.cwd(tmp).text()
+    expect(withCwd).toBe('1.2.3')
+    const withoutCwd = $`echo $A.$B.$C`.text()
+    expect(withoutCwd).toBe('1..3')
+  })
 })
