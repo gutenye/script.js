@@ -30,6 +30,8 @@ app
     })
   })
 
-app.cmd('ask history', 'Show question history')
-app.cmd('ask clear', 'Clear saved answers')
 app.cmd('greeting formal', 'Use formal greeting style')
+
+app.cmd('ask history', 'Show question history')
+
+app.cmd('ask clear', 'Clear saved answers')
