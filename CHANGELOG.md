@@ -1,3 +1,9 @@
+## [2.15.0](https://github.com/gutenye/script.js/compare/v2.14.1...v2.15.0) (2026-03-27)
+
+### Features
+
+* support cwd-scoped $.global preambles ([875b141](https://github.com/gutenye/script.js/commit/875b141c496c79f4c14705ef5b2530e17d9616d1))
+
 ## [2.14.1](https://github.com/gutenye/script.js/compare/v2.14.0...v2.14.1) (2026-03-27)
 
 ### Bug Fixes
