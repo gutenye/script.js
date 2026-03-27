@@ -92,6 +92,9 @@ export class Command {
       if (this.#defaultCommand) {
         return this.#runDefault(argv)
       }
+      if (this.action) {
+        return this.#runSelf(argv)
+      }
       console.log(this.helpText())
       return process.exit(0)
     }
@@ -99,6 +102,9 @@ export class Command {
     if (!command) {
       if (this.#defaultCommand) {
         return this.#runDefault(argv)
+      }
+      if (this.action) {
+        return this.#runSelf(argv)
       }
       console.log(this.helpText())
       console.error(`\nUnknown command: ${commandName}`)
@@ -209,6 +215,16 @@ export class Command {
     const { positionals, options } = parseArgv(argv, cmd.arguments, cmd.options)
     const context: Context = { argv }
     await this.#invokeAction(cmd, positionals, options, context)
+  }
+
+  async #runSelf(argv: string[]) {
+    if (argv.includes('-h')) {
+      console.log(this.helpText())
+      return process.exit(0)
+    }
+    const { positionals, options } = parseArgv(argv, this.arguments, this.options)
+    const context: Context = { argv }
+    await this.#invokeAction(this, positionals, options, context)
   }
 
   async #invokeAction(

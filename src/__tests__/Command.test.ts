@@ -147,6 +147,29 @@ describe('run()', () => {
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
+  test('runs parent action when command has both action and subcommands', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('ask | a', 'Ask something').add(action)
+    c.cmd('ask history', 'Show question history')
+
+    await c.parse(['ask'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  test('runs parent action with args when no subcommand matches', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('ask', 'Ask something').add('<name>').add(action)
+    c.cmd('ask history', 'Show question history')
+
+    await c.parse(['ask', 'bob'])
+
+    expect(action).toHaveBeenCalledTimes(1)
+    expect(action.mock.calls[0][0]).toBe('bob')
+  })
+
   test('includes parent command in help when it has description or action', () => {
     const c = new Command()
     c.meta('myapp', 'My app')
