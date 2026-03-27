@@ -84,6 +84,25 @@ app.cmd("sub1 list", "List items");
 
 Invoke with `hello sub1 list`
 
+A command can have both its own action and subcommands. The action runs when no subcommand matches:
+
+```ts
+app
+  .cmd("ask | a", "Ask something")
+  .add("<question>")
+  .add((question) => {
+    console.log(`Asking: ${question}`);
+  });
+
+app.cmd("ask history", "Show question history");
+app.cmd("ask clear", "Clear saved answers");
+```
+
+```sh
+./hello ask "what time"    # runs ask action
+./hello ask history        # runs ask history subcommand
+```
+
 ## Default Command
 
 Define a default command that runs when no command is provided or when an unknown command is given:

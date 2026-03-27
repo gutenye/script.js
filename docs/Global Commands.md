@@ -41,6 +41,26 @@ $`e world`                        // prints: hello world
 $`gp`                             // runs: git push
 ```
 
+Scope a preamble to commands with a specific `.cwd()`:
+
+```ts
+$.global`source .env`.cwd('server')
+
+$`echo $DB_HOST`.cwd('server')   // .env is sourced (preamble applies)
+$`echo $DB_HOST`                  // .env is NOT sourced
+```
+
+Preambles are applied in declaration order. Unscoped preambles apply to all commands, scoped ones only to matching cwd:
+
+```ts
+$.global`A=1`
+$.global`B=2`.cwd('server')
+$.global`C=3`
+
+$`cmd`.cwd('server')              // preamble: A=1, B=2, C=3
+$`cmd`                            // preamble: A=1, C=3
+```
+
 ### Interpolation
 
 Values are automatically shell-escaped:
