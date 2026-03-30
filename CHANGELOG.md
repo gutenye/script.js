@@ -1,3 +1,9 @@
+## [3.2.0](https://github.com/gutenye/script.js/compare/v3.1.0...v3.2.0) (2026-03-30)
+
+### Features
+
+* make env() merge with process.env instead of replacing ([4f65acd](https://github.com/gutenye/script.js/commit/4f65acdb655ff46a4c462a368f3db2d4d2509b7e))
+
 ## [3.1.0](https://github.com/gutenye/script.js/compare/v3.0.0...v3.1.0) (2026-03-30)
 
 ### Features
