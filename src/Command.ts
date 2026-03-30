@@ -15,6 +15,10 @@ export class Command {
   options: Option[] = []
   #defaultCommand?: Command
   #extraHelp?: string
+
+  get defaultCommand(): Command | undefined {
+    return this.#defaultCommand
+  }
   #order = Command.#nextOrder++
 
   meta(inputName: string, description = '') {

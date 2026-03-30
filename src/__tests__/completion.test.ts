@@ -137,6 +137,27 @@ describe('buildSpec()', () => {
     })
   })
 
+  test('includes default command completions in parent spec', () => {
+    const c = new Command()
+    c.meta('myapp')
+    c.cmd().add('<cmd>', 'Command to run', ['a', 'b'])
+    c.cmd('cmd1', 'First command')
+    const spec = buildSpec(c)
+    expect(spec.completion?.positional).toEqual([['a', 'b']])
+    expect(spec.commands).toHaveLength(1)
+    expect(spec.commands?.[0].name).toBe('cmd1')
+  })
+
+  test('includes default command option completions in parent spec', () => {
+    const c = new Command()
+    c.meta('myapp')
+    c.cmd().add('--format <type>', 'Format', ['json', 'yaml'])
+    c.cmd('cmd1', 'First command')
+    const spec = buildSpec(c)
+    expect(spec.flags).toEqual({ '--format=': 'Format' })
+    expect(spec.completion?.flag).toEqual({ format: ['json', 'yaml'] })
+  })
+
   test('recurses into subcommands', () => {
     const c = new Command()
     c.meta('myapp')
