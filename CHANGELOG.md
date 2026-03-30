@@ -1,3 +1,9 @@
+## [2.15.1](https://github.com/gutenye/script.js/compare/v2.15.0...v2.15.1) (2026-03-30)
+
+### Bug Fixes
+
+* include default command completions in carapace spec ([68a3b5a](https://github.com/gutenye/script.js/commit/68a3b5a602ff7f6b5f65e07a0fce539e2becc452))
+
 ## [2.15.0](https://github.com/gutenye/script.js/compare/v2.14.1...v2.15.0) (2026-03-27)
 
 ### Features
