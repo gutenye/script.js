@@ -1,3 +1,9 @@
+## [2.16.0](https://github.com/gutenye/script.js/compare/v2.15.1...v2.16.0) (2026-03-30)
+
+### Features
+
+* default command as catch-all with smart help behavior ([77108bd](https://github.com/gutenye/script.js/commit/77108bd1e5d319992db80f99ff29ec7ae4ad4bd6))
+
 ## [2.15.1](https://github.com/gutenye/script.js/compare/v2.15.0...v2.15.1) (2026-03-30)
 
 ### Bug Fixes
