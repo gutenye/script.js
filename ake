@@ -1,8 +1,6 @@
 #!/usr/bin/env script.js
 
-$.global`
-alias e="echo 1"
-`
+// see docs/Development.md
 
 // Test
 app.cmd('tw', 'Run tests in watch mode').add(({ argv }) => {
@@ -16,22 +14,3 @@ app.cmd('t', 'Run tests once').add(({ argv }) => {
 app.cmd('l', 'Run lint').add(({ argv }) => {
   $`bun run lint ${argv}`
 })
-
-// Manual tests
-
-app
-  .cmd('ask | a', 'Ask something')
-  .add((name: string, options: any, context: any) => {
-    $`e 2`
-    console.log({
-      name,
-      options,
-      context,
-    })
-  })
-
-app.cmd('greeting formal', 'Use formal greeting style')
-
-app.cmd('ask history', 'Show question history')
-
-app.cmd('ask clear', 'Clear saved answers')
