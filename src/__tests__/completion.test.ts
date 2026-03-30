@@ -8,7 +8,7 @@ import { buildSpec, buildSpecText, installCompletion } from '../completion'
 describe('buildSpec()', () => {
   test('builds spec with name, description, aliases', () => {
     const c = new Command()
-    c.meta('myapp | m', 'My app')
+    c.meta('m, myapp', 'My app')
     const spec = buildSpec(c)
     expect(spec.name).toBe('myapp')
     expect(spec.aliases).toEqual(['m'])

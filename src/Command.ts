@@ -370,7 +370,8 @@ export class Command {
   }
 
   #parseAliases(inputName: string) {
-    const names = inputName.split('|').map((alias) => alias.trim())
+    const names = inputName.split(',').map((alias) => alias.trim())
+    names.sort((a, b) => b.length - a.length)
     const [name, ...aliases] = names
     return { name, aliases }
   }

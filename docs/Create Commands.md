@@ -44,7 +44,7 @@ await app.run();
 app.meta("hello", "Description");
 
 app
-  .cmd("cmd1 | c", "Description") // c is an alias
+  .cmd("c, cmd1", "Description") // c is an alias
   .add("<arg1>", "Description") // <..> is required
   .add("[arg2]", "Description") // [..] is optional
   .add("[arg3=default]", "Description") // default value
@@ -88,7 +88,7 @@ A command can have both its own action and subcommands. The action runs when no 
 
 ```ts
 app
-  .cmd("ask | a", "Ask something")
+  .cmd("a, ask", "Ask something")
   .add("<question>")
   .add((question) => {
     console.log(`Asking: ${question}`);

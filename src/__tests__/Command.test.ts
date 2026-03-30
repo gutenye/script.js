@@ -4,7 +4,7 @@ import { Command } from '../Command'
 describe('meta()', () => {
   test('sets name and description', () => {
     const c = new Command()
-    c.meta('myapp | m', 'My application')
+    c.meta('m, myapp', 'My application')
     expect(c.name).toBe('myapp')
     expect(c.description).toBe('My application')
     expect(c.aliases).toEqual(['m'])
@@ -14,7 +14,7 @@ describe('meta()', () => {
 describe('command()', () => {
   test('creates subcommand and adds to commands list', () => {
     const c = new Command()
-    const sub = c.cmd('deploy | d', 'Deploy app')
+    const sub = c.cmd('d, deploy', 'Deploy app')
     expect(sub.name).toBe('deploy')
     expect(sub.aliases).toEqual(['d'])
     expect(sub.description).toBe('Deploy app')
@@ -101,7 +101,7 @@ describe('run()', () => {
   test('dispatches to matching command by alias', async () => {
     const c = new Command()
     const action = mock()
-    c.cmd('build | b', 'Build').add(action)
+    c.cmd('b, build', 'Build').add(action)
 
     await c.parse(['b'])
     expect(action).toHaveBeenCalledTimes(1)
@@ -123,7 +123,7 @@ describe('run()', () => {
   test('flattens nested subcommands in help text', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.cmd('dev | d', 'Start dev server')
+    c.cmd('d, dev', 'Start dev server')
     c.cmd('osm scrape', 'Import from OpenStreetMap')
     c.cmd('osm tags', 'List OSM tags')
 
@@ -150,7 +150,7 @@ describe('run()', () => {
   test('runs parent action when command has both action and subcommands', async () => {
     const c = new Command()
     const action = mock()
-    c.cmd('ask | a', 'Ask something').add(action)
+    c.cmd('a, ask', 'Ask something').add(action)
     c.cmd('ask history', 'Show question history')
 
     await c.parse(['ask'])
@@ -173,7 +173,7 @@ describe('run()', () => {
   test('includes parent command in help when it has description or action', () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.cmd('ask | a', 'Ask something').add(() => {})
+    c.cmd('a, ask', 'Ask something').add(() => {})
     c.cmd('ask history', 'Show question history')
     c.cmd('ask clear', 'Clear saved answers')
 
@@ -197,7 +197,7 @@ describe('run()', () => {
   test('preserves declaration order in help across interleaved subcommands', () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.cmd('ask | a', 'Ask something').add(() => {})
+    c.cmd('a, ask', 'Ask something').add(() => {})
     c.cmd('greeting formal', 'Use formal greeting style')
     c.cmd('ask history', 'Show question history')
     c.cmd('ask clear', 'Clear saved answers')
@@ -213,7 +213,7 @@ describe('run()', () => {
   test('prints help and error when command not found', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.cmd('build | b', 'Build project')
+    c.cmd('b, build', 'Build project')
 
     const logs: string[] = []
     const errors: string[] = []
@@ -238,7 +238,7 @@ describe('run()', () => {
   test('prints help when no arguments provided', async () => {
     const c = new Command()
     c.meta('myapp', 'My app')
-    c.cmd('build | b', 'Build project').add('<target>')
+    c.cmd('b, build', 'Build project').add('<target>')
 
     const logs: string[] = []
     const origLog = console.log

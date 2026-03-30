@@ -4,7 +4,7 @@ import { app } from './Command'
 import { $ } from './spawn'
 
 app
-  .cmd('cmd1 | c1', 'Command 1')
+  .cmd('c1, cmd1', 'Command 1')
   .add('<platform>', 'Platform', [
     'ios',
     'android',

@@ -7,7 +7,7 @@ The goal is a cleaner syntax, the smallest set of global variables, and using va
 **What's new:**
 
 - Unified `.add()` method for arguments, options, and actions — one method does it all
-- `app.cmd()` for defining commands with inline aliases (`app.cmd('build | b', 'Build')`)
+- `app.cmd()` for defining commands with inline aliases (`app.cmd('b, build', 'Build')`)
 - Built-in argument validation with choices, required option checks, and auto-generated help
 - Default commands, recursive subcommands, `invoke()` for programmatic execution
 - `-h` flag support at every level (app and subcommand)
@@ -64,7 +64,7 @@ app
 app.meta("hello", "Description");
 
 app
-  .cmd("cmd1 | c", "Description")
+  .cmd("c, cmd1", "Description")
   .add("<arg>", "Description")
   .add("-v | --verbose", "Description")
   .add((arg, options, context) => {});
@@ -262,7 +262,7 @@ The following v1 globals are removed in v2. Use npm packages directly:
 
 | Feature                  | Example                                                |
 | ------------------------ | ------------------------------------------------------ |
-| `app.cmd()` with aliases | `app.cmd('build \| b', 'Build')`                       |
+| `app.cmd()` with aliases | `app.cmd('b, build', 'Build')`                         |
 | `.add()` unified API     | `.add('<arg>')`, `.add('-v \| --verbose')`, `.add(fn)` |
 | Default command          | `app.cmd().add((ctx) => {})`                           |
 | Argument validation      | `.add('<platform>', 'Platform', ['ios', 'android'])`   |
