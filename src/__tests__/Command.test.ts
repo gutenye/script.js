@@ -126,11 +126,13 @@ describe('run()', () => {
     c.cmd('d, dev', 'Start dev server')
     c.cmd('osm scrape', 'Import from OpenStreetMap')
     c.cmd('osm tags', 'List OSM tags')
+    c.cmd('wd, web dev', 'Start web dev server').add(() => {})
 
     const help = c.helpText()
     expect(help).toContain('d, dev')
     expect(help).toContain('osm scrape')
     expect(help).toContain('osm tags')
+    expect(help).toContain('wd, web dev')
 
     const logs: string[] = []
     const origLog = console.log
@@ -168,6 +170,19 @@ describe('run()', () => {
 
     expect(action).toHaveBeenCalledTimes(1)
     expect(action.mock.calls[0][0]).toBe('bob')
+  })
+
+  test('shortcut aliases work for subcommands with spaces', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('wd, web dev', 'Start web dev server').add(action)
+
+    await c.parse(['wd'])
+    expect(action).toHaveBeenCalledTimes(1)
+
+    action.mockClear()
+    await c.parse(['web', 'dev'])
+    expect(action).toHaveBeenCalledTimes(1)
   })
 
   test('includes parent command in help when it has description or action', () => {

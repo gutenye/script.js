@@ -15,6 +15,8 @@ export class Command {
   options: Option[] = []
   #defaultCommand?: Command
   #extraHelp?: string
+  // Root-level lookup for aliases on nested subcommands (e.g. cmd('wd, web dev') registers 'wd' here)
+  #shortcutAliases = new Map<string, Command>()
 
   get defaultCommand(): Command | undefined {
     return this.#defaultCommand
@@ -58,6 +60,11 @@ export class Command {
       command.aliases = aliases
       command.description = description
       parent.commands.push(command)
+      if (parts.length > 1) {
+        for (const alias of aliases) {
+          this.#shortcutAliases.set(alias, command)
+        }
+      }
     } else {
       this.#defaultCommand = command
     }
@@ -347,12 +354,20 @@ export class Command {
     const result: { label: string; description: string; order: number }[] = []
     for (const c of this.commands) {
       if (c.description || c.action) {
-        const names = [c.name, ...c.aliases]
-          .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
-          .join(', ')
-        const fullName = prefix ? `${prefix} ${names}` : names
+        let label: string
+        if (prefix && c.aliases.length > 0) {
+          const fullPath = `${prefix} ${c.name}`
+          label = [...c.aliases, fullPath]
+            .sort((a, b) => a.length - b.length)
+            .join(', ')
+        } else {
+          const names = [c.name, ...c.aliases]
+            .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
+            .join(', ')
+          label = prefix ? `${prefix} ${names}` : names
+        }
         const args = c.#argsText()
-        const label = args ? `${fullName} ${args}` : fullName
+        if (args) label = `${label} ${args}`
         result.push({ label, description: c.description || '', order: c.#order })
       }
       if (c.commands.length > 0) {
@@ -366,7 +381,7 @@ export class Command {
   #findCommand(name: string) {
     return this.commands.find(
       (command) => command.name === name || command.aliases.includes(name),
-    )
+    ) || this.#shortcutAliases.get(name)
   }
 
   #parseAliases(inputName: string) {

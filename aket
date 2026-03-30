@@ -15,7 +15,7 @@ app.cmd('spec', 'Print carapace completion spec').add(() => {
   }
 })
 
-app.cmd('wd, web dev').add(() => console.log('web dev'))
+app.cmd('wd, web dev', 'Start web dev').add(() => console.log('web dev'))
 
 app
   .cmd()

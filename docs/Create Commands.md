@@ -44,7 +44,7 @@ await app.run();
 app.meta("hello", "Description");
 
 app
-  .cmd("c, cmd1", "Description") // c is an alias
+  .cmd("cmd1", "Description")
   .add("<arg1>", "Description") // <..> is required
   .add("[arg2]", "Description") // [..] is optional
   .add("[arg3=default]", "Description") // default value
@@ -101,6 +101,22 @@ app.cmd("ask clear", "Clear saved answers");
 ```sh
 ./hello ask "what time"    # runs ask action
 ./hello ask history        # runs ask history subcommand
+```
+
+## Aliases
+
+Add a short alias with a comma-separated name. The shortest name is the alias, the longest is the command name. For subcommands with spaces, the alias works as a top-level shortcut:
+
+```ts
+app.cmd("c, cmd1", "Description");
+app.cmd("wd, web dev", "Start web dev server");
+```
+
+```sh
+./hello cmd1       # full name
+./hello c          # alias
+./hello web dev    # subcommand path
+./hello wd         # top-level shortcut
 ```
 
 ## Default Command
