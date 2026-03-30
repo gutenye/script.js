@@ -1,3 +1,17 @@
+## [3.0.0](https://github.com/gutenye/script.js/compare/v2.16.0...v3.0.0) (2026-03-30)
+
+### ⚠ BREAKING CHANGES
+
+* Command and meta alias separator changed from | to comma.
+`app.cmd('build | b')` is now `app.cmd('b, build')`.
+
+Made-with: Cursor
+
+### Features
+
+* support top-level shortcut aliases for subcommands ([c46b19f](https://github.com/gutenye/script.js/commit/c46b19f1d87c3e1d0422cd378c36b9de6b29d6a8))
+* use comma separator for command aliases, short name first ([dcd9d91](https://github.com/gutenye/script.js/commit/dcd9d91efb7514b788bcb2b4da87daccba68ac16))
+
 ## [2.16.0](https://github.com/gutenye/script.js/compare/v2.15.1...v2.16.0) (2026-03-30)
 
 ### Features
