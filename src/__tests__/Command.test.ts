@@ -337,6 +337,38 @@ Examples:
     expect(ctx.argv).toEqual([])
   })
 
+  test('runs default command with optional args when no arguments provided', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('build', 'Build project')
+    c.cmd().add('[target]').add(action)
+
+    await c.parse([])
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  test('shows help when default command has required args and no arguments provided', async () => {
+    const c = new Command()
+    c.meta('myapp')
+    c.cmd('build', 'Build project')
+    c.cmd().add('<target>').add(() => {})
+
+    const logs: string[] = []
+    const origLog = console.log
+    const origExit = process.exit
+    const mockExit = mock() as any
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.exit = mockExit
+    await c.parse([])
+    console.log = origLog
+    process.exit = origExit
+
+    expect(logs[0]).toContain('myapp')
+    expect(logs[0]).toContain('build')
+    expect(mockExit).toHaveBeenCalledWith(0)
+  })
+
   test('falls through to default command when command not found', async () => {
     const c = new Command()
     const action = mock()
@@ -348,6 +380,23 @@ Examples:
     expect(action).toHaveBeenCalledTimes(1)
     const [ctx] = action.mock.calls[0]
     expect(ctx.argv).toEqual(['unknown-cmd', '--foo'])
+  })
+
+  test('includes default command args in help commands list', () => {
+    const c = new Command()
+    c.meta('myapp')
+    c.cmd('build', 'Build project')
+    c.cmd()
+      .add('<target>', 'Deploy target', ['staging', 'prod'])
+      .add('--verbose', 'Verbose output')
+      .add(() => {})
+
+    const help = c.helpText()
+    expect(help).toContain('build')
+    expect(help).toContain('<target>')
+    expect(help).toContain('(staging, prod)')
+    expect(help).toContain('Default Command Options:')
+    expect(help).toContain('--verbose')
   })
 
   test('passes only context when command has no arguments or options', async () => {

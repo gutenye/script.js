@@ -116,6 +116,22 @@ app
   });
 ```
 
+### Default Command as Catch-All
+
+When used alongside named subcommands, `app.cmd()` acts as a catch-all — it runs when no named command matches:
+
+```ts
+app.cmd("build", "Build project");
+app.cmd("test", "Run tests");
+app.cmd().add("[target]", "Deploy target");
+```
+
+```sh
+./hello build       # runs build command
+./hello staging     # no match → runs default command
+./hello             # runs default command
+```
+
 ## Help
 
 Help is auto-generated. Pass `-h` at any level:

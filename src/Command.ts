@@ -94,7 +94,10 @@ export class Command {
     }
     if (!commandName) {
       if (this.#defaultCommand) {
-        return this.#runDefault(argv)
+        const hasRequiredArg = this.#defaultCommand.arguments.some((a) => a.required)
+        if (this.commands.length === 0 || !hasRequiredArg) {
+          return this.#runDefault(argv)
+        }
       }
       if (this.action) {
         return this.#runSelf(argv)
@@ -168,10 +171,32 @@ export class Command {
       lines.push('')
       lines.push('Commands:')
       const entries = this.#collectCommands().sort((a, b) => a.order - b.order)
+      const defaultCmd = this.#defaultCommand
+      if (defaultCmd) {
+        for (const arg of defaultCmd.arguments) {
+          const choices = Command.#choicesText(arg.completion)
+          const desc = [arg.description, choices].filter(Boolean).join(' ')
+          entries.push({ label: arg.rawName, description: desc, order: -1 })
+        }
+      }
       const maxLen = Math.max(...entries.map((e) => e.label.length))
       for (const entry of entries) {
         const padded = entry.label.padEnd(maxLen + 2)
         lines.push(`  ${padded}${entry.description}`)
+      }
+      if (defaultCmd && defaultCmd.options.length > 0) {
+        lines.push('')
+        lines.push('Default Command Options:')
+        const flags = defaultCmd.options.map(String)
+        const optMaxLen = Math.max(...flags.map((f) => f.length))
+        for (let i = 0; i < defaultCmd.options.length; i++) {
+          const padded = flags[i].padEnd(optMaxLen + 2)
+          const choices = Command.#choicesText(defaultCmd.options[i].completion)
+          const desc = [defaultCmd.options[i].description, choices]
+            .filter(Boolean)
+            .join(' ')
+          lines.push(`  ${padded}${desc}`)
+        }
       }
     } else {
       const args = this.#argsText()
@@ -181,31 +206,7 @@ export class Command {
         lines.push('')
         lines.push(this.description)
       }
-      if (this.arguments.length > 0) {
-        lines.push('')
-        lines.push('Arguments:')
-        const maxLen = Math.max(...this.arguments.map((a) => a.name.length))
-        for (const arg of this.arguments) {
-          const padded = arg.name.padEnd(maxLen + 2)
-          const choices = Command.#choicesText(arg.completion)
-          const desc = [arg.description, choices].filter(Boolean).join(' ')
-          lines.push(`  ${padded}${desc}`)
-        }
-      }
-      if (this.options.length > 0) {
-        lines.push('')
-        lines.push('Options:')
-        const flags = this.options.map(String)
-        const maxLen = Math.max(...flags.map((f) => f.length))
-        for (let i = 0; i < this.options.length; i++) {
-          const padded = flags[i].padEnd(maxLen + 2)
-          const choices = Command.#choicesText(this.options[i].completion)
-          const desc = [this.options[i].description, choices]
-            .filter(Boolean)
-            .join(' ')
-          lines.push(`  ${padded}${desc}`)
-        }
-      }
+      this.#appendArgsAndOptions(lines, this)
     }
     if (this.#extraHelp) {
       lines.push('')
@@ -252,6 +253,34 @@ export class Command {
     }
     args.push(context)
     await command.action?.(...args)
+  }
+
+  #appendArgsAndOptions(lines: string[], source: Command) {
+    if (source.arguments.length > 0) {
+      lines.push('')
+      lines.push('Arguments:')
+      const maxLen = Math.max(...source.arguments.map((a) => a.name.length))
+      for (const arg of source.arguments) {
+        const padded = arg.name.padEnd(maxLen + 2)
+        const choices = Command.#choicesText(arg.completion)
+        const desc = [arg.description, choices].filter(Boolean).join(' ')
+        lines.push(`  ${padded}${desc}`)
+      }
+    }
+    if (source.options.length > 0) {
+      lines.push('')
+      lines.push('Options:')
+      const flags = source.options.map(String)
+      const maxLen = Math.max(...flags.map((f) => f.length))
+      for (let i = 0; i < source.options.length; i++) {
+        const padded = flags[i].padEnd(maxLen + 2)
+        const choices = Command.#choicesText(source.options[i].completion)
+        const desc = [source.options[i].description, choices]
+          .filter(Boolean)
+          .join(' ')
+        lines.push(`  ${padded}${desc}`)
+      }
+    }
   }
 
   #argsText() {

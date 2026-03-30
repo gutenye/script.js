@@ -17,7 +17,10 @@ app.cmd('spec', 'Print carapace completion spec').add(() => {
 
 app
   .cmd()
-  .add('<rest>', 'Rest', ['b', 'c'])
+  // Test required
+  .add('<rest>', 'Rest', ['1', '2'])
+  // Test optional
+  // .add('[rest]', 'Rest', ['1', '2'])
   .add('--rest1')
   .add((rest, options) => {
     console.log('rest', rest, options)
@@ -35,8 +38,6 @@ app
     })
   })
 
-app.cmd('greeting formal', 'Use formal greeting style')
+app.cmd('bravo history', 'Show question history')
 
-app.cmd('ask history', 'Show question history')
-
-app.cmd('ask clear', 'Clear saved answers')
+app.cmd('bravo clear', 'Clear saved answers')
