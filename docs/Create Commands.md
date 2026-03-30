@@ -96,29 +96,25 @@ app
 
 ## Subcommands
 
-```ts
-app.cmd("sub1 list", "List items");
-```
-
-Invoke with `hello sub1 list`
-
 A command can have both its own action and subcommands. The action runs when no subcommand matches:
 
 ```ts
+app.cmd("sub1 list", "List items");
+
 app
   .cmd("a, ask", "Ask something")
   .add("<question>")
   .add((question) => {
     console.log(`Asking: ${question}`);
   });
-
 app.cmd("ask history", "Show question history");
 app.cmd("ask clear", "Clear saved answers");
 ```
 
 ```sh
-./hello ask "what time"    # runs ask action
-./hello ask history        # runs ask history subcommand
+./hello sub1 list         # runs sub1 list subcommand
+./hello ask "what time"   # runs ask action
+./hello ask history       # runs ask history subcommand
 ```
 
 ## Aliases
@@ -139,25 +135,17 @@ app.cmd("wd, web dev", "Start web dev server");
 
 ## Default Command
 
-Define a default command that runs when no command is provided or when an unknown command is given:
-
-```ts
-app
-  .cmd() // no arguments = default command
-  .add("[...args]")
-  .add((args, context) => {
-    console.log("default:", context.argv);
-  });
-```
-
-### Default Command as Catch-All
-
-When used alongside named subcommands, `app.cmd()` acts as a catch-all — it runs when no named command matches:
+`app.cmd()` with no name defines a default command. It runs when no command is provided, or as a catch-all when no named command matches:
 
 ```ts
 app.cmd("build", "Build project");
 app.cmd("test", "Run tests");
-app.cmd().add("[target]", "Deploy target");
+app
+  .cmd()
+  .add("[target]", "Deploy target")
+  .add((target, context) => {
+    console.log("default:", target, context.argv);
+  });
 ```
 
 ```sh
@@ -168,14 +156,7 @@ app.cmd().add("[target]", "Deploy target");
 
 ## Help
 
-Help is auto-generated. Pass `-h` at any level:
-
-```sh
-./hello -h          # app-level help
-./hello cmd1 -h     # command-level help
-```
-
-Add extra help text:
+Help is auto-generated. Pass `-h` at any level. Add extra help text with `app.help(text)`, or print help programmatically with `app.help()`:
 
 ```ts
 app.help(`
@@ -183,12 +164,12 @@ Examples:
   hello cmd1 foo
   hello cmd1 --verbose
 `);
+app.help(); // prints help to stdout
 ```
 
-Print help programmatically:
-
-```ts
-app.help(); // prints help to stdout
+```sh
+./hello -h          # app-level help
+./hello cmd1 -h     # command-level help
 ```
 
 ## Invoke
@@ -196,11 +177,8 @@ app.help(); // prints help to stdout
 Execute a command programmatically:
 
 ```ts
-// Parse a string as argv
-await app.invoke("cmd1 arg1 --verbose");
-
-// Call a command action directly with args
-await app.invoke("cmd1", arg1, arg2);
+await app.invoke("cmd1 arg1 --verbose"); // parse a string as argv
+await app.invoke("cmd1", arg1, arg2); // call action directly with args
 ```
 
 ## Using Shared Scripts & Node Modules
@@ -238,13 +216,10 @@ import "/Users/<user>/bin.src/mixins/exodus.link";
 
 For scripts inside a project directory (with `package.json`), add dependencies as dev dependencies. The script can use all deps in your project:
 
-```sh
-npm install --dev chalk
-```
-
 ```ts
 #!/usr/bin/env script.js
 
+// npm install --dev chalk
 import chalk from "chalk";
 
 app.cmd("build", "Build project").add(() => {
