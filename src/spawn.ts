@@ -48,9 +48,9 @@ class ShellCommand {
         stderr: 'inherit',
       }
       const cwd = this.#cwd ?? defaults.cwd
-      const env = this.#env ?? defaults.env
       if (cwd !== undefined) opts.cwd = cwd
-      if (env !== undefined) opts.env = env
+      if (defaults.env !== undefined || this.#env !== undefined)
+        opts.env = { ...process.env, ...defaults.env, ...this.#env }
       this.#result = Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
     }
     return this.#result
@@ -61,9 +61,9 @@ class ShellCommand {
       stdio: ['inherit', 'inherit', 'inherit'],
     }
     const cwd = this.#cwd ?? defaults.cwd
-    const env = this.#env ?? defaults.env
     if (cwd !== undefined) opts.cwd = cwd
-    if (env !== undefined) opts.env = env
+    if (defaults.env !== undefined || this.#env !== undefined)
+      opts.env = { ...process.env, ...defaults.env, ...this.#env }
     Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
   }
 

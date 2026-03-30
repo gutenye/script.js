@@ -56,9 +56,7 @@ describe('.cwd()', () => {
 
 describe('.env()', () => {
   test('sets environment variables for command', () => {
-    const result = $`echo $TEST_VAR`
-      .env({ ...process.env, TEST_VAR: 'hello' })
-      .text()
+    const result = $`echo $TEST_VAR`.env({ TEST_VAR: 'hello' }).text()
     expect(result).toBe('hello')
   })
 })
@@ -73,7 +71,7 @@ describe('$.cwd() / $.env()', () => {
   })
 
   test('$.env() sets default environment variables', () => {
-    $.env({ ...process.env, TEST_GLOBAL: 'global_val' })
+    $.env({ TEST_GLOBAL: 'global_val' })
     const result = $`echo $TEST_GLOBAL`.text()
     expect(result).toBe('global_val')
     $.env(undefined as any)
