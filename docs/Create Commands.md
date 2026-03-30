@@ -44,33 +44,51 @@ await app.run();
 app.meta("hello", "Description");
 
 app
+  .cmd("greet", "Say hello")
+  .add("<name>")
+  .add("[title]")
+  .add("-u | --uppercase")
+  .add((name, title, options, context) => {
+    const msg = `Hello, ${title} ${name}!`;
+    console.log(options.uppercase ? msg.toUpperCase() : msg);
+  });
+
+app.cmd("version", "Show version").add(() => {
+  console.log("1.0.0");
+});
+```
+
+## Arguments
+
+```ts
+app
   .cmd("cmd1", "Description")
   .add("<arg1>", "Description") // <..> is required
   .add("[arg2]", "Description") // [..] is optional
   .add("[arg3=default]", "Description") // default value
   .add("[...rest]", "Description") // variadic
-
-  .add("-b | --boolean", "Description")
-  .add("-s | --string <value>", "Description")
-  .add("-a | --array [values...]", "Description")
-
-  .add((arg1, arg2, arg3, rest, options, context) => {
-    console.log(options); // { boolean: true, string: 'value', array: ['1', '2'] }
+  .add((arg1, arg2, arg3, rest, context) => {
     console.log(context.argv); // raw argv for this command
   });
 ```
 
-## Option with Inline Default
-
-When an option has a default value via `[value=default]`, use `options.$has(key)` to check if the user explicitly provided it on the command line:
+## Options
 
 ```ts
 import type { Options } from "@gutenye/script.js";
 
 app
-  .cmd("trade", "Trade")
-  .add("--limit [price=0.1]")
+  .cmd("cmd1", "Description")
+  .add("-b | --boolean", "Description")
+  .add("-s | --string <value>", "Description")
+  .add("-a | --array [values...]", "Description")
+  .add("--no-seeds", "Skip seeds") // negate: options.seeds is true by default, false when passed
+  .add("--limit [price=0.1]") // inline default
   .add((options: Options) => {
+    options.boolean; // true
+    options.string; // 'value'
+    options.array; // ['1', '2']
+    options.seeds; // true by default, false when --no-seeds is passed
     options.limit; // '0.1' whether or not --limit was passed
     options.$has("limit"); // true only if --limit was explicitly passed
   });
