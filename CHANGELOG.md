@@ -1,3 +1,9 @@
+## [3.1.0](https://github.com/gutenye/script.js/compare/v3.0.0...v3.1.0) (2026-03-30)
+
+### Features
+
+* use comma separator for option aliases ([9b36874](https://github.com/gutenye/script.js/commit/9b36874d0298dd9c340c96d298f59e946902a71a))
+
 ## [3.0.0](https://github.com/gutenye/script.js/compare/v2.16.0...v3.0.0) (2026-03-30)
 
 ### ⚠ BREAKING CHANGES
