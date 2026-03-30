@@ -14,7 +14,7 @@ app
     'unknown',
   ])
   .add('<name>', 'Name')
-  .add('-l | --long')
+  .add('-l, --long')
   .add(async (platform: string, options: any, ctx: any) => {
     console.log(platform, options, ctx)
     const name = 'Mike Smith'

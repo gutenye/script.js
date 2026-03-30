@@ -18,7 +18,7 @@ describe('buildSpec()', () => {
   test('builds flags for boolean option', () => {
     const c = new Command()
     c.meta('myapp')
-    c.cmd('build').add('-v | --verbose', 'Verbose')
+    c.cmd('build').add('-v, --verbose', 'Verbose')
     const spec = buildSpec(c)
     expect(spec.commands?.[0].flags).toEqual({
       '-v, --verbose': 'Verbose',
@@ -185,7 +185,7 @@ describe('buildSpecText()', () => {
   test('returns spec and yaml text', () => {
     const c = new Command()
     c.meta('myapp')
-    c.cmd('build', 'Build').add('-v | --verbose', 'Verbose')
+    c.cmd('build', 'Build').add('-v, --verbose', 'Verbose')
     const result = buildSpecText(c)
     expect(result?.spec.name).toBe('myapp')
     expect(result?.text).toContain('name: myapp')

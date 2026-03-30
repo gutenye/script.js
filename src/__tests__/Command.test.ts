@@ -46,7 +46,7 @@ describe('add()', () => {
 
   test('registers an option when name starts with dash', () => {
     const c = new Command()
-    c.add('-v | --verbose', 'Verbose output')
+    c.add('-v, --verbose', 'Verbose output')
     expect(c.options).toHaveLength(1)
     expect(c.options[0].long).toBe('--verbose')
   })
@@ -60,7 +60,7 @@ describe('add()', () => {
 
   test('chains with .add()', () => {
     const c = new Command()
-    c.add('<name>').add('-v | --verbose')
+    c.add('<name>').add('-v, --verbose')
     expect(c.arguments).toHaveLength(1)
     expect(c.options).toHaveLength(1)
   })
@@ -86,7 +86,7 @@ describe('run()', () => {
     const action = mock()
     c.cmd('build', 'Build project')
       .add('<target>')
-      .add('-v | --verbose')
+      .add('-v, --verbose')
       .add(action)
 
     await c.parse(['build', 'production', '-v'])
@@ -319,7 +319,7 @@ Examples:
     c.meta('myapp', 'My app')
     c.cmd('deploy', 'Deploy app')
       .add('<env>', 'Target environment', ['staging', 'production'])
-      .add('-p | --port <n>', 'Port number')
+      .add('-p, --port <n>', 'Port number')
       .add(() => {})
 
     const logs: string[] = []
@@ -433,7 +433,7 @@ Examples:
     c.cmd('deploy', 'Deploy')
       .add('<env>')
       .add('[...files]')
-      .add('-p | --port <n>')
+      .add('-p, --port <n>')
       .add(action)
 
     await c.parse(['deploy', 'staging', 'a.js', 'b.js', '--port', '8080'])
@@ -590,7 +590,7 @@ describe('choices validation', () => {
   test('errors when required option value is missing', async () => {
     const c = new Command()
     c.cmd('run', 'Run')
-      .add('-d | --device <device>', 'Device')
+      .add('-d, --device <device>', 'Device')
       .add(() => {})
 
     const logs: string[] = []
@@ -615,7 +615,7 @@ describe('choices validation', () => {
   test('passes when required option has value', async () => {
     const c = new Command()
     const action = mock()
-    c.cmd('run', 'Run').add('-d | --device <device>', 'Device').add(action)
+    c.cmd('run', 'Run').add('-d, --device <device>', 'Device').add(action)
 
     await c.parse(['run', '--device', 'iphone'])
 

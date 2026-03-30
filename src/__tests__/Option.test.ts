@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test'
 import { Option } from '../Option'
 
 describe('Option', () => {
-  test('parses boolean flag -l | --long', () => {
-    const opt = new Option('-l | --long')
+  test('parses boolean flag -l, --long', () => {
+    const opt = new Option('-l, --long')
     expect(opt.short).toBe('-l')
     expect(opt.long).toBe('--long')
     expect(opt.required).toBe(false)
@@ -27,8 +27,8 @@ describe('Option', () => {
     expect(opt.attributeName).toBe('v')
   })
 
-  test('parses required value -p | --port <number>', () => {
-    const opt = new Option('-p | --port <number>')
+  test('parses required value -p, --port <number>', () => {
+    const opt = new Option('-p, --port <number>')
     expect(opt.short).toBe('-p')
     expect(opt.long).toBe('--port')
     expect(opt.required).toBe(true)
@@ -36,8 +36,8 @@ describe('Option', () => {
     expect(opt.attributeName).toBe('port')
   })
 
-  test('parses optional value -o | --output [file]', () => {
-    const opt = new Option('-o | --output [file]')
+  test('parses optional value -o, --output [file]', () => {
+    const opt = new Option('-o, --output [file]')
     expect(opt.short).toBe('-o')
     expect(opt.long).toBe('--output')
     expect(opt.required).toBe(false)
@@ -52,15 +52,15 @@ describe('Option', () => {
     expect(opt.attributeName).toBe('color')
   })
 
-  test('parses variadic option -b | --values [values...]', () => {
-    const opt = new Option('-b | --values [values...]')
+  test('parses variadic option -b, --values [values...]', () => {
+    const opt = new Option('-b, --values [values...]')
     expect(opt.optional).toBe(true)
     expect(opt.variadic).toBe(true)
     expect(opt.attributeName).toBe('values')
   })
 
   test('camelCases multi-word long flag --string-a', () => {
-    const opt = new Option('-a | --string-a [string]')
+    const opt = new Option('-a, --string-a [string]')
     expect(opt.attributeName).toBe('stringA')
   })
 
@@ -76,7 +76,7 @@ describe('Option', () => {
   })
 
   test('stores description and default', () => {
-    const opt = new Option('-o | --output [file]', 'Output file', 'out.txt')
+    const opt = new Option('-o, --output [file]', 'Output file', 'out.txt')
     expect(opt.description).toBe('Output file')
     expect(opt.defaultValue).toBe('out.txt')
   })

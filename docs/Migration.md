@@ -66,7 +66,7 @@ app.meta("hello", "Description");
 app
   .cmd("c, cmd1", "Description")
   .add("<arg>", "Description")
-  .add("-v | --verbose", "Description")
+  .add("-v, --verbose", "Description")
   .add((arg, options, context) => {});
 ```
 
@@ -263,7 +263,7 @@ The following v1 globals are removed in v2. Use npm packages directly:
 | Feature                  | Example                                                |
 | ------------------------ | ------------------------------------------------------ |
 | `app.cmd()` with aliases | `app.cmd('b, build', 'Build')`                         |
-| `.add()` unified API     | `.add('<arg>')`, `.add('-v \| --verbose')`, `.add(fn)` |
+| `.add()` unified API     | `.add('<arg>')`, `.add('-v, --verbose')`, `.add(fn)` |
 | Default command          | `app.cmd().add((ctx) => {})`                           |
 | Argument validation      | `.add('<platform>', 'Platform', ['ios', 'android'])`   |
 | `invoke()`               | `await app.invoke('build production')`                 |

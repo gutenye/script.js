@@ -29,13 +29,13 @@ describe('parseArgv', () => {
   })
 
   test('parses boolean flag', () => {
-    const opts = [new Option('-l | --long')]
+    const opts = [new Option('-l, --long')]
     const result = parseArgv(['-l'], [], opts)
     expect(result.options.long).toBe(true)
   })
 
   test('absent boolean flag is undefined', () => {
-    const opts = [new Option('-l | --long')]
+    const opts = [new Option('-l, --long')]
     const result = parseArgv([], [], opts)
     expect(result.options.long).toBeUndefined()
   })
@@ -53,31 +53,31 @@ describe('parseArgv', () => {
   })
 
   test('parses option with required value', () => {
-    const opts = [new Option('-p | --port <number>')]
+    const opts = [new Option('-p, --port <number>')]
     const result = parseArgv(['--port', '8080'], [], opts)
     expect(result.options.port).toBe('8080')
   })
 
   test('parses option with required value using short flag', () => {
-    const opts = [new Option('-p | --port <number>')]
+    const opts = [new Option('-p, --port <number>')]
     const result = parseArgv(['-p', '8080'], [], opts)
     expect(result.options.port).toBe('8080')
   })
 
   test('parses --flag=value syntax', () => {
-    const opts = [new Option('-p | --port <number>')]
+    const opts = [new Option('-p, --port <number>')]
     const result = parseArgv(['--port=8080'], [], opts)
     expect(result.options.port).toBe('8080')
   })
 
   test('parses option with optional value', () => {
-    const opts = [new Option('-o | --output [file]')]
+    const opts = [new Option('-o, --output [file]')]
     const result = parseArgv(['--output', 'out.txt'], [], opts)
     expect(result.options.output).toBe('out.txt')
   })
 
   test('option with optional value and no value gives true', () => {
-    const opts = [new Option('-o | --output [file]')]
+    const opts = [new Option('-o, --output [file]')]
     const result = parseArgv(['--output'], [], opts)
     expect(result.options.output).toBe(true)
   })
@@ -89,20 +89,20 @@ describe('parseArgv', () => {
   })
 
   test('uses default value when option absent', () => {
-    const opts = [new Option('-o | --output [file]', '', 'default.txt')]
+    const opts = [new Option('-o, --output [file]', '', 'default.txt')]
     const result = parseArgv([], [], opts)
     expect(result.options.output).toBe('default.txt')
   })
 
   test('uses inline default from [value=default] when option absent', () => {
-    const opts = [new Option('-o | --output [file=out.txt]')]
+    const opts = [new Option('-o, --output [file=out.txt]')]
     const result = parseArgv([], [], opts)
     expect(result.options.output).toBe('out.txt')
   })
 
   test('mixes positionals and options', () => {
     const args = [new Argument('<dir>')]
-    const opts = [new Option('-v | --verbose'), new Option('-p | --port <n>')]
+    const opts = [new Option('-v, --verbose'), new Option('-p, --port <n>')]
     const result = parseArgv(['src', '-v', '--port', '3000'], args, opts)
     expect(result.positionals).toEqual(['src'])
     expect(result.options.verbose).toBe(true)
@@ -111,7 +111,7 @@ describe('parseArgv', () => {
 
   test('-- stops option parsing', () => {
     const args = [new Argument('<cmd>'), new Argument('[...rest]')]
-    const opts = [new Option('-v | --verbose')]
+    const opts = [new Option('-v, --verbose')]
     const result = parseArgv(['echo', '--', '-v', 'hello'], args, opts)
     expect(result.positionals).toEqual(['echo', ['-v', 'hello']])
     expect(result.options.verbose).toBeUndefined()
@@ -119,14 +119,14 @@ describe('parseArgv', () => {
 
   describe('$has', () => {
     test('returns true for explicitly provided options', () => {
-      const opts = [new Option('-v | --verbose'), new Option('-p | --port <n>')]
+      const opts = [new Option('-v, --verbose'), new Option('-p, --port <n>')]
       const result = parseArgv(['-v', '--port', '8080'], [], opts)
       expect(result.options.$has('verbose')).toBe(true)
       expect(result.options.$has('port')).toBe(true)
     })
 
     test('returns false for absent options', () => {
-      const opts = [new Option('-v | --verbose'), new Option('-p | --port <n>')]
+      const opts = [new Option('-v, --verbose'), new Option('-p, --port <n>')]
       const result = parseArgv(['-v'], [], opts)
       expect(result.options.$has('verbose')).toBe(true)
       expect(result.options.$has('port')).toBe(false)
@@ -150,7 +150,7 @@ describe('parseArgv', () => {
     })
 
     test('returns false when no options provided', () => {
-      const opts = [new Option('-v | --verbose')]
+      const opts = [new Option('-v, --verbose')]
       const result = parseArgv([], [], opts)
       expect(result.options.$has('verbose')).toBe(false)
     })

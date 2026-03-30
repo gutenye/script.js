@@ -47,7 +47,7 @@ app
   .cmd("greet", "Say hello")
   .add("<name>")
   .add("[title]")
-  .add("-u | --uppercase")
+  .add("-u, --uppercase")
   .add((name, title, options, context) => {
     const msg = `Hello, ${title} ${name}!`;
     console.log(options.uppercase ? msg.toUpperCase() : msg);
@@ -79,9 +79,9 @@ import type { Options } from "@gutenye/script.js";
 
 app
   .cmd("cmd1", "Description")
-  .add("-b | --boolean", "Description")
-  .add("-s | --string <value>", "Description")
-  .add("-a | --array [values...]", "Description")
+  .add("-b, --boolean", "Description")
+  .add("-s, --string <value>", "Description")
+  .add("-a, --array [values...]", "Description")
   .add("--no-seeds", "Skip seeds") // negate: options.seeds is true by default, false when passed
   .add("--limit [price=0.1]") // inline default
   .add((options: Options) => {

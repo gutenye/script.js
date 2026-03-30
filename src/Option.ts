@@ -20,7 +20,7 @@ export class Option {
     this.rawFlags = rawFlags
     this.description = description
 
-    const parts = rawFlags.split('|').map((s) => s.trim())
+    const parts = rawFlags.split(',').map((s) => s.trim())
     for (const part of parts) {
       if (part.startsWith('--')) {
         this.long = part.split(/\s/)[0]
@@ -67,7 +67,7 @@ export class Option {
   }
 
   toString() {
-    return this.rawFlags.replaceAll('|', ',')
+    return this.rawFlags
   }
 
   isBoolean() {
