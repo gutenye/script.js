@@ -1,3 +1,16 @@
+## [4.0.0](https://github.com/gutenye/script.js/compare/v3.2.0...v4.0.0) (2026-04-02)
+
+### ⚠ BREAKING CHANGES
+
+* cmd() alias strings like 'web d, dev' now expand
+'dev' to 'web dev' instead of keeping it as a standalone alias.
+
+Made-with: Cursor
+
+### Features
+
+* inherit prefix for single-word aliases after multi-word entries ([fa6eb1d](https://github.com/gutenye/script.js/commit/fa6eb1d092172ed56e10685978b7f9b0b2228ef9))
+
 ## [3.2.0](https://github.com/gutenye/script.js/compare/v3.1.0...v3.2.0) (2026-03-30)
 
 ### Features
