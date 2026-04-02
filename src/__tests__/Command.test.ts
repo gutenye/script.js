@@ -174,15 +174,23 @@ describe('run()', () => {
 
   test('shortcut aliases work for subcommands with spaces', async () => {
     const c = new Command()
+    c.meta('myapp')
     const action = mock()
-    c.cmd('wd, web dev', 'Start web dev server').add(action)
+    c.cmd('wd, web d, dev', 'Start web dev server').add(action)
 
     await c.parse(['wd'])
     expect(action).toHaveBeenCalledTimes(1)
 
     action.mockClear()
+    await c.parse(['web', 'd'])
+    expect(action).toHaveBeenCalledTimes(1)
+
+    action.mockClear()
     await c.parse(['web', 'dev'])
     expect(action).toHaveBeenCalledTimes(1)
+
+    const help = c.helpText()
+    expect(help).toContain('wd, web d, web dev')
   })
 
   test('includes parent command in help when it has description or action', () => {

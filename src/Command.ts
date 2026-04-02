@@ -9,6 +9,7 @@ export class Command {
   name?: string
   description?: string
   aliases: string[] = []
+  #displayAliases: string[] = []
   action!: (...args: any[]) => void | Promise<void>
   arguments: Argument[] = []
   commands: Command[] = []
@@ -57,13 +58,27 @@ export class Command {
         }
       }
       command.name = parts[parts.length - 1]
-      command.aliases = aliases
       command.description = description
       parent.commands.push(command)
       if (parts.length > 1) {
+        const prefix = parts.slice(0, -1).join(' ')
+        const localAliases: string[] = []
+        command.#displayAliases = [...aliases]
         for (const alias of aliases) {
-          this.#shortcutAliases.set(alias, command)
+          if (alias.includes(' ')) {
+            const aliasParts = alias.split(/\s+/)
+            const aliasPrefix = aliasParts.slice(0, -1).join(' ')
+            if (aliasPrefix === prefix) {
+              localAliases.push(aliasParts[aliasParts.length - 1])
+            }
+          } else {
+            localAliases.push(alias)
+            this.#shortcutAliases.set(alias, command)
+          }
         }
+        command.aliases = localAliases
+      } else {
+        command.aliases = aliases
       }
     } else {
       this.#defaultCommand = command
@@ -357,7 +372,9 @@ export class Command {
         let label: string
         if (prefix && c.aliases.length > 0) {
           const fullPath = `${prefix} ${c.name}`
-          label = [...c.aliases, fullPath]
+          const displayAliases =
+            c.#displayAliases.length > 0 ? c.#displayAliases : c.aliases
+          label = [...displayAliases, fullPath]
             .sort((a, b) => a.length - b.length)
             .join(', ')
         } else {
@@ -386,6 +403,17 @@ export class Command {
 
   #parseAliases(inputName: string) {
     const names = inputName.split(',').map((alias) => alias.trim())
+    // Single-word entries after a multi-word entry inherit its prefix
+    // e.g. 'web d, dev' → ['web d', 'web dev']
+    // e.g. 'wd, web d, dev' → ['wd', 'web d', 'web dev']
+    let prefix = ''
+    for (let i = 0; i < names.length; i++) {
+      if (names[i].includes(' ')) {
+        prefix = names[i].split(/\s+/).slice(0, -1).join(' ')
+      } else if (prefix) {
+        names[i] = `${prefix} ${names[i]}`
+      }
+    }
     names.sort((a, b) => b.length - a.length)
     const [name, ...aliases] = names
     return { name, aliases }
