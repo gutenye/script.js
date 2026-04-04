@@ -1,3 +1,9 @@
+## [4.0.1](https://github.com/gutenye/script.js/compare/v4.0.0...v4.0.1) (2026-04-04)
+
+### Bug Fixes
+
+* exclude shortcut aliases from nested completion spec ([86e33dd](https://github.com/gutenye/script.js/commit/86e33ddc6c750a06f20bedbc8f4cda02ee5cc311))
+
 ## [4.0.0](https://github.com/gutenye/script.js/compare/v3.2.0...v4.0.0) (2026-04-02)
 
 ### ⚠ BREAKING CHANGES
