@@ -33,14 +33,25 @@ function resolveCompletion(completion: CompletionValue): string[] {
   return completion
 }
 
-export function buildSpec(command: Command): CarapaceSpec {
+function buildSpec(command: Command): CarapaceSpec {
+  const excludeAliases = new Set(command.shortcutAliases.keys())
+  return buildSpecInner(command, excludeAliases)
+}
+
+function buildSpecInner(
+  command: Command,
+  excludeAliases: Set<string>,
+): CarapaceSpec {
   const spec: CarapaceSpec = { name: command.name as string }
 
   if (command.description) {
     spec.description = command.description
   }
   if (command.aliases.length > 0) {
-    spec.aliases = command.aliases
+    const filtered = command.aliases.filter((a) => !excludeAliases.has(a))
+    if (filtered.length > 0) {
+      spec.aliases = filtered
+    }
   }
 
   const completion: CarapaceCompletion = {}
@@ -84,7 +95,15 @@ export function buildSpec(command: Command): CarapaceSpec {
 
   for (const sub of command.commands) {
     spec.commands = spec.commands || []
-    spec.commands.push(buildSpec(sub))
+    spec.commands.push(buildSpecInner(sub, excludeAliases))
+  }
+
+  for (const [alias, target] of command.shortcutAliases) {
+    spec.commands = spec.commands || []
+    const aliasSpec = buildSpecInner(target, excludeAliases)
+    aliasSpec.name = alias
+    delete aliasSpec.aliases
+    spec.commands.push(aliasSpec)
   }
 
   return spec

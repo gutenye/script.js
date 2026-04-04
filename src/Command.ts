@@ -19,6 +19,10 @@ export class Command {
   // Root-level lookup for aliases on nested subcommands (e.g. cmd('wd, web dev') registers 'wd' here)
   #shortcutAliases = new Map<string, Command>()
 
+  get shortcutAliases(): ReadonlyMap<string, Command> {
+    return this.#shortcutAliases
+  }
+
   get defaultCommand(): Command | undefined {
     return this.#defaultCommand
   }

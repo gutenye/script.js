@@ -3,193 +3,191 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { Command } from '../Command'
-import { buildSpec, buildSpecText, installCompletion } from '../completion'
+import { buildSpecText, installCompletion } from '../completion'
 
-describe('buildSpec()', () => {
-  test('builds spec with name, description, aliases', () => {
+describe('buildSpecText()', () => {
+  test('returns undefined when no name or no commands', () => {
+    const noName = new Command()
+    expect(buildSpecText(noName)).toBeUndefined()
+
+    const noCommands = new Command()
+    noCommands.meta('myapp')
+    expect(buildSpecText(noCommands)).toBeUndefined()
+  })
+
+  test('meta', () => {
     const c = new Command()
     c.meta('m, myapp', 'My app')
-    const spec = buildSpec(c)
-    expect(spec.name).toBe('myapp')
-    expect(spec.aliases).toEqual(['m'])
-    expect(spec.description).toBe('My app')
+    c.cmd('build', 'Build')
+    expect(buildSpecText(c)?.text).toBe(
+      `
+name: myapp
+description: My app
+aliases:
+  - m
+commands:
+  - name: build
+    description: Build
+`.trimStart(),
+    )
   })
 
-  test('builds flags for boolean option', () => {
+  test('flags', () => {
     const c = new Command()
     c.meta('myapp')
-    c.cmd('build').add('-v, --verbose', 'Verbose')
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].flags).toEqual({
-      '-v, --verbose': 'Verbose',
-    })
+    c.cmd('build')
+      .add('-v, --verbose', 'Verbose')
+      .add('--port <n>', 'Port')
+      .add('--debug [level]', 'Debug')
+      .add('--format <type>', 'Format', ['json', 'yaml'])
+      .add('--from', 'Source', ['1', '2'])
+      .add('--from2 [value=1]', 'Source2', ['1', '2'])
+    expect(buildSpecText(c)?.text).toBe(
+      `
+name: myapp
+commands:
+  - name: build
+    flags:
+      -v, --verbose: Verbose
+      --port=: Port
+      --debug=?: Debug
+      --format=: Format
+      --from=: Source
+      --from2=: Source2
+    completion:
+      flag:
+        format:
+          - json
+          - yaml
+        from:
+          - "1"
+          - "2"
+        from2:
+          - "1"
+          - "2"
+`.trimStart(),
+    )
   })
 
-  test('builds flags for required value option', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('build').add('--port <n>', 'Port')
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].flags).toEqual({
-      '--port=': 'Port',
-    })
-  })
-
-  test('builds flags for optional value option', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('build').add('--debug [level]', 'Debug')
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].flags).toEqual({
-      '--debug=?': 'Debug',
-    })
-  })
-
-  test('builds completion.positional from argument completions', () => {
+  test('completions', () => {
     const c = new Command()
     c.meta('myapp')
     c.cmd('deploy')
       .add('<env>', 'Environment', ['staging', 'production'])
-      .add('<region>', 'Region', ['us', 'eu'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.positional).toEqual([
-      ['staging', 'production'],
-      ['us', 'eu'],
-    ])
-  })
-
-  test('builds completion.positionalany for variadic argument', () => {
-    const c = new Command()
-    c.meta('myapp')
+      .add('<region>', 'Region', () => ['us', 'eu'])
     c.cmd('run').add('[...files]', 'Files', ['a.ts', 'b.ts'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.positionalany).toEqual([
-      'a.ts',
-      'b.ts',
-    ])
-    expect(spec.commands?.[0].completion?.positional).toBeUndefined()
+    expect(buildSpecText(c)?.text).toBe(
+      `
+name: myapp
+commands:
+  - name: deploy
+    completion:
+      positional:
+        - - staging
+          - production
+        - - us
+          - eu
+  - name: run
+    completion:
+      positionalany:
+        - a.ts
+        - b.ts
+`.trimStart(),
+    )
   })
 
-  test('resolves function completions', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('deploy').add('<env>', 'Env', () => ['staging', 'production'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.positional).toEqual([
-      ['staging', 'production'],
-    ])
-  })
-
-  test('builds completion.flag for options with completions', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('build').add('--format <type>', 'Format', ['json', 'yaml'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.flag).toEqual({
-      format: ['json', 'yaml'],
-    })
-  })
-
-  test('marks boolean flag as value flag when completions are provided', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('build').add('--from', 'Source', ['1', '2'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].flags).toEqual({ '--from=': 'Source' })
-    expect(spec.commands?.[0].completion?.flag).toEqual({ from: ['1', '2'] })
-  })
-
-  test('uses = instead of =? for optional flag when completions are provided', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('build').add('--from [value=1]', 'Source', ['1', '2'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].flags).toEqual({ '--from=': 'Source' })
-    expect(spec.commands?.[0].completion?.flag).toEqual({ from: ['1', '2'] })
-  })
-
-  test('passes through $files macro in positional completion', () => {
+  test('macros', () => {
     const c = new Command()
     c.meta('myapp')
     c.cmd('open').add('<file>', 'File', ['$files'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.positional).toEqual([['$files']])
-  })
-
-  test('passes through $dirs and shell command macros in positionalany', () => {
-    const c = new Command()
-    c.meta('myapp')
     c.cmd('run').add('[...targets]', 'Targets', ['$dirs', '$(mycmd _complete)'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.positionalany).toEqual([
-      '$dirs',
-      '$(mycmd _complete)',
-    ])
-  })
-
-  test('passes through macros in flag completion', () => {
-    const c = new Command()
-    c.meta('myapp')
     c.cmd('build').add('--config <path>', 'Config', ['$files([.json, .yaml])'])
-    const spec = buildSpec(c)
-    expect(spec.commands?.[0].completion?.flag).toEqual({
-      config: ['$files([.json, .yaml])'],
-    })
+    expect(buildSpecText(c)?.text).toBe(
+      `
+name: myapp
+commands:
+  - name: open
+    completion:
+      positional:
+        - - $files
+  - name: run
+    completion:
+      positionalany:
+        - $dirs
+        - $(mycmd _complete)
+  - name: build
+    flags:
+      --config=: Config
+    completion:
+      flag:
+        config:
+          - $files([.json, .yaml])
+`.trimStart(),
+    )
   })
 
-  test('includes default command completions in parent spec', () => {
+  test('default command', () => {
     const c = new Command()
     c.meta('myapp')
-    c.cmd().add('<cmd>', 'Command to run', ['a', 'b'])
+    c.cmd()
+      .add('<cmd>', 'Command to run', ['a', 'b'])
+      .add('--format <type>', 'Format', ['json', 'yaml'])
     c.cmd('cmd1', 'First command')
-    const spec = buildSpec(c)
-    expect(spec.completion?.positional).toEqual([['a', 'b']])
-    expect(spec.commands).toHaveLength(1)
-    expect(spec.commands?.[0].name).toBe('cmd1')
+    expect(buildSpecText(c)?.text).toBe(
+      `
+name: myapp
+flags:
+  --format=: Format
+completion:
+  positional:
+    - - a
+      - b
+  flag:
+    format:
+      - json
+      - yaml
+commands:
+  - name: cmd1
+    description: First command
+`.trimStart(),
+    )
   })
 
-  test('includes default command option completions in parent spec', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd().add('--format <type>', 'Format', ['json', 'yaml'])
-    c.cmd('cmd1', 'First command')
-    const spec = buildSpec(c)
-    expect(spec.flags).toEqual({ '--format=': 'Format' })
-    expect(spec.completion?.flag).toEqual({ format: ['json', 'yaml'] })
-  })
-
-  test('recurses into subcommands', () => {
+  test('subcommands', () => {
     const c = new Command()
     c.meta('myapp')
     c.cmd('deploy', 'Deploy app')
     c.cmd('build', 'Build app')
-    const spec = buildSpec(c)
-    expect(spec.commands).toHaveLength(2)
-    expect(spec.commands?.[0].name).toBe('deploy')
-    expect(spec.commands?.[1].name).toBe('build')
-  })
-})
-
-describe('buildSpecText()', () => {
-  test('returns undefined when no commands or completions', () => {
-    const c = new Command()
-    c.meta('myapp')
-    expect(buildSpecText(c)).toBeUndefined()
-  })
-
-  test('returns undefined when name is missing', () => {
-    const c = new Command()
-    expect(buildSpecText(c)).toBeUndefined()
-  })
-
-  test('returns spec and yaml text', () => {
-    const c = new Command()
-    c.meta('myapp')
-    c.cmd('build', 'Build').add('-v, --verbose', 'Verbose')
-    const result = buildSpecText(c)
-    expect(result?.spec.name).toBe('myapp')
-    expect(result?.text).toContain('name: myapp')
-    expect(result?.text).toContain('build')
+    c.cmd('wd, web d, dev', 'Web development').add('<task>', 'Task', [
+      'build',
+      'serve',
+    ])
+    expect(buildSpecText(c)?.text).toBe(
+      `
+name: myapp
+commands:
+  - name: deploy
+    description: Deploy app
+  - name: build
+    description: Build app
+  - name: web
+    commands:
+      - name: dev
+        description: Web development
+        aliases:
+          - d
+        completion:
+          positional:
+            - &a1
+              - build
+              - serve
+  - name: wd
+    description: Web development
+    completion:
+      positional:
+        - *a1
+`.trimStart(),
+    )
   })
 })
 
@@ -232,26 +230,23 @@ describe('installCompletion()', () => {
   })
 
   test('auto-names ake scripts from scriptPath', async () => {
-    const c = new Command()
-    c.cmd('build', 'Build')
-    await installCompletion(c, {
+    const c1 = new Command()
+    c1.cmd('build', 'Build')
+    await installCompletion(c1, {
       specsDir: tmpDir,
       scriptPath: '/some/path/ake',
     })
-    const files = fs.readdirSync(tmpDir)
-    expect(files.length).toBe(1)
-    expect(files[0]).toMatch(/^ake\..*\.yaml$/)
-  })
 
-  test('auto-names suffixed ake scripts from scriptPath', async () => {
-    const c = new Command()
-    c.cmd('build', 'Build')
-    await installCompletion(c, {
+    const c2 = new Command()
+    c2.cmd('build', 'Build')
+    await installCompletion(c2, {
       specsDir: tmpDir,
       scriptPath: '/some/path/akefoo',
     })
-    const files = fs.readdirSync(tmpDir)
-    expect(files.length).toBe(1)
-    expect(files[0]).toMatch(/^akefoo\..*\.yaml$/)
+
+    const files = fs.readdirSync(tmpDir).sort()
+    expect(files.length).toBe(2)
+    expect(files[0]).toMatch(/^ake\..*\.yaml$/)
+    expect(files[1]).toMatch(/^akefoo\..*\.yaml$/)
   })
 })
