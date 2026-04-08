@@ -154,6 +154,21 @@ app
 ./hello             # runs default command
 ```
 
+## Hidden Commands
+
+`app.cmdHide()` works like `app.cmd()` but hides the command from help output and completions. The command is still executable:
+
+```ts
+app.cmdHide("debug", "Internal debug tool").add(() => {
+  console.log("debugging...");
+});
+```
+
+```sh
+./hello -h          # "debug" won't appear in help
+./hello debug       # still works
+```
+
 ## Help
 
 Help is auto-generated. Pass `-h` at any level. Add extra help text with `app.help(text)`, or print help programmatically with `app.help()`:
