@@ -1,3 +1,9 @@
+## [4.1.0](https://github.com/gutenye/script.js/compare/v4.0.1...v4.1.0) (2026-04-08)
+
+### Features
+
+* add cmdHide() to hide commands from help and completions ([74a7c2d](https://github.com/gutenye/script.js/commit/74a7c2db37779ed5323ef271f44d0394e61b7243))
+
 ## [4.0.1](https://github.com/gutenye/script.js/compare/v4.0.0...v4.0.1) (2026-04-04)
 
 ### Bug Fixes
