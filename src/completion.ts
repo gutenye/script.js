@@ -94,11 +94,13 @@ function buildSpecInner(
   }
 
   for (const sub of command.commands) {
+    if (sub.hidden) continue
     spec.commands = spec.commands || []
     spec.commands.push(buildSpecInner(sub, excludeAliases))
   }
 
   for (const [alias, target] of command.shortcutAliases) {
+    if (target.hidden) continue
     spec.commands = spec.commands || []
     const aliasSpec = buildSpecInner(target, excludeAliases)
     aliasSpec.name = alias

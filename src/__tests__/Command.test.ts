@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test'
 import { Command } from '../Command'
+import { buildSpecText } from '../completion'
 
 describe('meta()', () => {
   test('sets name and description', () => {
@@ -32,7 +33,27 @@ describe('command()', () => {
     expect(c.commands[0].commands).toHaveLength(1)
     expect(c.commands[0].commands[0]).toBe(world)
   })
+})
 
+describe('cmdHide()', () => {
+  test('hides from help but remains executable', async () => {
+    const c = new Command()
+    c.meta('myapp', 'My app')
+    const action = mock()
+    c.cmd('build', 'Build project')
+    c.cmdHide('secret', 'Secret command').add(action)
+
+    const help = c.helpText()
+    expect(help).toContain('build')
+    expect(help).not.toContain('secret')
+
+    const spec = buildSpecText(c)?.text
+    expect(spec).toContain('build')
+    expect(spec).not.toContain('secret')
+
+    await c.parse(['secret'])
+    expect(action).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('add()', () => {
@@ -375,7 +396,9 @@ Examples:
     const c = new Command()
     c.meta('myapp')
     c.cmd('build', 'Build project')
-    c.cmd().add('<target>').add(() => {})
+    c.cmd()
+      .add('<target>')
+      .add(() => {})
 
     const logs: string[] = []
     const origLog = console.log

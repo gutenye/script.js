@@ -14,6 +14,7 @@ export class Command {
   arguments: Argument[] = []
   commands: Command[] = []
   options: Option[] = []
+  hidden = false
   #defaultCommand?: Command
   #extraHelp?: string
   // Root-level lookup for aliases on nested subcommands (e.g. cmd('wd, web dev') registers 'wd' here)
@@ -90,6 +91,12 @@ export class Command {
     return command
   }
 
+  cmdHide(inputName?: string, description = '') {
+    const command = this.cmd(inputName, description)
+    command.hidden = true
+    return command
+  }
+
   async invoke(text: string, ...args: any[]) {
     if (args.length === 0) {
       return this.parse(text.split(/ +/))
@@ -120,7 +127,9 @@ export class Command {
     }
     if (!commandName) {
       if (this.#defaultCommand) {
-        const hasRequiredArg = this.#defaultCommand.arguments.some((a) => a.required)
+        const hasRequiredArg = this.#defaultCommand.arguments.some(
+          (a) => a.required,
+        )
         if (this.commands.length === 0 || !hasRequiredArg) {
           return this.#runDefault(argv)
         }
@@ -253,7 +262,11 @@ export class Command {
       console.log(this.helpText())
       return process.exit(0)
     }
-    const { positionals, options } = parseArgv(argv, this.arguments, this.options)
+    const { positionals, options } = parseArgv(
+      argv,
+      this.arguments,
+      this.options,
+    )
     const context: Context = { argv }
     await this.#invokeAction(this, positionals, options, context)
   }
@@ -372,6 +385,7 @@ export class Command {
   ): { label: string; description: string; order: number }[] {
     const result: { label: string; description: string; order: number }[] = []
     for (const c of this.commands) {
+      if (c.hidden) continue
       if (c.description || c.action) {
         let label: string
         if (prefix && c.aliases.length > 0) {
@@ -389,7 +403,11 @@ export class Command {
         }
         const args = c.#argsText()
         if (args) label = `${label} ${args}`
-        result.push({ label, description: c.description || '', order: c.#order })
+        result.push({
+          label,
+          description: c.description || '',
+          order: c.#order,
+        })
       }
       if (c.commands.length > 0) {
         const childPrefix = prefix ? `${prefix} ${c.name}` : c.name!
@@ -400,9 +418,11 @@ export class Command {
   }
 
   #findCommand(name: string) {
-    return this.commands.find(
-      (command) => command.name === name || command.aliases.includes(name),
-    ) || this.#shortcutAliases.get(name)
+    return (
+      this.commands.find(
+        (command) => command.name === name || command.aliases.includes(name),
+      ) || this.#shortcutAliases.get(name)
+    )
   }
 
   #parseAliases(inputName: string) {
