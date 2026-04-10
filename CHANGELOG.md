@@ -1,3 +1,16 @@
+## [5.0.0](https://github.com/gutenye/script.js/compare/v4.2.0...v5.0.0) (2026-04-10)
+
+### ⚠ BREAKING CHANGES
+
+* The `meta()` method on Command is renamed to `name()`.
+The `name` property is renamed to `_name` to avoid conflict with the method.
+
+Made-with: Cursor
+
+### Features
+
+* rename app.meta() to app.name() ([80b3707](https://github.com/gutenye/script.js/commit/80b370778e9670112b6d90dab78d391103f2e86f))
+
 ## [4.2.0](https://github.com/gutenye/script.js/compare/v4.1.0...v4.2.0) (2026-04-10)
 
 ### Features
