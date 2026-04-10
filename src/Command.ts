@@ -6,7 +6,7 @@ import { parseArgv } from './parseArgv'
 export class Command {
   static #nextOrder = 0
 
-  name?: string
+  _name?: string
   description?: string
   aliases: string[] = []
   #displayAliases: string[] = []
@@ -29,9 +29,9 @@ export class Command {
   }
   #order = Command.#nextOrder++
 
-  meta(inputName: string, description = '') {
+  name(inputName: string, description = '') {
     const { name, aliases } = this.#parseAliases(inputName)
-    this.name = name
+    this._name = name
     this.aliases = aliases
     this.description = description
     return this
@@ -57,12 +57,12 @@ export class Command {
           parent = existing
         } else {
           const intermediate = new Command()
-          intermediate.name = parts[i]
+          intermediate._name = parts[i]
           parent.commands.push(intermediate)
           parent = intermediate
         }
       }
-      command.name = parts[parts.length - 1]
+      command._name = parts[parts.length - 1]
       command.description = description
       parent.commands.push(command)
       if (parts.length > 1) {
@@ -200,7 +200,7 @@ export class Command {
 
   helpText() {
     const lines: string[] = []
-    const name = this.name || 'app'
+    const name = this._name || 'app'
     if (this.commands.length > 0) {
       lines.push(`Usage: ${name} <command>`)
       lines.push('')
@@ -389,14 +389,14 @@ export class Command {
       if (c.description || c.action) {
         let label: string
         if (prefix && c.aliases.length > 0) {
-          const fullPath = `${prefix} ${c.name}`
+          const fullPath = `${prefix} ${c._name}`
           const displayAliases =
             c.#displayAliases.length > 0 ? c.#displayAliases : c.aliases
           label = [...displayAliases, fullPath]
             .sort((a, b) => a.length - b.length)
             .join(', ')
         } else {
-          const names = [c.name, ...c.aliases]
+          const names = [c._name, ...c.aliases]
             .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
             .join(', ')
           label = prefix ? `${prefix} ${names}` : names
@@ -410,7 +410,7 @@ export class Command {
         })
       }
       if (c.commands.length > 0) {
-        const childPrefix = prefix ? `${prefix} ${c.name}` : c.name!
+        const childPrefix = prefix ? `${prefix} ${c._name}` : c._name!
         result.push(...c.#collectCommands(childPrefix))
       }
     }
@@ -420,7 +420,7 @@ export class Command {
   #findCommand(name: string) {
     return (
       this.commands.find(
-        (command) => command.name === name || command.aliases.includes(name),
+        (command) => command._name === name || command.aliases.includes(name),
       ) || this.#shortcutAliases.get(name)
     )
   }

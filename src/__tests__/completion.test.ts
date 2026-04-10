@@ -11,13 +11,13 @@ describe('buildSpecText()', () => {
     expect(buildSpecText(noName)).toBeUndefined()
 
     const noCommands = new Command()
-    noCommands.meta('myapp')
+    noCommands.name('myapp')
     expect(buildSpecText(noCommands)).toBeUndefined()
   })
 
-  test('meta', () => {
+  test('name', () => {
     const c = new Command()
-    c.meta('m, myapp', 'My app')
+    c.name('m, myapp', 'My app')
     c.cmd('build', 'Build')
     expect(buildSpecText(c)?.text).toBe(
       `
@@ -34,7 +34,7 @@ commands:
 
   test('flags', () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('build')
       .add('-v, --verbose', 'Verbose')
       .add('--port <n>', 'Port')
@@ -71,7 +71,7 @@ commands:
 
   test('completions', () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('deploy')
       .add('<env>', 'Environment', ['staging', 'production'])
       .add('<region>', 'Region', () => ['us', 'eu'])
@@ -98,7 +98,7 @@ commands:
 
   test('macros', () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('open').add('<file>', 'File', ['$files'])
     c.cmd('run').add('[...targets]', 'Targets', ['$dirs', '$(mycmd _complete)'])
     c.cmd('build').add('--config <path>', 'Config', ['$files([.json, .yaml])'])
@@ -128,7 +128,7 @@ commands:
 
   test('default command', () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd()
       .add('<cmd>', 'Command to run', ['a', 'b'])
       .add('--format <type>', 'Format', ['json', 'yaml'])
@@ -155,7 +155,7 @@ commands:
 
   test('subcommands', () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('deploy', 'Deploy app')
     c.cmd('build', 'Build app')
     c.cmd('wd, web d, dev', 'Web development').add('<task>', 'Task', [
@@ -204,7 +204,7 @@ describe('installCompletion()', () => {
 
   test('writes spec file when command has name and commands', async () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('build', 'Build')
     await installCompletion(c, { specsDir: tmpDir })
     const content = fs.readFileSync(path.join(tmpDir, 'myapp.yaml'), 'utf8')
@@ -220,7 +220,7 @@ describe('installCompletion()', () => {
 
   test('skips write when file is identical', async () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('build', 'Build')
     await installCompletion(c, { specsDir: tmpDir })
     const stat1 = fs.statSync(path.join(tmpDir, 'myapp.yaml'))

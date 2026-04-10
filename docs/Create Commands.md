@@ -9,7 +9,7 @@ Script.js makes it simple to define commands with arguments, options, and action
 ```ts
 #!/usr/bin/env script.js
 
-app.meta("hello");
+app.name("hello");
 
 app
   .cmd("greetings", "Say hello")
@@ -26,7 +26,7 @@ app
 
 import { app, $ } from "@gutenye/script.js";
 
-app.meta("hello");
+app.name("hello");
 
 app
   .cmd("greetings", "Say hello")
@@ -41,7 +41,7 @@ await app.run();
 ## Basic Example
 
 ```ts
-app.meta("hello", "Description");
+app.name("hello", "Description");
 
 app
   .cmd("greet", "Say hello")

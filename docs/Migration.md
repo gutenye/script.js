@@ -61,7 +61,7 @@ app
   .action((arg, options) => {});
 
 // v2
-app.meta("hello", "Description");
+app.name("hello", "Description");
 
 app
   .cmd("c, cmd1", "Description")

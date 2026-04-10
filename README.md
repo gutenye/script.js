@@ -30,7 +30,7 @@ npm install -g @gutenye/script.js
 ```ts
 #!/usr/bin/env script.js
 
-app.meta("hello");
+app.name("hello");
 
 app
   .cmd("greetings", "Say hello")

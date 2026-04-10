@@ -42,7 +42,7 @@ function buildSpecInner(
   command: Command,
   excludeAliases: Set<string>,
 ): CarapaceSpec {
-  const spec: CarapaceSpec = { name: command.name as string }
+  const spec: CarapaceSpec = { name: command._name as string }
 
   if (command.description) {
     spec.description = command.description
@@ -114,7 +114,7 @@ function buildSpecInner(
 export function buildSpecText(
   command: Command,
 ): { spec: CarapaceSpec; text: string } | undefined {
-  if (!command.name) return undefined
+  if (!command._name) return undefined
 
   const spec = buildSpec(command)
   if (!(spec.commands || spec.flags || spec.completion)) return undefined
@@ -151,10 +151,10 @@ export async function installCompletion(
   options: InstallOptions = {},
 ) {
   try {
-    if (!command.name && options.scriptPath) {
+    if (!command._name && options.scriptPath) {
       const suffix = getAkeSuffix(path.basename(options.scriptPath))
       if (suffix !== null) {
-        command.name = getCompletionName(suffix)
+        command._name = getCompletionName(suffix)
       }
     }
 

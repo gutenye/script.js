@@ -2,11 +2,11 @@ import { describe, expect, mock, test } from 'bun:test'
 import { Command } from '../Command'
 import { buildSpecText } from '../completion'
 
-describe('meta()', () => {
+describe('name()', () => {
   test('sets name and description', () => {
     const c = new Command()
-    c.meta('m, myapp', 'My application')
-    expect(c.name).toBe('myapp')
+    c.name('m, myapp', 'My application')
+    expect(c._name).toBe('myapp')
     expect(c.description).toBe('My application')
     expect(c.aliases).toEqual(['m'])
   })
@@ -16,7 +16,7 @@ describe('command()', () => {
   test('creates subcommand and adds to commands list', () => {
     const c = new Command()
     const sub = c.cmd('d, deploy', 'Deploy app')
-    expect(sub.name).toBe('deploy')
+    expect(sub._name).toBe('deploy')
     expect(sub.aliases).toEqual(['d'])
     expect(sub.description).toBe('Deploy app')
     expect(c.commands).toHaveLength(1)
@@ -26,10 +26,10 @@ describe('command()', () => {
   test('space-separated name creates nested subcommands', () => {
     const c = new Command()
     const world = c.cmd('hello world', 'Greet the world')
-    expect(world.name).toBe('world')
+    expect(world._name).toBe('world')
     expect(world.description).toBe('Greet the world')
     expect(c.commands).toHaveLength(1)
-    expect(c.commands[0].name).toBe('hello')
+    expect(c.commands[0]._name).toBe('hello')
     expect(c.commands[0].commands).toHaveLength(1)
     expect(c.commands[0].commands[0]).toBe(world)
   })
@@ -38,7 +38,7 @@ describe('command()', () => {
 describe('cmdHide()', () => {
   test('hides from help but remains executable', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     const action = mock()
     c.cmd('build', 'Build project')
     c.cmdHide('secret', 'Secret command').add(action)
@@ -143,7 +143,7 @@ describe('run()', () => {
 
   test('flattens nested subcommands in help text', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('d, dev', 'Start dev server')
     c.cmd('osm scrape', 'Import from OpenStreetMap')
     c.cmd('osm tags', 'List OSM tags')
@@ -195,7 +195,7 @@ describe('run()', () => {
 
   test('shortcut aliases work for subcommands with spaces', async () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     const action = mock()
     c.cmd('wd, web d, dev', 'Start web dev server').add(action)
 
@@ -216,7 +216,7 @@ describe('run()', () => {
 
   test('includes parent command in help when it has description or action', () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('a, ask', 'Ask something').add(() => {})
     c.cmd('ask history', 'Show question history')
     c.cmd('ask clear', 'Clear saved answers')
@@ -230,7 +230,7 @@ describe('run()', () => {
 
   test('omits intermediate parent with no description or action from help', () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('greeting formal', 'Use formal greeting style')
 
     const help = c.helpText()
@@ -240,7 +240,7 @@ describe('run()', () => {
 
   test('preserves declaration order in help across interleaved subcommands', () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('a, ask', 'Ask something').add(() => {})
     c.cmd('greeting formal', 'Use formal greeting style')
     c.cmd('ask history', 'Show question history')
@@ -256,7 +256,7 @@ describe('run()', () => {
 
   test('prints help and error when command not found', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('b, build', 'Build project')
 
     const logs: string[] = []
@@ -281,7 +281,7 @@ describe('run()', () => {
 
   test('prints help when no arguments provided', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('b, build', 'Build project').add('<target>')
 
     const logs: string[] = []
@@ -301,7 +301,7 @@ describe('run()', () => {
 
   test('appends extra help text from help(text)', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('build', 'Build project')
     c.help(`
 Examples:
@@ -325,7 +325,7 @@ Examples:
 
   test('prints help when -h flag is passed', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('build', 'Build project')
 
     const logs: string[] = []
@@ -345,7 +345,7 @@ Examples:
 
   test('prints command help when command -h is passed', async () => {
     const c = new Command()
-    c.meta('myapp', 'My app')
+    c.name('myapp', 'My app')
     c.cmd('deploy', 'Deploy app')
       .add('<env>', 'Target environment', ['staging', 'production'])
       .add('-p, --port <n>', 'Port number')
@@ -394,7 +394,7 @@ Examples:
 
   test('shows help when default command has required args and no arguments provided', async () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('build', 'Build project')
     c.cmd()
       .add('<target>')
@@ -430,7 +430,7 @@ Examples:
 
   test('includes default command args in help commands list', () => {
     const c = new Command()
-    c.meta('myapp')
+    c.name('myapp')
     c.cmd('build', 'Build project')
     c.cmd()
       .add('<target>', 'Deploy target', ['staging', 'prod'])

@@ -14,7 +14,7 @@ import {
 const NAME = 'akectl'
 const ENV = process.env
 
-app.meta(NAME)
+app.name(NAME)
 
 app
   .cmd('init', 'Create ake file')

@@ -6,7 +6,7 @@ The autocompletion feature in Script.js allows you to add powerful shell autocom
 ## Basic Example
 
 ```ts
-app.meta('hello')
+app.name('hello')
 
 app.cmd('cmd1', 'Description')
   .add('[arg1]', 'Description', ['value1', 'value2'])  // complete with choices
