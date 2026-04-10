@@ -1,7 +1,9 @@
 import { getBorderCharacters, table as rawTable } from 'table'
 
 // data: [{a: '1'}] | [['a'], ['1'], ..]
-export function printTable(data: Record<string, unknown>[] | unknown[][]): void {
+export function printTable(
+  data: Record<string, unknown>[] | unknown[][],
+): void {
   if (!Array.isArray(data) || data.length === 0) return
 
   let columns: string[]
@@ -20,7 +22,8 @@ export function printTable(data: Record<string, unknown>[] | unknown[][]): void 
   const output = rawTable(
     [columns.map((v) => `\x1b[1;32m${v}\x1b[0m`), ...rows],
     {
-      drawHorizontalLine: (lineIndex, rowCount) => [0, 1, rowCount].includes(lineIndex),
+      drawHorizontalLine: (lineIndex, rowCount) =>
+        [0, 1, rowCount].includes(lineIndex),
       border: {
         ...getBorderCharacters('norc'),
         topLeft: '╭',
