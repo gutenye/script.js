@@ -1,3 +1,9 @@
+## [4.2.0](https://github.com/gutenye/script.js/compare/v4.1.0...v4.2.0) (2026-04-10)
+
+### Features
+
+* add printTable helper and organize utilities into helpers directory ([e46ab66](https://github.com/gutenye/script.js/commit/e46ab664c41aa902870c060c2876832da39e5067))
+
 ## [4.1.0](https://github.com/gutenye/script.js/compare/v4.0.1...v4.1.0) (2026-04-08)
 
 ### Features
