@@ -1,3 +1,9 @@
+## [5.1.0](https://github.com/gutenye/script.js/compare/v5.0.0...v5.1.0) (2026-04-10)
+
+### Features
+
+* add grouped table support to printTable ([61efcb6](https://github.com/gutenye/script.js/commit/61efcb6090d18d03ac6635f06f95cc7a1bbe8512))
+
 ## [5.0.0](https://github.com/gutenye/script.js/compare/v4.2.0...v5.0.0) (2026-04-10)
 
 ### ⚠ BREAKING CHANGES
