@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@gutenye/script.js": "^2.3.0",
+    "table": "^6.9.0",
     "yaml": "^2.6.0"
   },
   "peerDependencies": {

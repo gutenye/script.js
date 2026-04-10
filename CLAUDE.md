@@ -30,6 +30,7 @@ bun run lint:ci       # CI lint with GitHub reporter
 | `parseArgv.ts`  | Raw argv → positionals + options                                     |
 | `spawn.ts`      | `$` tagged template for shell execution (`Bun.spawnSync` + `sh -c`)  |
 | `completion.ts` | Carapace YAML spec generation from command tree                      |
+| `helpers/`      | Utility functions — `table` (formatted console tables), `common` (exitWithError) |
 
 ### Path aliases
 

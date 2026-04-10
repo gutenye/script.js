@@ -55,6 +55,7 @@ chmod +x hello         # Make the script executable
 - [Create Commands](./docs/Create%20Commands.md): Create commands, subcommands, and manage dependencies
 - [Completion](./docs/Completion.md): Customize the autocompletion
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
+- [Helpers](./docs/Helpers.md): Utility functions for writing scripts
 - [Ake](./src/ake): A task runner supports shell autocompletion
 
 ## v2
