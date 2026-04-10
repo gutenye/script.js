@@ -24,7 +24,7 @@ exitWithError('missing argument', 'Usage: myscript <file>')
 
 Print data as a formatted console table with rounded borders and green headers.
 
-Accepts an array of objects, a 2-D array (first row = headers), or an object of groups (spanning headers). Empty groups are automatically skipped.
+Accepts an array of objects, a 2-D array (first row = headers), or an object of groups. Each group value can be a 2-D array or an array of objects. Empty groups are automatically skipped.
 
 ```ts
 import { printTable } from '@gutenye/script.js'
@@ -49,20 +49,38 @@ printTable([
 ])
 // same output as above
 
-// Grouped table
+// Grouped table (2-D array or array of objects per group)
 printTable({
-  General: { Format: 'MPEG-4', Duration: '1h 30m' },
-  Video: { Codec: 'H.264', Width: '1920' },
+  General: [['Format', 'MPEG-4', 'good'], ['Duration', '1h', '']],
+  Video: [['Codec', 'H.264', 'high']],
 })
-// ╭───────────────────╮
-// │ General           │
-// ├──────────┬────────┤
-// │ Format   │ MPEG-4 │
-// │ Duration │ 1h 30m │
-// ├──────────┴────────┤
-// │ Video             │
-// ├──────────┬────────┤
-// │ Codec    │ H.264  │
-// │ Width    │ 1920   │
-// ╰──────────┴────────╯
+// ╭──────────────────────────╮
+// │ General                  │
+// ├──────────┬────────┬──────┤
+// │ Format   │ MPEG-4 │ good │
+// │ Duration │ 1h     │      │
+// ├──────────┴────────┴──────┤
+// │ Video                    │
+// ├──────────┬────────┬──────┤
+// │ Codec    │ H.264  │ high │
+// ╰──────────┴────────┴──────╯
+
+// Grouped table with headers
+printTable({
+  General: [['Format', 'Matroska', 'MPEG-4'], ['Duration', '1h 30m', '2h 10m']],
+  Video: [['Codec', 'H.265', 'H.264'], ['Width', '3840', '1920']],
+}, { headers: ['', 'file1.mkv', 'file2.mp4'] })
+// ╭──────────┬───────────┬───────────╮
+// │          │ file1.mkv │ file2.mp4 │
+// ├──────────┴───────────┴───────────┤
+// │ General                          │
+// ├──────────┬───────────┬───────────┤
+// │ Format   │ Matroska  │ MPEG-4    │
+// │ Duration │ 1h 30m    │ 2h 10m    │
+// ├──────────┴───────────┴───────────┤
+// │ Video                            │
+// ├──────────┬───────────┬───────────┤
+// │ Codec    │ H.265     │ H.264     │
+// │ Width    │ 3840      │ 1920      │
+// ╰──────────┴───────────┴───────────╯
 ```

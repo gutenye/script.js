@@ -38,32 +38,33 @@ describe('printTable', () => {
   })
 
   test('grouped table with spanning headers, skips empty groups', () => {
+    // 2D array groups (multi-column)
     logMock.mockReset()
     printTable({
-      General: { Format: 'MPEG-4', Duration: '1h' },
-      Video: { Codec: 'H.264' },
+      General: [['Format', 'MPEG-4', 'good'], ['Duration', '1h', '']],
+      Video: [['Codec', 'H.264', 'high']],
     })
     expect(captured()).toEqual(
       [
-        '╭───────────────────╮',
-        '│ General           │',
-        '├──────────┬────────┤',
-        '│ Format   │ MPEG-4 │',
-        '│ Duration │ 1h     │',
-        '├──────────┴────────┤',
-        '│ Video             │',
-        '├──────────┬────────┤',
-        '│ Codec    │ H.264  │',
-        '╰──────────┴────────╯',
+        '╭──────────────────────────╮',
+        '│ General                  │',
+        '├──────────┬────────┬──────┤',
+        '│ Format   │ MPEG-4 │ good │',
+        '│ Duration │ 1h     │      │',
+        '├──────────┴────────┴──────┤',
+        '│ Video                    │',
+        '├──────────┬────────┬──────┤',
+        '│ Codec    │ H.264  │ high │',
+        '╰──────────┴────────┴──────╯',
         '',
       ].join('\n'),
     )
 
+    // Array of objects groups
     logMock.mockReset()
     printTable({
-      General: { Format: 'MPEG-4' },
-      Empty: {},
-      Video: { Codec: 'H.264' },
+      General: [{ Name: 'Format', Value: 'MPEG-4' }],
+      Video: [{ Name: 'Codec', Value: 'H.264' }],
     })
     expect(captured()).toEqual(
       [
@@ -79,6 +80,52 @@ describe('printTable', () => {
         '',
       ].join('\n'),
     )
+
+    // Skips empty groups
+    logMock.mockReset()
+    printTable({
+      General: [['Format', 'MPEG-4']],
+      Empty: [],
+      Video: [['Codec', 'H.264']],
+    })
+    expect(captured()).toEqual(
+      [
+        '╭─────────────────╮',
+        '│ General         │',
+        '├────────┬────────┤',
+        '│ Format │ MPEG-4 │',
+        '├────────┴────────┤',
+        '│ Video           │',
+        '├────────┬────────┤',
+        '│ Codec  │ H.264  │',
+        '╰────────┴────────╯',
+        '',
+      ].join('\n'),
+    )
+
+    // With headers option
+    logMock.mockReset()
+    printTable({
+      General: [['Format', 'MPEG-4'], ['Duration', '1h']],
+      Video: [['Codec', 'H.264']],
+    }, { headers: ['Name', 'Value'] })
+    expect(captured()).toEqual(
+      [
+        '╭──────────┬────────╮',
+        '│ Name     │ Value  │',
+        '├──────────┴────────┤',
+        '│ General           │',
+        '├──────────┬────────┤',
+        '│ Format   │ MPEG-4 │',
+        '│ Duration │ 1h     │',
+        '├──────────┴────────┤',
+        '│ Video             │',
+        '├──────────┬────────┤',
+        '│ Codec    │ H.264  │',
+        '╰──────────┴────────╯',
+        '',
+      ].join('\n'),
+    )
   })
 
   test('empty input does not render', () => {
@@ -86,7 +133,7 @@ describe('printTable', () => {
     printTable([])
     expect(logMock).not.toHaveBeenCalled()
 
-    printTable({ Empty: {} })
+    printTable({ Empty: [] })
     expect(logMock).not.toHaveBeenCalled()
   })
 })
