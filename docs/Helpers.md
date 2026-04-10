@@ -2,40 +2,6 @@
 
 Utility functions for writing scripts.
 
-## printTable
-
-Print data as a formatted console table with rounded borders and green headers.
-
-Accepts either an array of objects or a 2-D array (first row = headers):
-
-```ts
-import { printTable } from '@gutenye/script.js'
-
-// Array of objects
-printTable([
-  { name: 'alice', role: 'admin' },
-  { name: 'bob', role: 'user' },
-])
-
-// 2-D array (first row is headers)
-printTable([
-  ['name', 'role'],
-  ['alice', 'admin'],
-  ['bob', 'user'],
-])
-```
-
-Output:
-
-```
-╭───────┬───────╮
-│ name  │ role  │
-├───────┼───────┤
-│ alice │ admin │
-│ bob   │ user  │
-╰───────┴───────╯
-```
-
 ## exitWithError
 
 Print an error message to stderr and exit with code 1. Optionally display help text.
@@ -52,4 +18,51 @@ exitWithError('missing argument', 'Usage: myscript <file>')
 // Error: missing argument
 //
 // Usage: myscript <file>
+```
+
+## printTable
+
+Print data as a formatted console table with rounded borders and green headers.
+
+Accepts an array of objects, a 2-D array (first row = headers), or an object of groups (spanning headers). Empty groups are automatically skipped.
+
+```ts
+import { printTable } from '@gutenye/script.js'
+
+// Array of objects
+printTable([
+  { name: 'alice', role: 'admin' },
+  { name: 'bob', role: 'user' },
+])
+// ╭───────┬───────╮
+// │ name  │ role  │
+// ├───────┼───────┤
+// │ alice │ admin │
+// │ bob   │ user  │
+// ╰───────┴───────╯
+
+// 2-D array (first row is headers)
+printTable([
+  ['name', 'role'],
+  ['alice', 'admin'],
+  ['bob', 'user'],
+])
+// same output as above
+
+// Grouped table
+printTable({
+  General: { Format: 'MPEG-4', Duration: '1h 30m' },
+  Video: { Codec: 'H.264', Width: '1920' },
+})
+// ╭───────────────────╮
+// │ General           │
+// ├──────────┬────────┤
+// │ Format   │ MPEG-4 │
+// │ Duration │ 1h 30m │
+// ├──────────┴────────┤
+// │ Video             │
+// ├──────────┬────────┤
+// │ Codec    │ H.264  │
+// │ Width    │ 1920   │
+// ╰──────────┴────────╯
 ```
