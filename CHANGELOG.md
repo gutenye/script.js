@@ -1,3 +1,17 @@
+## [6.0.0](https://github.com/gutenye/script.js/compare/v5.1.0...v6.0.0) (2026-04-10)
+
+### ⚠ BREAKING CHANGES
+
+* printTable grouped format changed from
+Record<string, Record<string, unknown>> to
+Record<string, Record<string, unknown>[] | unknown[][]>
+
+Made-with: Cursor
+
+### Features
+
+* support multi-column groups and headers option in printTable ([60f1f9d](https://github.com/gutenye/script.js/commit/60f1f9d5d99dcb6b52dc48fe3586bead58645d60))
+
 ## [5.1.0](https://github.com/gutenye/script.js/compare/v5.0.0...v5.1.0) (2026-04-10)
 
 ### Features
