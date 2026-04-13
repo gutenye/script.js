@@ -41,7 +41,10 @@ describe('printTable', () => {
     // 2D array groups (multi-column)
     logMock.mockReset()
     printTable({
-      General: [['Format', 'MPEG-4', 'good'], ['Duration', '1h', '']],
+      General: [
+        ['Format', 'MPEG-4', 'good'],
+        ['Duration', '1h', ''],
+      ],
       Video: [['Codec', 'H.264', 'high']],
     })
     expect(captured()).toEqual(
@@ -105,10 +108,16 @@ describe('printTable', () => {
 
     // With headers option
     logMock.mockReset()
-    printTable({
-      General: [['Format', 'MPEG-4'], ['Duration', '1h']],
-      Video: [['Codec', 'H.264']],
-    }, { headers: ['Name', 'Value'] })
+    printTable(
+      {
+        General: [
+          ['Format', 'MPEG-4'],
+          ['Duration', '1h'],
+        ],
+        Video: [['Codec', 'H.264']],
+      },
+      { headers: ['Name', 'Value'] },
+    )
     expect(captured()).toEqual(
       [
         '╭──────────┬────────╮',

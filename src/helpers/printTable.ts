@@ -3,10 +3,7 @@ import { getBorderCharacters, table as rawTable } from 'table'
 
 // data: [{a: '1'}] | [['a'], ['1'], ..] | { Group: [{a: '1'}] | [['a'], ['1']] }
 export function printTable(
-  data:
-    | Record<string, unknown>[]
-    | unknown[][]
-    | Record<string, GroupValue>,
+  data: Record<string, unknown>[] | unknown[][] | Record<string, GroupValue>,
   options?: { headers?: string[] },
 ): void {
   if (!Array.isArray(data) && typeof data === 'object' && data !== null) {
@@ -60,7 +57,10 @@ function printGroupedTable(
 
   if (headers) {
     hasColumnHeaders = true
-    const padded = [...headers, ...Array(Math.max(0, colCount - headers.length)).fill('')]
+    const padded = [
+      ...headers,
+      ...Array(Math.max(0, colCount - headers.length)).fill(''),
+    ]
     tableData.push(padded.map((v) => `\x1b[1;32m${v}\x1b[0m`))
   }
 
@@ -74,7 +74,10 @@ function printGroupedTable(
     spanningCells.push({ col: 0, row: headerRow, colSpan: colCount })
 
     for (const row of rows) {
-      tableData.push([...row, ...Array(Math.max(0, colCount - row.length)).fill('')])
+      tableData.push([
+        ...row,
+        ...Array(Math.max(0, colCount - row.length)).fill(''),
+      ])
     }
   }
 
