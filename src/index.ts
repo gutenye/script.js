@@ -1,6 +1,9 @@
 import { app } from './Command'
 
+let hasRun = false
 process.on('beforeExit', async () => {
+  if (hasRun) return
+  hasRun = true
   await app.run()
 })
 
