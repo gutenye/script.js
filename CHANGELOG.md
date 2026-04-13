@@ -1,3 +1,15 @@
+## [7.0.0](https://github.com/gutenye/script.js/compare/v6.0.0...v7.0.0) (2026-04-13)
+
+### ⚠ BREAKING CHANGES
+
+* runViaScriptJs() is removed from Command.
+
+Made-with: Cursor
+
+### Features
+
+* auto-run app.run() via beforeExit, remove runViaScriptJs ([b2a68d1](https://github.com/gutenye/script.js/commit/b2a68d1a4ae86c04bda58699910aea307fa20e96))
+
 ## [6.0.0](https://github.com/gutenye/script.js/compare/v5.1.0...v6.0.0) (2026-04-10)
 
 ### ⚠ BREAKING CHANGES
