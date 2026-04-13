@@ -1,3 +1,9 @@
+## [7.2.0](https://github.com/gutenye/script.js/compare/v7.1.0...v7.2.0) (2026-04-13)
+
+### Features
+
+* support CARAPACE_SPECS_DIR env var for completion spec output ([b8f92a0](https://github.com/gutenye/script.js/commit/b8f92a086edc1d7666eee63c3fbc94862bc53fd6))
+
 ## [7.1.0](https://github.com/gutenye/script.js/compare/v7.0.0...v7.1.0) (2026-04-13)
 
 ### Features
