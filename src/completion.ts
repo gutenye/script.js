@@ -123,6 +123,7 @@ export function buildSpecText(
 }
 
 function getCarapaceSpecsDir(): string {
+  if (process.env.CARAPACE_SPECS_DIR) return process.env.CARAPACE_SPECS_DIR
   const homeDir = os.homedir()
   switch (os.platform()) {
     case 'darwin':
