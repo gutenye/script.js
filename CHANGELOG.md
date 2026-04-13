@@ -1,3 +1,13 @@
+## [7.1.0](https://github.com/gutenye/script.js/compare/v7.0.0...v7.1.0) (2026-04-13)
+
+### Features
+
+* ake upward search, auto CWD, and setupAke refactor ([b9b6bed](https://github.com/gutenye/script.js/commit/b9b6bed5c35de84f344c3216191caf90a81b9f01)), closes [#setupAke](https://github.com/gutenye/script.js/issues/setupAke) [#setupAke](https://github.com/gutenye/script.js/issues/setupAke)
+
+### Bug Fixes
+
+* prevent beforeExit handler from running app.run() multiple times ([d40e6d7](https://github.com/gutenye/script.js/commit/d40e6d7552a2944369732dfae07c1cf0eb0e5786))
+
 ## [7.0.0](https://github.com/gutenye/script.js/compare/v6.0.0...v7.0.0) (2026-04-13)
 
 ### ⚠ BREAKING CHANGES
