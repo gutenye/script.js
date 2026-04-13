@@ -1,4 +1,11 @@
+import path from 'node:path'
 import { Argument } from './Argument'
+import {
+  getAkeSuffix,
+  getCompletionName,
+  getProjectDir,
+  isAke,
+} from './ake/shared'
 import { installCompletion } from './completion'
 import { Option } from './Option'
 import { parseArgv } from './parseArgv'
@@ -112,8 +119,19 @@ export class Command {
     const isScriptJs = (globalThis as any).app === this
     const scriptPath = isScriptJs ? Bun.argv[2] : Bun.main
     const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
-    installCompletion(this, { scriptPath })
+    this.#setupAke(scriptPath)
+    installCompletion(this)
     return this.parse(argv)
+  }
+
+  #setupAke(scriptPath: string) {
+    if (!isAke(scriptPath)) return
+    if (!this._name) {
+      const suffix = getAkeSuffix(path.basename(scriptPath)) ?? ''
+      this._name = getCompletionName(suffix)
+    }
+    const projectDir = getProjectDir(scriptPath)
+    process.chdir(projectDir)
   }
 
   async parse(argv: string[]): Promise<void> {

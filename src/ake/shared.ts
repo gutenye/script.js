@@ -6,7 +6,7 @@ import fs from '../utils/fs'
 const HOME = os.homedir()
 const CWD = process.cwd()
 
-export const STORAGE_DIR = `${HOME}/bin.src/ake`
+export const STORAGE_DIR = fsSync.realpathSync(`${HOME}/bin.src/ake`)
 export const TEMPLATE_NAME = 'template'
 
 export function getAkeFilenames(suffix = ''): string[] {
@@ -20,39 +20,59 @@ export function getAkeSuffix(name: string): string | null {
   return base.slice(3)
 }
 
+export function isAke(scriptPath: string): boolean {
+  return getAkeSuffix(path.basename(scriptPath)) !== null
+}
+
 export function getSuffix(): string {
   return getAkeSuffix(path.basename(process.argv[1])) ?? ''
 }
 
-export async function findAkeFiles(suffix = ''): Promise<string[]> {
+export function getProjectDir(scriptPath: string): string {
+  const dir = path.dirname(path.resolve(scriptPath))
+  if (dir.startsWith(STORAGE_DIR)) {
+    const uniqueName = path.basename(dir)
+    return uniqueName.replaceAll('_', '/')
+  }
+  return dir
+}
+
+export async function findAkeFiles(
+  suffix = '',
+  startDir?: string,
+): Promise<string[]> {
   const filenames = getAkeFilenames(suffix)
-  const localDir = CWD
-  const remoteDir = getRemoteDir()
-  const dirsToCheck = [localDir, remoteDir]
+  let localDir = fsSync.realpathSync(startDir ?? process.cwd())
+  while (true) {
+    const dirsToCheck = [localDir, getRemoteDirFor(localDir)]
+    const found: string[] = []
+    for (const d of dirsToCheck) {
+      for (const name of filenames) {
+        const akeFile = `${d}/${name}`
+        if (await fs.pathExists(akeFile)) found.push(akeFile)
+      }
+    }
+    if (found.length > 0) return found
+    const parent = path.dirname(localDir)
+    if (parent === localDir) break
+    localDir = parent
+  }
+  return []
+}
 
-  const akeFiles = await Promise.all(
-    dirsToCheck.flatMap((dir) =>
-      filenames.map(async (name) => {
-        const akeFile = `${dir}/${name}`
-        return (await fs.pathExists(akeFile)) ? akeFile : null
-      }),
-    ),
-  )
-
-  return akeFiles.filter(Boolean) as string[]
+// use sync method to avoid using await in app.enableAkeCompletion()
+export function getRemoteDirFor(dir: string): string {
+  const uniqueName = fsSync.realpathSync(dir).replaceAll('/', '_')
+  return `${STORAGE_DIR}/${uniqueName}`
 }
 
 export function getRemoteDir() {
-  return `${STORAGE_DIR}/${getUniqueName()}`
+  return getRemoteDirFor(CWD)
 }
 
 export function getCompletionName(suffix = '') {
-  return `ake${suffix}.${getUniqueName()}`
-}
-
-export function getUniqueName() {
-  // use sync method to avoid using await in app.enableAkeCompletion()
-  return fsSync.realpathSync(CWD).replaceAll('/', '_')
+  const uniqueName = fsSync.realpathSync(CWD).replaceAll('/', '_')
+  return `ake${suffix}.${uniqueName}`
 }
 
 export function exitWithError(message: string, help?: string): never {

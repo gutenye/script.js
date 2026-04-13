@@ -229,24 +229,4 @@ describe('installCompletion()', () => {
     expect(stat1.mtimeMs).toBe(stat2.mtimeMs)
   })
 
-  test('auto-names ake scripts from scriptPath', async () => {
-    const c1 = new Command()
-    c1.cmd('build', 'Build')
-    await installCompletion(c1, {
-      specsDir: tmpDir,
-      scriptPath: '/some/path/ake',
-    })
-
-    const c2 = new Command()
-    c2.cmd('build', 'Build')
-    await installCompletion(c2, {
-      specsDir: tmpDir,
-      scriptPath: '/some/path/akefoo',
-    })
-
-    const files = fs.readdirSync(tmpDir).sort()
-    expect(files.length).toBe(2)
-    expect(files[0]).toMatch(/^ake\..*\.yaml$/)
-    expect(files[1]).toMatch(/^akefoo\..*\.yaml$/)
-  })
 })

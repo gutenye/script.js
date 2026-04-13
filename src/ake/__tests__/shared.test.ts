@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'bun:test'
-import { getAkeFilenames, getAkeSuffix } from '../shared'
+import {
+  getAkeFilenames,
+  getAkeSuffix,
+  getProjectDir,
+  isAke,
+  STORAGE_DIR,
+} from '../shared'
 
 describe('getAkeFilenames()', () => {
   test('returns default ake filenames with no suffix', () => {
@@ -42,5 +48,30 @@ describe('getAkeSuffix()', () => {
 
   test('returns null for non-ake names', () => {
     expect(getAkeSuffix('other')).toBeNull()
+  })
+})
+
+describe('isAke()', () => {
+  test('true for ake files', () => {
+    expect(isAke('/project/ake')).toBe(true)
+    expect(isAke('/project/akefoo')).toBe(true)
+    expect(isAke('/project/ake.ts')).toBe(true)
+  })
+
+  test('false for non-ake files', () => {
+    expect(isAke('/project/akectl')).toBe(false)
+    expect(isAke('/project/script.ts')).toBe(false)
+  })
+})
+
+describe('getProjectDir()', () => {
+  test('returns dirname for local ake file', () => {
+    expect(getProjectDir('/data/project/ake')).toBe('/data/project')
+  })
+
+  test('reverses unique name for remote ake file', () => {
+    expect(getProjectDir(`${STORAGE_DIR}/_data_project/ake`)).toBe(
+      '/data/project',
+    )
   })
 })

@@ -27,7 +27,7 @@ app.cmd("greetings").add(() => {
 2. Run it
 
 ```sh
-ake greetings   # find the ake file and runs it
+ake greetings   # output greetings
 ```
 
 3. Supports Shell Completion
@@ -80,6 +80,24 @@ import { app } from "@gutenye/script.js";
 import "./src/commands/cmd1";
 ```
 
+## Run from Subdirectories
+
+`ake` searches upward from your current directory to find the ake file, so you can run it from any subdirectory.
+
+```sh
+project/
+├── ake
+├── web/
+├── server/
+```
+
+```sh
+cd web
+ake greetings   # finds ../ake and runs it in the project directory
+```
+
+The working directory is automatically set to the project directory (where the ake file lives), so `$` commands always run relative to the project root.
+
 ## Multiple Ake Files
 
 Any file named `ake<suffix>` or `ake<suffix>.ts` is supported.
@@ -108,3 +126,7 @@ _setup_ake_complete ake foo
 akefoo greetings
 akefoo <Tab>   # with autocompletion
 ```
+
+## Development
+
+See [Ake Development](./Ake%20Development.md) for architecture and testing details.

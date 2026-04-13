@@ -2,7 +2,6 @@ import fsSync from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import * as yaml from 'yaml'
-import { getAkeSuffix, getCompletionName } from './ake/shared'
 import type { Command } from './Command'
 
 export type CompletionValue = string[] | (() => string[])
@@ -142,7 +141,6 @@ function getCarapaceSpecsDir(): string {
 }
 
 type InstallOptions = {
-  scriptPath?: string
   specsDir?: string
 }
 
@@ -151,13 +149,6 @@ export async function installCompletion(
   options: InstallOptions = {},
 ) {
   try {
-    if (!command._name && options.scriptPath) {
-      const suffix = getAkeSuffix(path.basename(options.scriptPath))
-      if (suffix !== null) {
-        command._name = getCompletionName(suffix)
-      }
-    }
-
     const result = buildSpecText(command)
     if (!result) return
 

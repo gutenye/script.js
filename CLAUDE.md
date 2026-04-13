@@ -17,7 +17,7 @@ bun run lint:ci       # CI lint with GitHub reporter
 - **Runtime:** Bun (no Node.js — use Bun APIs exclusively)
 - **Language:** TypeScript with strict mode, ESM only (`verbatimModuleSyntax`)
 - **Entry:** `src/index.ts` exports `app` (Command) and `$` (shell execution). Registers `process.on('beforeExit')` to auto-run `app.run()` — user scripts no longer need `await app.run()`
-- **CLI binary:** `src/script.ts` — sets globals on `globalThis`, imports user script, runs `app.runViaScriptJs()`
+- **CLI binary:** `src/script.ts` — sets globals on `globalThis`, imports user script (auto-run via `beforeExit`)
 - **Ake task runner:** `src/ake.ts`, `src/akectl.ts` — built-in task runner using same Command framework
 
 ### Core modules
