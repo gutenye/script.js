@@ -34,8 +34,6 @@ app
   .add((files, ctx) => {
     $`ls -l ${files}`;
   });
-
-await app.run();
 ```
 
 ## Basic Example

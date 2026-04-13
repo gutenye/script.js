@@ -22,8 +22,6 @@ import { app, $ } from "@gutenye/script.js";
 app.cmd("greetings").add(() => {
   $`echo greetings`;
 });
-
-await app.run();
 ```
 
 2. Run it
@@ -80,8 +78,6 @@ app.cmd("greetings").add(() => {
 
 import { app } from "@gutenye/script.js";
 import "./src/commands/cmd1";
-
-await app.run();
 ```
 
 ## Multiple Ake Files

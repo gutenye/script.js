@@ -1,8 +1,8 @@
 #!/usr/bin/env bun --env-file ''
 
 import path from 'node:path'
-import { app } from './Command'
-import { $ } from './spawn'
+import { app, $ } from './index'
+
 ;(globalThis as any).$ = $
 ;(globalThis as any).app = app
 
@@ -13,4 +13,3 @@ if (!scriptPath) {
 }
 
 await import(path.resolve(scriptPath))
-await app.runViaScriptJs()

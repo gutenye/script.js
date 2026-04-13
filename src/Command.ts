@@ -108,15 +108,12 @@ export class Command {
     return command.action?.(...args)
   }
 
-  async runViaScriptJs() {
-    installCompletion(this, { scriptPath: Bun.argv[2] })
-    return this.parse(Bun.argv.slice(3))
-  }
-
-  // runViaBun
   async run() {
-    installCompletion(this, { scriptPath: Bun.main })
-    return this.parse(Bun.argv.slice(2))
+    const isScriptJs = (globalThis as any).app === this
+    const scriptPath = isScriptJs ? Bun.argv[2] : Bun.main
+    const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
+    installCompletion(this, { scriptPath })
+    return this.parse(argv)
   }
 
   async parse(argv: string[]): Promise<void> {
