@@ -1,3 +1,9 @@
+## [7.2.1](https://github.com/gutenye/script.js/compare/v7.2.0...v7.2.1) (2026-04-13)
+
+### Bug Fixes
+
+* make REMOTE_DIR resilient to missing ~/bin.src/ake directory ([a640adf](https://github.com/gutenye/script.js/commit/a640adfcd65808ba840b11a995de02150a991d8a))
+
 ## [7.2.0](https://github.com/gutenye/script.js/compare/v7.1.0...v7.2.0) (2026-04-13)
 
 ### Features
