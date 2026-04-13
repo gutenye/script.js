@@ -1,3 +1,4 @@
+import fsSync from 'node:fs'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import nodePath from 'node:path'
@@ -198,6 +199,15 @@ async function makeMissingDirs(rawPath: PathLike) {
 
 async function mkdirp(path: PathLike) {
   return fs.mkdir(path, { recursive: true })
+}
+
+// realpathSync that falls back to the raw path if it doesn't exist
+export function realpathSyncSafe(filePath: string): string {
+  try {
+    return fsSync.realpathSync(filePath)
+  } catch {
+    return filePath
+  }
 }
 
 type WriteFileArgs = Parameters<typeof fs.writeFile>

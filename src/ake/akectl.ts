@@ -7,7 +7,7 @@ import {
   findAkeFiles,
   getAkeFilenames,
   getRemoteDir,
-  STORAGE_DIR,
+  REMOTE_DIR,
   TEMPLATE_NAME,
 } from './shared'
 
@@ -34,7 +34,7 @@ app
       await fs.mkdirp(remoteDir)
       target = `${remoteDir}/${filenames[0]}`
     }
-    const templateFile = `${STORAGE_DIR}/${TEMPLATE_NAME}`
+    const templateFile = `${REMOTE_DIR}/${TEMPLATE_NAME}`
     if (await fs.pathExists(templateFile)) {
       await fs.copy(templateFile, target)
     } else {

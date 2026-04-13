@@ -1,12 +1,13 @@
 import fsSync from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import fs from '../utils/fs'
+import fs, { realpathSyncSafe } from '../utils/fs'
 
 const HOME = os.homedir()
 const CWD = process.cwd()
 
-export const STORAGE_DIR = fsSync.realpathSync(`${HOME}/bin.src/ake`)
+// ~/bin.src/ake may not exist (e.g. in CI), so fall back to the raw path
+export const REMOTE_DIR = realpathSyncSafe(`${HOME}/bin.src/ake`)
 export const TEMPLATE_NAME = 'template'
 
 export function getAkeFilenames(suffix = ''): string[] {
@@ -30,7 +31,7 @@ export function getSuffix(): string {
 
 export function getProjectDir(scriptPath: string): string {
   const dir = path.dirname(path.resolve(scriptPath))
-  if (dir.startsWith(STORAGE_DIR)) {
+  if (dir.startsWith(REMOTE_DIR)) {
     const uniqueName = path.basename(dir)
     return uniqueName.replaceAll('_', '/')
   }
@@ -63,7 +64,7 @@ export async function findAkeFiles(
 // use sync method to avoid using await in app.enableAkeCompletion()
 export function getRemoteDirFor(dir: string): string {
   const uniqueName = fsSync.realpathSync(dir).replaceAll('/', '_')
-  return `${STORAGE_DIR}/${uniqueName}`
+  return `${REMOTE_DIR}/${uniqueName}`
 }
 
 export function getRemoteDir() {

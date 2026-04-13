@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { STORAGE_DIR } from '../shared'
+import { REMOTE_DIR } from '../shared'
 
 const akeBinary = path.resolve(import.meta.dir, '../ake.ts')
 const indexPath = path.resolve(import.meta.dir, '../../index')
@@ -66,7 +66,7 @@ describe('ake', () => {
 
     beforeEach(() => {
       const uniqueName = projectDir.replaceAll('/', '_')
-      remoteDir = path.join(STORAGE_DIR, uniqueName)
+      remoteDir = path.join(REMOTE_DIR, uniqueName)
       fs.mkdirSync(remoteDir, { recursive: true })
       fs.writeFileSync(path.join(remoteDir, 'ake'), makeAkeContent())
       fs.chmodSync(path.join(remoteDir, 'ake'), 0o755)

@@ -4,7 +4,7 @@ import {
   getAkeSuffix,
   getProjectDir,
   isAke,
-  STORAGE_DIR,
+  REMOTE_DIR,
 } from '../shared'
 
 describe('getAkeFilenames()', () => {
@@ -70,7 +70,7 @@ describe('getProjectDir()', () => {
   })
 
   test('reverses unique name for remote ake file', () => {
-    expect(getProjectDir(`${STORAGE_DIR}/_data_project/ake`)).toBe(
+    expect(getProjectDir(`${REMOTE_DIR}/_data_project/ake`)).toBe(
       '/data/project',
     )
   })
