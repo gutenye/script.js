@@ -77,6 +77,20 @@ app
     await openEditor(akeFile)
   })
 
+app
+  .cmd('path', 'Print ake file path')
+  .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
+  .add(async (suffix: string) => {
+    suffix = suffix ?? ''
+    const akeFiles = await findAkeFiles(suffix)
+    const akeFile = akeFiles[0]
+    if (!akeFile) {
+      const name = `ake${suffix}`
+      exitWithError(`${name} file not found`)
+    }
+    console.log(akeFile)
+  })
+
 async function openEditor(inputPaths: string | string[]) {
   const paths = castArray(inputPaths)
   const editor =
