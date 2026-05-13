@@ -1,3 +1,21 @@
+## [8.0.0](https://github.com/gutenye/script.js/compare/v7.2.1...v8.0.0) (2026-05-13)
+
+### ⚠ BREAKING CHANGES
+
+* completion spec file names change from
+'ake<suffix>.<unique_path>.yaml' to 'ake<suffix>|<unique_path>.yaml'.
+Existing spec files in ~/.config/carapace/specs (or the macOS
+equivalent) need to be renamed accordingly; they will otherwise be
+regenerated next time the corresponding ake script runs.
+
+### Features
+
+* add 'path' command to akectl ([62f04cf](https://github.com/gutenye/script.js/commit/62f04cf72b27d018898216ac382971a465ce4630))
+
+### Bug Fixes
+
+* use '|' instead of '.' in completion spec name ([ffd28e4](https://github.com/gutenye/script.js/commit/ffd28e4220ba6c26e5267b632c1811d974ea1d69))
+
 ## [7.2.1](https://github.com/gutenye/script.js/compare/v7.2.0...v7.2.1) (2026-04-13)
 
 ### Bug Fixes
