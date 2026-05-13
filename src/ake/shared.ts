@@ -72,8 +72,13 @@ export function getRemoteDir() {
 }
 
 export function getCompletionName(suffix = '') {
-  const uniqueName = fsSync.realpathSync(CWD).replaceAll('/', '_')
-  return `ake${suffix}.${uniqueName}`
+  // carapace silently rejects spec names containing '.', so use '|' as the
+  // separator and also replace any '.' inside the path (e.g. `bin.src`).
+  const uniqueName = fsSync
+    .realpathSync(CWD)
+    .replaceAll('/', '_')
+    .replaceAll('.', '|')
+  return `ake${suffix}|${uniqueName}`
 }
 
 export function exitWithError(message: string, help?: string): never {
