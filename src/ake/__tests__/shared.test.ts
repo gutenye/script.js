@@ -1,4 +1,7 @@
-import { describe, expect, test } from 'bun:test'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import {
   getAkeFilenames,
   getAkeSuffix,
@@ -73,5 +76,39 @@ describe('getProjectDir()', () => {
     expect(getProjectDir(`${REMOTE_DIR}/_data_project/ake`)).toBe(
       '/data/project',
     )
+  })
+
+  // Bun resolves symlinks in Bun.main, so `./ake -> ../ake` would surface
+  // as the parent's ake. Verify we walk back up from CWD to the symlink.
+  describe('symlinked ake', () => {
+    let tmpDir: string
+    let originalCwd: string
+
+    beforeEach(() => {
+      originalCwd = process.cwd()
+      tmpDir = fs.realpathSync(
+        fs.mkdtempSync(path.join(os.tmpdir(), 'ake-test-')),
+      )
+      fs.mkdirSync(path.join(tmpDir, 'sub'))
+      fs.writeFileSync(path.join(tmpDir, 'ake'), '#!/usr/bin/env bun\n')
+      fs.symlinkSync('../ake', path.join(tmpDir, 'sub', 'ake'))
+    })
+
+    afterEach(() => {
+      process.chdir(originalCwd)
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    })
+
+    test('returns symlink dir when CWD has a symlink to ake', () => {
+      process.chdir(path.join(tmpDir, 'sub'))
+      expect(getProjectDir(path.join(tmpDir, 'ake'))).toBe(
+        path.join(tmpDir, 'sub'),
+      )
+    })
+
+    test('returns real dir when CWD has no symlink', () => {
+      process.chdir(tmpDir)
+      expect(getProjectDir(path.join(tmpDir, 'ake'))).toBe(tmpDir)
+    })
   })
 })

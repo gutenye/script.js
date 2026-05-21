@@ -35,7 +35,30 @@ export function getProjectDir(scriptPath: string): string {
     const uniqueName = path.basename(dir)
     return uniqueName.replaceAll('_', '/')
   }
-  return dir
+  // Bun resolves symlinks for `Bun.main`/`Bun.argv[2]`, so a `./ake -> ../ake`
+  // symlink would surface as the parent's ake. Walk up from CWD to find the
+  // symlink that points at it and use its dir as the project dir.
+  return findSymlinkProjectDir(scriptPath) ?? dir
+}
+
+function findSymlinkProjectDir(scriptPath: string): string | null {
+  const realScript = realpathSyncSafe(path.resolve(scriptPath))
+  const filenames = getAkeFilenames(getAkeSuffix(path.basename(scriptPath)) ?? '')
+  let dir = process.cwd()
+  while (true) {
+    for (const name of filenames) {
+      const candidate = path.join(dir, name)
+      if (
+        fsSync.existsSync(candidate) &&
+        realpathSyncSafe(candidate) === realScript
+      ) {
+        return dir
+      }
+    }
+    const parent = path.dirname(dir)
+    if (parent === dir) return null
+    dir = parent
+  }
 }
 
 export async function findAkeFiles(
