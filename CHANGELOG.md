@@ -1,3 +1,9 @@
+## [8.0.1](https://github.com/gutenye/script.js/compare/v8.0.0...v8.0.1) (2026-05-21)
+
+### Bug Fixes
+
+* resolve project dir via CWD when ake is symlinked ([86ba342](https://github.com/gutenye/script.js/commit/86ba342d72aa117e39e362578dafad695ddf0ebd))
+
 ## [8.0.0](https://github.com/gutenye/script.js/compare/v7.2.1...v8.0.0) (2026-05-13)
 
 ### ⚠ BREAKING CHANGES
