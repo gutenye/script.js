@@ -4,4 +4,5 @@ import type { $ as Shell } from './spawn'
 declare global {
   var app: Command
   var $: typeof Shell
+  var PROJECT_DIR: string
 }

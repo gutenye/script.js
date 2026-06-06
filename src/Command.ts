@@ -132,6 +132,7 @@ export class Command {
     }
     const projectDir = getProjectDir(scriptPath)
     process.chdir(projectDir)
+    ;(globalThis as any).PROJECT_DIR = projectDir
   }
 
   async parse(argv: string[]): Promise<void> {
