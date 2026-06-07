@@ -101,7 +101,7 @@ The working directory is automatically set to the project directory (where the a
 ## Global Variables
 
 ```ts
-PROJECT_DIR  // absolute path to the project dir
+PROJECT_DIR  // absolute path to the project dir, only available inside command actions
 ```
 
 ## Multiple Ake Files
