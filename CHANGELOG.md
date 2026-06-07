@@ -1,3 +1,9 @@
+## [8.1.0](https://github.com/gutenye/script.js/compare/v8.0.1...v8.1.0) (2026-06-07)
+
+### Features
+
+* expose PROJECT_DIR global for ake files ([#5](https://github.com/gutenye/script.js/issues/5)) ([ab3277b](https://github.com/gutenye/script.js/commit/ab3277bde335e3341919185433df2334281c1fe3))
+
 ## [8.0.1](https://github.com/gutenye/script.js/compare/v8.0.0...v8.0.1) (2026-05-21)
 
 ### Bug Fixes
