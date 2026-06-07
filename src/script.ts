@@ -1,7 +1,7 @@
 #!/usr/bin/env bun --env-file ''
 
 import path from 'node:path'
-import { app, $ } from './index'
+import { $, app } from './index'
 
 ;(globalThis as any).$ = $
 ;(globalThis as any).app = app

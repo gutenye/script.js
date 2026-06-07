@@ -43,7 +43,9 @@ export function getProjectDir(scriptPath: string): string {
 
 function findSymlinkProjectDir(scriptPath: string): string | null {
   const realScript = realpathSyncSafe(path.resolve(scriptPath))
-  const filenames = getAkeFilenames(getAkeSuffix(path.basename(scriptPath)) ?? '')
+  const filenames = getAkeFilenames(
+    getAkeSuffix(path.basename(scriptPath)) ?? '',
+  )
   let dir = process.cwd()
   while (true) {
     for (const name of filenames) {

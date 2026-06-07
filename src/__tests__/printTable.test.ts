@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test'
+import stripAnsi from 'strip-ansi'
 import { printTable } from '../helpers/printTable'
 
 const logMock = mock()
@@ -146,10 +147,6 @@ describe('printTable', () => {
     expect(logMock).not.toHaveBeenCalled()
   })
 })
-
-function stripAnsi(s: string): string {
-  return s.replace(/\x1b\[[0-9;]*m/g, '')
-}
 
 function captured(): string {
   return stripAnsi(logMock.mock.calls[0][0] as string)

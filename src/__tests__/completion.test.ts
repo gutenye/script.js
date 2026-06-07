@@ -228,5 +228,4 @@ describe('installCompletion()', () => {
     const stat2 = fs.statSync(path.join(tmpDir, 'myapp.yaml'))
     expect(stat1.mtimeMs).toBe(stat2.mtimeMs)
   })
-
 })

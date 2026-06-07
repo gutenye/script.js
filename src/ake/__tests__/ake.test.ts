@@ -160,10 +160,6 @@ function runDirect(
   return spawn(['bun', akeFile, ...args], cwd, env)
 }
 
-function runViaAke(
-  cwd: string,
-  args: string[],
-  env?: Record<string, string>,
-) {
+function runViaAke(cwd: string, args: string[], env?: Record<string, string>) {
   return spawn(['bun', akeBinary, ...args], cwd, env)
 }
