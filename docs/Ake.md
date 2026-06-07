@@ -98,6 +98,12 @@ ake greetings   # finds ../ake and runs it in the project directory
 
 The working directory is automatically set to the project directory (where the ake file lives), so `$` commands always run relative to the project root.
 
+## Global Variables
+
+```ts
+PROJECT_DIR  // absolute path to the project dir
+```
+
 ## Multiple Ake Files
 
 Any file named `ake<suffix>` or `ake<suffix>.ts` is supported.
