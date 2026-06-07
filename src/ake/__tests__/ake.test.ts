@@ -101,8 +101,8 @@ describe('ake', () => {
       const env = { CARAPACE_SPECS_DIR: specsDir }
       const result = runDirect(akeFile, projectDir, ['pwd'], env)
       expect(result.exitCode).toBe(0)
-      const uniqueName = projectDir.replaceAll('/', '_')
-      const specName = `ake.${uniqueName}`
+      const uniqueName = projectDir.replaceAll('/', '_').replaceAll('.', '|')
+      const specName = `ake|${uniqueName}`
       const specFile = path.join(specsDir, `${specName}.yaml`)
       const spec = fs.readFileSync(specFile, 'utf8')
       expect(spec).toEqual(`name: ${specName}
