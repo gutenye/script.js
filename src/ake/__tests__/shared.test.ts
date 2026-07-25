@@ -110,5 +110,20 @@ describe('getProjectDir()', () => {
       process.chdir(tmpDir)
       expect(getProjectDir(path.join(tmpDir, 'ake'))).toBe(tmpDir)
     })
+
+    test('prefers worktree dir when CWD symlinks a remote ake', () => {
+      const remoteDir = path.join(REMOTE_DIR, '_data_project')
+      const remoteAke = path.join(remoteDir, 'ake')
+      fs.mkdirSync(remoteDir, { recursive: true })
+      fs.writeFileSync(remoteAke, '#!/usr/bin/env bun\n')
+      try {
+        fs.rmSync(path.join(tmpDir, 'ake'))
+        fs.symlinkSync(remoteAke, path.join(tmpDir, 'ake'))
+        process.chdir(tmpDir)
+        expect(getProjectDir(remoteAke)).toBe(tmpDir)
+      } finally {
+        fs.rmSync(remoteDir, { recursive: true, force: true })
+      }
+    })
   })
 })

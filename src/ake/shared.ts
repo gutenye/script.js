@@ -30,15 +30,18 @@ export function getSuffix(): string {
 }
 
 export function getProjectDir(scriptPath: string): string {
+  // try local first, e.g. symlink remote to local in worktree
+  const localDir = findSymlinkProjectDir(scriptPath)
+  if (localDir) return localDir
+
+  // local not found, try remote ake
   const dir = path.dirname(path.resolve(scriptPath))
   if (dir.startsWith(REMOTE_DIR)) {
     const uniqueName = path.basename(dir)
     return uniqueName.replaceAll('_', '/')
   }
-  // Bun resolves symlinks for `Bun.main`/`Bun.argv[2]`, so a `./ake -> ../ake`
-  // symlink would surface as the parent's ake. Walk up from CWD to find the
-  // symlink that points at it and use its dir as the project dir.
-  return findSymlinkProjectDir(scriptPath) ?? dir
+
+  return dir
 }
 
 function findSymlinkProjectDir(scriptPath: string): string | null {
