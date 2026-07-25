@@ -1,3 +1,9 @@
+## [8.1.1](https://github.com/gutenye/script.js/compare/v8.1.0...v8.1.1) (2026-07-25)
+
+### Bug Fixes
+
+* **ake:** prefer local worktree when remote ake is symlinked ([a57429b](https://github.com/gutenye/script.js/commit/a57429bd1afaa8e0f7b77832b61ecbcb52d20220))
+
 ## [8.1.0](https://github.com/gutenye/script.js/compare/v8.0.1...v8.1.0) (2026-06-07)
 
 ### Features
