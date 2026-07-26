@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { realpathSync } from 'node:fs'
-import { $, ShellError } from '../spawn'
+import { $, exitOnShellError, ShellError } from '../spawn'
 
 describe('throw error', () => {
   test('$`cmd` throws on non-zero exit', async () => {
@@ -17,6 +17,21 @@ describe('throw error', () => {
 
   test('$`cmd`.text() throws on non-zero exit', () => {
     expect(() => $`exit 1`.text()).toThrow()
+  })
+
+  test('$`cmd` trims surrounding whitespace from the reported command', async () => {
+    const promise = (async () =>
+      await $`
+      exit 1
+    `)()
+    await expect(promise).rejects.toThrow(
+      'Command failed with exit code 1: exit 1',
+    )
+  })
+
+  test('exitOnShellError() rethrows a non-shell error', () => {
+    const error = new Error('regular failure')
+    expect(() => exitOnShellError(error)).toThrow(error)
   })
 })
 

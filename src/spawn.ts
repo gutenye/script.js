@@ -1,3 +1,5 @@
+import { exitWithError } from './helpers/exitWithError'
+
 const defaults: {
   cwd: string | undefined
   env: Record<string, string> | undefined
@@ -9,12 +11,15 @@ const defaults: {
 }
 
 export class ShellError extends Error {
+  command: string
   exitCode: number
   stdout: string
   stderr: string
 
   constructor(command: string, result: ReturnType<typeof Bun.spawnSync>) {
-    super(`Command failed with exit code ${result.exitCode}: ${command}`)
+    const trimmed = command.trim()
+    super(`Command failed with exit code ${result.exitCode}: ${trimmed}`)
+    this.command = trimmed
     this.exitCode = result.exitCode
     this.stdout = (result.stdout ?? '').toString()
     this.stderr = (result.stderr ?? '').toString()
@@ -156,7 +161,11 @@ function $tag(strings: TemplateStringsArray, ...values: any[]): ShellCommand {
 
   queueMicrotask(() => {
     if (!captured) {
-      output.inheritExec()
+      try {
+        output.inheritExec()
+      } catch (error) {
+        exitOnShellError(error)
+      }
     }
   })
 
@@ -181,6 +190,14 @@ $tag.global = (strings: TemplateStringsArray, ...values: any[]) => {
 }
 
 export { $tag as $ }
+
+// the failed command already printed its own stderr, so keep the report to one line
+export function exitOnShellError(error: unknown) {
+  if (!(error instanceof ShellError)) throw error
+  // signal-killed commands report a null exit code, which would exit 0
+  const code = error.exitCode || 1
+  exitWithError(`${error.command} (exit ${code})`, undefined, code)
+}
 
 function buildCommand(strings: TemplateStringsArray, values: any[]) {
   let result = ''

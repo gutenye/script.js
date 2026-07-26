@@ -2,6 +2,7 @@
 
 import path from 'node:path'
 import { $, app } from './index'
+import { exitOnShellError } from './spawn'
 
 ;(globalThis as any).$ = $
 ;(globalThis as any).app = app
@@ -12,4 +13,8 @@ if (!scriptPath) {
   process.exit(1)
 }
 
-await import(path.resolve(scriptPath))
+try {
+  await import(path.resolve(scriptPath))
+} catch (error) {
+  exitOnShellError(error)
+}

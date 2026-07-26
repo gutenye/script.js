@@ -1,10 +1,15 @@
 import { app } from './Command'
+import { exitOnShellError } from './spawn'
 
 let hasRun = false
 process.on('beforeExit', async () => {
   if (hasRun) return
   hasRun = true
-  await app.run()
+  try {
+    await app.run()
+  } catch (error) {
+    exitOnShellError(error)
+  }
 })
 
 export { app, Command } from './Command'
