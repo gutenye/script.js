@@ -1,3 +1,9 @@
+## [8.1.2](https://github.com/gutenye/script.js/compare/v8.1.1...v8.1.2) (2026-07-26)
+
+### Bug Fixes
+
+* throw ShellError when awaited command exits non-zero ([f79b1f1](https://github.com/gutenye/script.js/commit/f79b1f18cd8c451ed67ba892a88869b9ae6bd2f0))
+
 ## [8.1.1](https://github.com/gutenye/script.js/compare/v8.1.0...v8.1.1) (2026-07-25)
 
 ### Bug Fixes
