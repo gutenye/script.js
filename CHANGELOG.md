@@ -1,3 +1,9 @@
+## [8.1.3](https://github.com/gutenye/script.js/compare/v8.1.2...v8.1.3) (2026-07-26)
+
+### Bug Fixes
+
+* report failed commands as a clean error with their exit code ([648d351](https://github.com/gutenye/script.js/commit/648d351c44b34db03ce0f1c82dad74f6262a144f))
+
 ## [8.1.2](https://github.com/gutenye/script.js/compare/v8.1.1...v8.1.2) (2026-07-26)
 
 ### Bug Fixes
