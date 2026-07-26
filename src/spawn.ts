@@ -64,7 +64,10 @@ class ShellCommand {
     if (cwd !== undefined) opts.cwd = cwd
     if (defaults.env !== undefined || this.#env !== undefined)
       opts.env = { ...process.env, ...defaults.env, ...this.#env }
-    Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
+    const result = Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
+    if (result.exitCode !== 0) {
+      throw new ShellError(this.#command, result)
+    }
   }
 
   cwd(path: string) {
