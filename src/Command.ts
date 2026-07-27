@@ -402,15 +402,13 @@ export class Command {
       if (c.hidden) continue
       const isGroup = c.commands.length > 0
       if (!c.description && !c.action && !isGroup) continue
-      const names = [c._name, ...c.aliases]
-        .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
-        .join(', ')
       const args = c.#argsText()
-      let label = args ? `${names} ${args}` : names
+      let label = args ? `${c._name} ${args}` : (c._name as string)
       if (isGroup && !c.action) label = `${label} <command>`
       result.push({
         label,
-        description: c.description || '',
+        // Aliases live in the description to keep the name column narrow
+        description: [...c.aliases, c.description].filter(Boolean).join(', '),
         order: c.#order,
       })
     }

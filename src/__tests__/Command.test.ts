@@ -150,7 +150,7 @@ describe('run()', () => {
     c.cmd('wd, web dev', 'Start web dev server').add(() => {})
 
     const help = c.helpText()
-    expect(help).toContain('d, dev')
+    expect(help).toMatch(/^ {2}dev\s+d, Start dev server$/m)
     expect(help).toContain('osm <command>')
     expect(help).toContain('web <command>')
     expect(help).not.toContain('scrape')
@@ -223,8 +223,7 @@ describe('run()', () => {
     c.cmd('ask clear', 'Clear saved answers')
 
     const help = c.helpText()
-    expect(help).toContain('a, ask')
-    expect(help).toContain('Ask something')
+    expect(help).toMatch(/^ {2}ask\s+a, Ask something$/m)
     expect(help).not.toContain('history')
     expect(help).not.toContain('clear')
   })
@@ -267,7 +266,7 @@ describe('run()', () => {
 
     const help = c.helpText()
     const lines = help.split('\n').filter((l) => l.startsWith('  '))
-    expect(lines[0]).toContain('a, ask')
+    expect(lines[0]).toContain('ask')
     expect(lines[1]).toContain('greeting <command>')
     expect(lines[2]).toContain('build')
   })
@@ -292,7 +291,7 @@ describe('run()', () => {
     process.exit = origExit
 
     expect(logs[0]).toContain('myapp')
-    expect(logs[0]).toContain('b, build')
+    expect(logs[0]).toMatch(/^ {2}build\s+b, Build project$/m)
     expect(errors[0]).toContain('Unknown command: nonexistent')
     expect(mockExit).toHaveBeenCalledWith(1)
   })
@@ -313,7 +312,7 @@ describe('run()', () => {
     process.exit = origExit
 
     expect(logs[0]).toContain('myapp')
-    expect(logs[0]).toContain('b, build <target>')
+    expect(logs[0]).toMatch(/^ {2}build <target>\s+b, Build project$/m)
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
