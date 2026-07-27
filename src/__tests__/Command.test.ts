@@ -141,7 +141,7 @@ describe('run()', () => {
     expect(config).toBe('release')
   })
 
-  test('flattens nested subcommands in help text', async () => {
+  test('lists only first-level commands in help text', async () => {
     const c = new Command()
     c.name('myapp', 'My app')
     c.cmd('d, dev', 'Start dev server')
@@ -151,9 +151,10 @@ describe('run()', () => {
 
     const help = c.helpText()
     expect(help).toContain('d, dev')
-    expect(help).toContain('osm scrape')
-    expect(help).toContain('osm tags')
-    expect(help).toContain('wd, web dev')
+    expect(help).toContain('osm <command>')
+    expect(help).toContain('web <command>')
+    expect(help).not.toContain('scrape')
+    expect(help).not.toContain('tags')
 
     const logs: string[] = []
     const origLog = console.log
@@ -211,10 +212,10 @@ describe('run()', () => {
     expect(action).toHaveBeenCalledTimes(1)
 
     const help = c.helpText()
-    expect(help).toContain('wd, web d, web dev')
+    expect(help).toContain('web <command>')
   })
 
-  test('includes parent command in help when it has description or action', () => {
+  test('shows parent once when it has both an action and subcommands', () => {
     const c = new Command()
     c.name('myapp', 'My app')
     c.cmd('a, ask', 'Ask something').add(() => {})
@@ -224,18 +225,37 @@ describe('run()', () => {
     const help = c.helpText()
     expect(help).toContain('a, ask')
     expect(help).toContain('Ask something')
-    expect(help).toContain('ask history')
-    expect(help).toContain('ask clear')
+    expect(help).not.toContain('history')
+    expect(help).not.toContain('clear')
   })
 
-  test('omits intermediate parent with no description or action from help', () => {
+  test('shows intermediate parent with no description as a group', () => {
     const c = new Command()
     c.name('myapp', 'My app')
     c.cmd('greeting formal', 'Use formal greeting style')
 
     const help = c.helpText()
-    expect(help).toContain('greeting formal')
-    expect(help).not.toMatch(/^\s+greeting\s+$/m)
+    expect(help).toContain('greeting <command>')
+    expect(help).not.toContain('formal')
+  })
+
+  test('lists subcommands in the parent help', async () => {
+    const c = new Command()
+    c.name('myapp', 'My app')
+    c.cmd('greeting formal', 'Use formal greeting style')
+    c.cmd('greeting casual', 'Use casual greeting style')
+
+    const logs: string[] = []
+    const origLog = console.log
+    const origExit = process.exit
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.exit = mock() as any
+    await c.parse(['greeting', '-h'])
+    console.log = origLog
+    process.exit = origExit
+
+    expect(logs[0]).toContain('formal')
+    expect(logs[0]).toContain('casual')
   })
 
   test('preserves declaration order in help across interleaved subcommands', () => {
@@ -243,15 +263,13 @@ describe('run()', () => {
     c.name('myapp', 'My app')
     c.cmd('a, ask', 'Ask something').add(() => {})
     c.cmd('greeting formal', 'Use formal greeting style')
-    c.cmd('ask history', 'Show question history')
-    c.cmd('ask clear', 'Clear saved answers')
+    c.cmd('build', 'Build project')
 
     const help = c.helpText()
     const lines = help.split('\n').filter((l) => l.startsWith('  '))
     expect(lines[0]).toContain('a, ask')
-    expect(lines[1]).toContain('greeting formal')
-    expect(lines[2]).toContain('ask history')
-    expect(lines[3]).toContain('ask clear')
+    expect(lines[1]).toContain('greeting <command>')
+    expect(lines[2]).toContain('build')
   })
 
   test('prints help and error when command not found', async () => {

@@ -16,7 +16,6 @@ export class Command {
   _name?: string
   description?: string
   aliases: string[] = []
-  #displayAliases: string[] = []
   action!: (...args: any[]) => void | Promise<void>
   arguments: Argument[] = []
   commands: Command[] = []
@@ -75,7 +74,6 @@ export class Command {
       if (parts.length > 1) {
         const prefix = parts.slice(0, -1).join(' ')
         const localAliases: string[] = []
-        command.#displayAliases = [...aliases]
         for (const alias of aliases) {
           if (alias.includes(' ')) {
             const aliasParts = alias.split(/\s+/)
@@ -396,39 +394,25 @@ export class Command {
     return `(${text.slice(0, 37)}...)`
   }
 
-  #collectCommands(
-    prefix = '',
-  ): { label: string; description: string; order: number }[] {
+  // Only lists direct children: walking the whole tree prints too many commands to read.
+  // Run `<parent> -h` to see a group's subcommands.
+  #collectCommands(): { label: string; description: string; order: number }[] {
     const result: { label: string; description: string; order: number }[] = []
     for (const c of this.commands) {
       if (c.hidden) continue
-      if (c.description || c.action) {
-        let label: string
-        if (prefix && c.aliases.length > 0) {
-          const fullPath = `${prefix} ${c._name}`
-          const displayAliases =
-            c.#displayAliases.length > 0 ? c.#displayAliases : c.aliases
-          label = [...displayAliases, fullPath]
-            .sort((a, b) => a.length - b.length)
-            .join(', ')
-        } else {
-          const names = [c._name, ...c.aliases]
-            .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
-            .join(', ')
-          label = prefix ? `${prefix} ${names}` : names
-        }
-        const args = c.#argsText()
-        if (args) label = `${label} ${args}`
-        result.push({
-          label,
-          description: c.description || '',
-          order: c.#order,
-        })
-      }
-      if (c.commands.length > 0) {
-        const childPrefix = prefix ? `${prefix} ${c._name}` : c._name!
-        result.push(...c.#collectCommands(childPrefix))
-      }
+      const isGroup = c.commands.length > 0
+      if (!c.description && !c.action && !isGroup) continue
+      const names = [c._name, ...c.aliases]
+        .sort((a, b) => (a?.length ?? 0) - (b?.length ?? 0))
+        .join(', ')
+      const args = c.#argsText()
+      let label = args ? `${names} ${args}` : names
+      if (isGroup && !c.action) label = `${label} <command>`
+      result.push({
+        label,
+        description: c.description || '',
+        order: c.#order,
+      })
     }
     return result
   }

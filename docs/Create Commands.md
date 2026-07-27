@@ -115,6 +115,13 @@ app.cmd("ask clear", "Clear saved answers");
 ./hello ask history       # runs ask history subcommand
 ```
 
+Help lists only first-level commands, so a large tree stays readable. A parent with subcommands shows as `sub1 <command>`; run `./hello sub1 -h` to list its subcommands.
+
+```sh
+./hello -h        # sub1 <command>, a, ask <question>
+./hello sub1 -h   # list
+```
+
 ## Aliases
 
 Add a short alias with a comma-separated name. The shortest name is the alias, the longest is the command name. For subcommands with spaces, the alias works as a top-level shortcut:
