@@ -1,3 +1,9 @@
+## [8.1.4](https://github.com/gutenye/script.js/compare/v8.1.3...v8.1.4) (2026-07-27)
+
+### Bug Fixes
+
+* help group subcommands ([81fcc38](https://github.com/gutenye/script.js/commit/81fcc3815b786106e7cabdd3410b7aa0089c156d))
+
 ## [8.1.3](https://github.com/gutenye/script.js/compare/v8.1.2...v8.1.3) (2026-07-26)
 
 ### Bug Fixes
