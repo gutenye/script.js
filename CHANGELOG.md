@@ -1,3 +1,9 @@
+## [8.1.5](https://github.com/gutenye/script.js/compare/v8.1.4...v8.1.5) (2026-07-27)
+
+### Bug Fixes
+
+* show command aliases in the help description ([bab8fea](https://github.com/gutenye/script.js/commit/bab8fea53bd357d0649808f7f869de984849fc77))
+
 ## [8.1.4](https://github.com/gutenye/script.js/compare/v8.1.3...v8.1.4) (2026-07-27)
 
 ### Bug Fixes
