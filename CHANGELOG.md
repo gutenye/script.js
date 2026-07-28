@@ -1,3 +1,9 @@
+## [8.2.0](https://github.com/gutenye/script.js/compare/v8.1.5...v8.2.0) (2026-07-28)
+
+### Features
+
+* add $`cmd`.nothrow() to keep running on failure ([da7d950](https://github.com/gutenye/script.js/commit/da7d9500d069842503cd3ce3af8260a87a8fccba))
+
 ## [8.1.5](https://github.com/gutenye/script.js/compare/v8.1.4...v8.1.5) (2026-07-27)
 
 ### Bug Fixes
