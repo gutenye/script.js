@@ -12,7 +12,9 @@ describe('throw error', () => {
   })
 
   test('$`cmd` does not throw on zero exit', async () => {
-    await expect((async () => await $`exit 0`)()).resolves.toBeUndefined()
+    await expect((async () => await $`exit 0`)()).resolves.toEqual({
+      exitCode: 0,
+    })
   })
 
   test('$`cmd`.text() throws on non-zero exit', () => {
@@ -66,6 +68,23 @@ describe('$', () => {
     const args = ['arg 1', 'arg 2']
     const result = $`printf "<%s>" ${args}`.text()
     expect(result).toBe('<arg 1><arg 2>')
+  })
+})
+
+describe('.nothrow()', () => {
+  test('await returns exitCode instead of throwing', async () => {
+    const { exitCode } = await $`exit 3`.nothrow()
+    expect(exitCode).toBe(3)
+  })
+
+  test('await returns exitCode on success', async () => {
+    const { exitCode } = await $`exit 0`.nothrow()
+    expect(exitCode).toBe(0)
+  })
+
+  test('text() returns stdout instead of throwing', () => {
+    const result = $`echo hi; exit 1`.nothrow().text()
+    expect(result).toBe('hi')
   })
 })
 

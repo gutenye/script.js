@@ -20,6 +20,19 @@ $`cmd`.cwd('/tmp').text()         // run in specific directory
 $`cmd`.env({ KEY: 'val' }).text() // run with env vars
 ```
 
+### Ignoring Failures
+
+By default a failed command throws (or exits the script). Use `.nothrow()` to keep going:
+
+```ts
+const { exitCode } = await $`cmd`.nothrow()
+if (exitCode !== 0) {
+  // handle the failure
+}
+
+$`cmd`.nothrow().text()           // returns stdout even on failure
+```
+
 ### Global Defaults
 
 ```ts

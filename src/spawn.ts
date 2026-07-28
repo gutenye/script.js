@@ -31,6 +31,7 @@ class ShellCommand {
   #result: ReturnType<typeof Bun.spawnSync> | undefined
   #cwd: string | undefined
   #env: Record<string, string> | undefined
+  #nothrow = false
 
   constructor(command: string) {
     this.#command = command
@@ -70,13 +71,19 @@ class ShellCommand {
     if (defaults.env !== undefined || this.#env !== undefined)
       opts.env = { ...process.env, ...defaults.env, ...this.#env }
     const result = Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
-    if (result.exitCode !== 0) {
+    if (result.exitCode !== 0 && !this.#nothrow) {
       throw new ShellError(this.#command, result)
     }
+    return result
   }
 
   cwd(path: string) {
     this.#cwd = path
+    return this
+  }
+
+  nothrow() {
+    this.#nothrow = true
     return this
   }
 
@@ -91,7 +98,7 @@ class ShellCommand {
 
   text() {
     const result = this.#pipeExec()
-    if (result.exitCode !== 0) {
+    if (result.exitCode !== 0 && !this.#nothrow) {
       throw new ShellError(this.#command, result)
     }
     return (result.stdout ?? '').toString().trimEnd()
@@ -113,9 +120,9 @@ class ShellCommand {
   }
 
   // biome-ignore lint/suspicious/noThenProperty: thenable for await $`cmd`
-  then(resolve?: (value: undefined) => void) {
-    this.inheritExec()
-    resolve?.(undefined)
+  then(resolve?: (value: { exitCode: number }) => void) {
+    const result = this.inheritExec()
+    resolve?.({ exitCode: result.exitCode })
   }
 
   toString() {
@@ -132,7 +139,7 @@ const CAPTURED_PROPS = [
   'env',
   'then',
 ]
-const CHAINABLE_PROPS = ['cwd', 'env']
+const CHAINABLE_PROPS = ['cwd', 'env', 'nothrow']
 
 function $tag(strings: TemplateStringsArray, ...values: any[]): ShellCommand {
   const command = buildCommand(strings, values)
