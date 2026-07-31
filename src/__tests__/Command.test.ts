@@ -56,6 +56,34 @@ describe('cmdHide()', () => {
   })
 })
 
+describe('section()', () => {
+  test('groups following commands under section headings', () => {
+    const c = new Command()
+    c.name('myapp')
+    c.section('Development')
+      .cmd('dev', 'Start development server')
+      .add(() => {})
+    c.cmd('test', 'Run tests').add(() => {})
+    c.section('Release')
+    c.cmd('build', 'Build the app').add(() => {})
+    c.cmd('deploy', 'Deploy the app').add(() => {})
+
+    expect(c.helpText()).toContain(
+      [
+        'Commands:',
+        '',
+        '(Development)',
+        '  dev     Start development server',
+        '  test    Run tests',
+        '',
+        '(Release)',
+        '  build   Build the app',
+        '  deploy  Deploy the app',
+      ].join('\n'),
+    )
+  })
+})
+
 describe('add()', () => {
   test('registers an argument when name has angle brackets', () => {
     const c = new Command()

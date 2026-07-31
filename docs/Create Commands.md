@@ -122,6 +122,32 @@ Help lists only first-level commands, so a large tree stays readable. A parent w
 ./hello sub1 -h   # list
 ```
 
+## Help Sections
+
+Use `app.section(name)` to group the commands declared after it under a heading in help output:
+
+```ts
+app.section("Development");
+app.cmd("dev", "Start development server");
+app.cmd("test", "Run tests");
+
+app.section("Release");
+app.cmd("build", "Build the app");
+app.cmd("deploy", "Deploy the app");
+```
+
+```text
+Commands:
+
+(Development)
+  dev     Start development server
+  test    Run tests
+
+(Release)
+  build   Build the app
+  deploy  Deploy the app
+```
+
 ## Aliases
 
 Add a short alias with a comma-separated name. The shortest name is the alias, the longest is the command name. For subcommands with spaces, the alias works as a top-level shortcut:

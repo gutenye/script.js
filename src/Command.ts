@@ -23,6 +23,7 @@ export class Command {
   hidden = false
   #defaultCommand?: Command
   #extraHelp?: string
+  #sections: { name: string; order: number }[] = []
   // Root-level lookup for aliases on nested subcommands (e.g. cmd('wd, web dev') registers 'wd' here)
   #shortcutAliases = new Map<string, Command>()
 
@@ -100,6 +101,11 @@ export class Command {
     const command = this.cmd(inputName, description)
     command.hidden = true
     return command
+  }
+
+  section(name: string) {
+    this.#sections.push({ name, order: Command.#nextOrder++ })
+    return this
   }
 
   async invoke(text: string, ...args: any[]) {
@@ -219,17 +225,36 @@ export class Command {
       lines.push(`Usage: ${name} <command>`)
       lines.push('')
       lines.push('Commands:')
-      const entries = this.#collectCommands().sort((a, b) => a.order - b.order)
+      const entries: HelpEntry[] = this.#collectCommands()
       const defaultCmd = this.#defaultCommand
       if (defaultCmd) {
         for (const arg of defaultCmd.arguments) {
           const choices = Command.#choicesText(arg.completion)
           const desc = [arg.description, choices].filter(Boolean).join(' ')
-          entries.push({ label: arg.rawName, description: desc, order: -1 })
+          entries.push({
+            type: 'command',
+            label: arg.rawName,
+            description: desc,
+            order: -1,
+          })
         }
       }
-      const maxLen = Math.max(...entries.map((e) => e.label.length))
+      entries.push(
+        ...this.#sections.map(
+          ({ name, order }): HelpEntry => ({ type: 'section', name, order }),
+        ),
+      )
+      entries.sort((a, b) => a.order - b.order)
+      const commands = entries.filter(
+        (entry): entry is CommandHelpEntry => entry.type === 'command',
+      )
+      const maxLen = Math.max(...commands.map((entry) => entry.label.length))
       for (const entry of entries) {
+        if (entry.type === 'section') {
+          lines.push('')
+          lines.push(`(${entry.name})`)
+          continue
+        }
         const padded = entry.label.padEnd(maxLen + 2)
         lines.push(`  ${padded}${entry.description}`)
       }
@@ -396,8 +421,8 @@ export class Command {
 
   // Only lists direct children: walking the whole tree prints too many commands to read.
   // Run `<parent> -h` to see a group's subcommands.
-  #collectCommands(): { label: string; description: string; order: number }[] {
-    const result: { label: string; description: string; order: number }[] = []
+  #collectCommands(): CommandHelpEntry[] {
+    const result: CommandHelpEntry[] = []
     for (const c of this.commands) {
       if (c.hidden) continue
       const isGroup = c.commands.length > 0
@@ -406,6 +431,7 @@ export class Command {
       let label = args ? `${c._name} ${args}` : (c._name as string)
       if (isGroup && !c.action) label = `${label} <command>`
       result.push({
+        type: 'command',
         label,
         // Aliases live in the description to keep the name column narrow
         description: [...c.aliases, c.description].filter(Boolean).join(', '),
@@ -446,4 +472,19 @@ export const app = new Command()
 
 type Context = {
   argv: string[]
+}
+
+type HelpEntry = CommandHelpEntry | SectionHelpEntry
+
+type CommandHelpEntry = {
+  type: 'command'
+  label: string
+  description: string
+  order: number
+}
+
+type SectionHelpEntry = {
+  type: 'section'
+  name: string
+  order: number
 }
