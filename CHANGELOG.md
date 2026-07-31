@@ -1,3 +1,9 @@
+## [8.3.0](https://github.com/gutenye/script.js/compare/v8.2.0...v8.3.0) (2026-07-31)
+
+### Features
+
+* add command help sections ([bbd0954](https://github.com/gutenye/script.js/commit/bbd09544184402d18bc217e422e881f2da0f504f))
+
 ## [8.2.0](https://github.com/gutenye/script.js/compare/v8.1.5...v8.2.0) (2026-07-28)
 
 ### Features
