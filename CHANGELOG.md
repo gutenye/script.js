@@ -1,3 +1,10 @@
+## [8.3.1](https://github.com/gutenye/script.js/compare/v8.3.0...v8.3.1) (2026-08-25)
+
+### Bug Fixes
+
+* **ake:** skip installing ~/bin/ar wrapper ([258212c](https://github.com/gutenye/script.js/commit/258212c8e3a88afca619e55d38479872df78055e))
+* make explicit app run safe ([c84fdf9](https://github.com/gutenye/script.js/commit/c84fdf911b6b7bc4d314e9f4d2ce5ffe42d2ffcb))
+
 ## [8.3.0](https://github.com/gutenye/script.js/compare/v8.2.0...v8.3.0) (2026-07-31)
 
 ### Features
