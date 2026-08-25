@@ -9,6 +9,7 @@ import {
 import { installCompletion } from './completion'
 import { Option } from './Option'
 import { parseArgv } from './parseArgv'
+import { exitOnShellError } from './spawn'
 
 export class Command {
   static #nextOrder = 0
@@ -23,6 +24,7 @@ export class Command {
   hidden = false
   #defaultCommand?: Command
   #extraHelp?: string
+  #runPromise?: Promise<void>
   #sections: { name: string; order: number }[] = []
   // Root-level lookup for aliases on nested subcommands (e.g. cmd('wd, web dev') registers 'wd' here)
   #shortcutAliases = new Map<string, Command>()
@@ -120,12 +122,25 @@ export class Command {
   }
 
   async run() {
-    const isScriptJs = (globalThis as any).app === this
-    const scriptPath = isScriptJs ? Bun.argv[2] : Bun.main
-    const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
-    this.#setupAke(scriptPath)
-    installCompletion(this)
-    return this.parse(argv)
+    if (this === app) {
+      process.off('beforeExit', runAppBeforeExit)
+    }
+    if (this.#runPromise) return this.#runPromise
+    this.#runPromise = this.#runOnce()
+    return this.#runPromise
+  }
+
+  async #runOnce() {
+    try {
+      const isScriptJs = (globalThis as any).app === this
+      const scriptPath = isScriptJs ? Bun.argv[2] : Bun.main
+      const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
+      this.#setupAke(scriptPath)
+      installCompletion(this)
+      await this.parse(argv)
+    } catch (error) {
+      exitOnShellError(error)
+    }
   }
 
   #setupAke(scriptPath: string) {
@@ -469,6 +484,10 @@ export class Command {
 }
 
 export const app = new Command()
+
+export function runAppBeforeExit() {
+  return app.run()
+}
 
 type Context = {
   argv: string[]

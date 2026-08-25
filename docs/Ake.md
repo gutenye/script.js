@@ -22,6 +22,8 @@ import { app, $ } from "@gutenye/script.js";
 app.cmd("greetings").add(() => {
   $`echo greetings`;
 });
+
+await app.run();
 ```
 
 2. Run it
@@ -37,6 +39,8 @@ ake greetings   # output greetings
 ```sh
 ake <Tab> # uses ake file's completion
 ```
+
+Use `await app.run()` while Bun 1.4 cannot finish asynchronous `beforeExit` listeners. Commands also run automatically when the script exits, and `run()` is idempotent, so explicit and automatic calls never run a command twice.
 
 ## Use a template / another location
 

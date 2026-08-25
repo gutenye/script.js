@@ -45,6 +45,12 @@ describe('script.ts', () => {
     expect(result.exitCode).toBe(0)
   })
 
+  test('explicit app.run executes the command once', () => {
+    const result = runFixture('explicit-run.ts', 'count')
+    expect(result.stdout).toBe('ran\nbeforeExit listeners: 0')
+    expect(result.exitCode).toBe(0)
+  })
+
   test('runs command with option flag', () => {
     const result = run('greet', 'world', '--uppercase')
     expect(result.stdout).toBe('HELLO WORLD')

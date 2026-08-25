@@ -132,6 +132,7 @@ app.cmd('pwd-in-web', 'Print web dir via $').add(async () => {
   console.log($\`pwd\`.cwd('web').text())
 })
 app.cmd('deploy', 'Deploy').add('<env>', 'Environment', ['staging', 'prod'])
+await app.run()
 `
 }
 

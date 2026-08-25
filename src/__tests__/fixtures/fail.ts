@@ -12,3 +12,5 @@ app
 app.cmd('crash', 'Throw a non-shell error').add(() => {
   throw new Error('regular failure')
 })
+
+await app.run()
