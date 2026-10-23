@@ -299,7 +299,7 @@ describe('run()', () => {
     expect(lines[2]).toContain('build')
   })
 
-  test('prints help and error when command not found', async () => {
+  test('reports an unknown command on stderr with a suggestion', async () => {
     const c = new Command()
     c.name('myapp', 'My app')
     c.cmd('b, build', 'Build project')
@@ -313,15 +313,15 @@ describe('run()', () => {
     console.log = (...args: any[]) => logs.push(args.join(' '))
     console.error = (...args: any[]) => errors.push(args.join(' '))
     process.exit = mockExit
-    await c.parse(['nonexistent'])
+    await c.parse(['biuld'])
     console.log = origLog
     console.error = origError
     process.exit = origExit
 
-    expect(logs[0]).toContain('myapp')
-    expect(logs[0]).toMatch(/^ {2}build\s+b, Build project$/m)
-    expect(errors[0]).toContain('Unknown command: nonexistent')
-    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(logs).toEqual([])
+    expect(errors[0]).toContain('Unknown command: biuld (did you mean build?)')
+    expect(errors[0]).toContain("Run 'myapp -h' for help.")
+    expect(mockExit).toHaveBeenCalledWith(2)
   })
 
   test('prints help when no arguments provided', async () => {
@@ -575,7 +575,7 @@ describe('choices validation', () => {
 
     expect(errors[0]).toContain("Invalid value for platform: 'web'")
     expect(errors[0]).toContain('ios, android')
-    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockExit).toHaveBeenCalledWith(2)
   })
 
   test('passes when value is in choices', async () => {
@@ -628,7 +628,7 @@ describe('choices validation', () => {
     expect(errors[0]).toContain("Invalid value for mode: 'invalid'")
     expect(errors[0]).toContain('+full, +quick')
     expect(errors[0]).not.toContain('full mode')
-    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockExit).toHaveBeenCalledWith(2)
   })
 
   test('skips validation for macros like $files', async () => {
@@ -685,7 +685,7 @@ describe('choices validation', () => {
 
     expect(errors[0]).toContain('Missing required value for option')
     expect(errors[0]).toContain('--device')
-    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockExit).toHaveBeenCalledWith(2)
   })
 
   test('passes when required option has value', async () => {
@@ -719,7 +719,7 @@ describe('choices validation', () => {
     process.exit = origExit
 
     expect(errors[0]).toContain('Missing required argument: <name>')
-    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockExit).toHaveBeenCalledWith(2)
   })
 })
 
@@ -875,7 +875,7 @@ describe('usage errors', () => {
     expect(errors[0]).toContain(
       'Unknown option: --dry-rn (did you mean --dry-run?)',
     )
-    expect(exitCode).toBe(1)
+    expect(exitCode).toBe(2)
   })
 
   test('an extra positional exits with an error', async () => {
@@ -891,7 +891,7 @@ describe('usage errors', () => {
 
     expect(action).not.toHaveBeenCalled()
     expect(errors[0]).toContain('Unexpected argument: extra')
-    expect(exitCode).toBe(1)
+    expect(exitCode).toBe(2)
   })
 
   test('an invalid option choice exits with an error', async () => {
@@ -909,7 +909,7 @@ describe('usage errors', () => {
     expect(errors[0]).toContain(
       "Invalid value for --mode: 'bogus' (expected: fast, slow)",
     )
-    expect(exitCode).toBe(1)
+    expect(exitCode).toBe(2)
   })
 
   test('--help prints help instead of running the command', async () => {

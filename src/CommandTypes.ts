@@ -5,6 +5,8 @@ import type { Options } from './parseArgv'
 
 export type Context = {
   argv: string[]
+  // The result will be printed as JSON: app.json() is on and --json was passed or stdout is piped
+  json: boolean
 }
 
 export type CompletionOrDefault = unknown

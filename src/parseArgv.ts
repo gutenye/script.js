@@ -188,7 +188,7 @@ function unknownOptionMessage(flag: string, options: Option[]) {
     : `Unknown option: ${flag}`
 }
 
-function closestMatch(input: string, candidates: string[]) {
+export function closestMatch(input: string, candidates: string[]) {
   let best: string | undefined
   let bestDistance = Math.max(2, Math.floor(input.length / 3)) + 1
   for (const candidate of candidates) {

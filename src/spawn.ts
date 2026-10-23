@@ -4,10 +4,17 @@ const defaults: {
   cwd: string | undefined
   env: Record<string, string> | undefined
   preambles: { text: string; cwd?: string }[]
+  outputSink: ((text: string) => void) | undefined
 } = {
   cwd: undefined,
   env: undefined,
   preambles: [],
+  outputSink: undefined,
+}
+
+// While set, commands get no stdin and their stdout goes to sink: the MCP server owns both streams
+export function captureShellOutput(sink: ((text: string) => void) | undefined) {
+  defaults.outputSink = sink
 }
 
 type ShellResult = {
@@ -60,12 +67,19 @@ class ShellCommand {
   }
 
   #spawnOptions(stdout: 'pipe' | 'inherit') {
+    const isCaptured = defaults.outputSink !== undefined
     const opts: {
-      stdio: ['inherit', 'pipe' | 'inherit', 'inherit']
+      stdio: ['inherit' | 'ignore', 'pipe' | 'inherit', 'inherit']
       cwd?: string
       env?: Record<string, string | undefined>
       timeout?: number
-    } = { stdio: ['inherit', stdout, 'inherit'] }
+    } = {
+      stdio: [
+        isCaptured ? 'ignore' : 'inherit',
+        isCaptured ? 'pipe' : stdout,
+        'inherit',
+      ],
+    }
     const cwd = this.#cwd ?? defaults.cwd
     if (cwd !== undefined) opts.cwd = cwd
     if (defaults.env !== undefined || this.#env !== undefined)
@@ -98,16 +112,21 @@ class ShellCommand {
       ['sh', '-c', this.#fullCommand],
       this.#spawnOptions('inherit'),
     )
+    if (result.stdout) defaults.outputSink?.(result.stdout.toString())
     this.#throwUnlessSucceeded(result, result.exitedDueToTimeout === true)
     return result
   }
 
   // Awaited commands run without blocking, so Promise.all([$`a`, $`b`]) runs them in parallel
   async #inheritExecAsync() {
+    const sink = defaults.outputSink
     const subprocess = Bun.spawn(
       ['sh', '-c', this.#fullCommand],
       this.#spawnOptions('inherit'),
     )
+    if (sink && subprocess.stdout instanceof ReadableStream) {
+      sink(await new Response(subprocess.stdout).text())
+    }
     await subprocess.exited
     const result = { exitCode: subprocess.exitCode }
     const timedOut =

@@ -15,9 +15,18 @@ import type {
   NoOptions,
 } from './CommandTypes'
 import { installCompletion } from './completion'
+import { describeCommand, staticChoices } from './describe'
+import { serveMcp } from './mcp'
 import { Option } from './Option'
-import { findOption, parseArgv, wantsHelp } from './parseArgv'
+import { closestMatch, findOption, parseArgv, wantsHelp } from './parseArgv'
 import { exitOnShellError } from './spawn'
+import {
+  CommandError,
+  printError,
+  printResult,
+  toErrorShape,
+  USAGE_EXIT_CODE,
+} from './structured'
 import { UsageError } from './UsageError'
 
 // Args and Opts type the handler from the add() strings; see CommandTypes.ts
@@ -35,8 +44,11 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   globalOptions: Option[] = []
   parent?: Command
   hidden = false
+  examples: { command: string; description: string }[] = []
   #defaultCommand?: Command
   #extraHelp?: string
+  #isStructured = false
+  #timeoutMs?: number
   #runPromise?: Promise<void>
   #sections: { name: string; order: number }[] = []
   // Root-level lookup for aliases on nested subcommands (e.g. cmd('wd, web dev') registers 'wd' here)
@@ -126,6 +138,62 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     return this
   }
 
+  // Shown under Examples in help and in `--help --json`; agents learn a command fastest from one real call
+  example(command: string, description = '') {
+    this.examples.push({ command, description })
+    return this
+  }
+
+  // Structured output for the whole app: a handler returns its result, printed as JSON with --json or when piped
+  json() {
+    const root = this.root
+    if (root.#isStructured) return this
+    root.#isStructured = true
+    root.global(
+      '--json',
+      'Print the result as JSON; the default when output is piped',
+    )
+    return this
+  }
+
+  // Fails the action once it runs longer than ms; the nearest ancestor's limit applies to subcommands
+  timeout(ms: number) {
+    this.#timeoutMs = ms
+    return this
+  }
+
+  describe() {
+    return describeCommand(this)
+  }
+
+  get root(): Command {
+    let command: Command = this
+    while (command.parent) command = command.parent
+    return command
+  }
+
+  // 'exodusctl open', for usage lines and hints
+  get path(): string {
+    const names: string[] = []
+    for (let command: Command | undefined = this; command; ) {
+      if (command._name) names.unshift(command._name)
+      command = command.parent
+    }
+    return names.join(' ') || 'app'
+  }
+
+  get usage(): string {
+    if (this.commands.length > 0 && !this.action)
+      return `${this.path} <command>`
+    const args = this.#argsText()
+    return args ? `${this.path} ${args}` : this.path
+  }
+
+  // Parses argv for this command and returns what its action returns, without printing it
+  async execute(argv: string[]) {
+    return Command.#execute(this, argv, { interceptHelp: true, print: false })
+  }
+
   async invoke(text: string, ...args: any[]) {
     if (args.length === 0) {
       return this.parse(text.split(/ +/))
@@ -153,8 +221,16 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
       this.#setupAke(scriptPath)
       installCompletion(this)
+      if (argv[0] === '--mcp') {
+        await serveMcp(this)
+        return
+      }
       await this.parse(argv)
     } catch (error) {
+      if (error instanceof CommandError) {
+        printError(toErrorShape(error), { json: false })
+        process.exit(error.exitCode)
+      }
       exitOnShellError(error)
     }
   }
@@ -175,7 +251,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     const { leadingGlobals, argv } = this.#takeLeadingGlobals(inputArgv)
     const commandName = argv[0]
     if (commandName === '-h' || commandName === '--help') {
-      console.log(this.helpText())
+      Command.#printHelp(this, argv)
       return process.exit(0)
     }
     if (!commandName) {
@@ -201,15 +277,25 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       if (this.action) {
         return this.#runSelf([...leadingGlobals, ...argv])
       }
-      console.log(this.helpText())
-      console.error(`\nUnknown command: ${commandName}`)
-      return process.exit(1)
+      const names = this.commands
+        .filter((command) => !command.hidden)
+        .flatMap((command) => [command._name as string, ...command.aliases])
+      const suggestion = closestMatch(commandName, names)
+      return Command.#exitWithUsage(this, inputArgv, {
+        code: 'unknown_command',
+        message: suggestion
+          ? `Unknown command: ${commandName} (did you mean ${suggestion}?)`
+          : `Unknown command: ${commandName}`,
+      })
     }
     const commandArgv = [...leadingGlobals, ...argv.slice(1)]
     if (command.commands.length > 0 || command.#defaultCommand) {
       return command.parse(commandArgv)
     }
-    await Command.#execute(command, commandArgv, { interceptHelp: true })
+    await Command.#execute(command, commandArgv, {
+      interceptHelp: true,
+      print: true,
+    })
   }
 
   add(action: Handler<Args, Opts>): this
@@ -283,9 +369,8 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
 
   helpText() {
     const lines: string[] = []
-    const name = this._name || 'app'
     if (this.commands.length > 0) {
-      lines.push(`Usage: ${name} <command>`)
+      lines.push(`Usage: ${this.path} <command>`)
       lines.push('')
       lines.push('Commands:')
       const entries: HelpEntry[] = this.#collectCommands()
@@ -330,15 +415,21 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       }
       Command.#appendOptions(lines, 'Global Options', this.visibleGlobalOptions)
     } else {
-      const args = this.#argsText()
-      const usage = args ? `${name} ${args}` : name
-      lines.push(`Usage: ${usage}`)
+      lines.push(`Usage: ${this.usage}`)
       if (this.description) {
         lines.push('')
         lines.push(this.description)
       }
       this.#appendArgsAndOptions(lines, this)
       Command.#appendOptions(lines, 'Global Options', this.inheritedOptions)
+    }
+    if (this.examples.length > 0) {
+      lines.push('')
+      lines.push('Examples:')
+      const width = Math.max(...this.examples.map((e) => e.command.length))
+      for (const { command, description } of this.examples) {
+        lines.push(`  ${command.padEnd(width + 2)}${description}`.trimEnd())
+      }
     }
     if (this.#extraHelp) {
       lines.push('')
@@ -350,20 +441,24 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   async #runDefault(argv: string[]) {
     // A default command usually forwards its argv, so -h reaches the wrapped tool unless the command declares something
     const cmd = this.#defaultCommand as Command
-    await Command.#execute(cmd, argv, { interceptHelp: Command.#isStrict(cmd) })
+    await Command.#execute(cmd, argv, {
+      interceptHelp: Command.#isStrict(cmd),
+      print: true,
+    })
   }
 
   async #runSelf(argv: string[]) {
-    await Command.#execute(this, argv, { interceptHelp: true })
+    await Command.#execute(this, argv, { interceptHelp: true, print: true })
   }
 
+  // print: the CLI path prints a structured app's result and error; execute() hands them to its caller instead
   static async #execute(
     command: Command,
     argv: string[],
-    { interceptHelp }: { interceptHelp: boolean },
+    { interceptHelp, print }: { interceptHelp: boolean; print: boolean },
   ) {
     if (interceptHelp && wantsHelp(argv)) {
-      console.log(command.helpText())
+      Command.#printHelp(command, argv)
       return process.exit(0)
     }
     const effectiveOptions = command.effectiveOptions
@@ -374,7 +469,10 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       })
     } catch (error) {
       if (!(error instanceof UsageError)) throw error
-      return Command.#exitWithUsage(command, error.message)
+      return Command.#exitWithUsage(command, argv, {
+        code: 'usage',
+        message: error.message,
+      })
     }
     const { positionals, options } = parsed
     const error =
@@ -383,15 +481,59 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       Command.#validateChoices(command, positionals) ??
       Command.#validateOptionChoices(effectiveOptions, options)
     if (error) {
-      return Command.#exitWithUsage(command, error)
+      return Command.#exitWithUsage(command, argv, {
+        code: 'usage',
+        message: error,
+      })
     }
+    const json = Command.#isJsonOutput(command, argv)
     const args = [...positionals]
     if (effectiveOptions.length > 0) {
       args.push(options)
     }
-    const context: Context = { argv }
+    const context: Context = { argv, json }
     args.push(context)
-    await command.action?.(...args)
+    if (!print || !command.root.#isStructured) {
+      return Command.#runAction(command, args)
+    }
+    try {
+      const result = await Command.#runAction(command, args)
+      printResult(result, { json })
+      return result
+    } catch (actionError) {
+      const { exitCode, ...shape } = toErrorShape(actionError)
+      printError(shape, { json })
+      return process.exit(exitCode)
+    }
+  }
+
+  static async #runAction(command: Command, args: unknown[]) {
+    const timeoutMs = Command.#timeoutFor(command)
+    if (timeoutMs === undefined) return command.action?.(...args)
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const timedOut = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () =>
+          reject(
+            new CommandError(`${command.path} timed out after ${timeoutMs}ms`, {
+              code: 'timeout',
+            }),
+          ),
+        timeoutMs,
+      )
+    })
+    try {
+      return await Promise.race([command.action?.(...args), timedOut])
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  static #timeoutFor(command: Command) {
+    for (let current: Command | undefined = command; current; ) {
+      if (current.#timeoutMs !== undefined) return current.#timeoutMs
+      current = current.parent
+    }
   }
 
   // A command that declares nothing forwards context.argv as is; anything declared makes typos fail
@@ -399,10 +541,42 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     return command.arguments.length > 0 || command.effectiveOptions.length > 0
   }
 
-  static #exitWithUsage(command: Command, message: string) {
+  // Structured apps print JSON when asked with --json, and whenever stdout is not a terminal
+  static #isJsonOutput(command: Command, argv: string[]) {
+    if (!command.root.#isStructured) return false
+    const end = argv.indexOf('--')
+    const flags = end === -1 ? argv : argv.slice(0, end)
+    return flags.includes('--json') || !process.stdout.isTTY
+  }
+
+  static #printHelp(command: Command, argv: string[]) {
+    if (argv.includes('--json')) {
+      console.log(JSON.stringify(command.describe()))
+      return
+    }
     console.log(command.helpText())
-    console.error(`\n${message}`)
-    return process.exit(1)
+  }
+
+  // Usage mistakes go to stderr so stdout stays parseable, and exit 2 to tell them apart from failures
+  static #exitWithUsage(
+    command: Command,
+    argv: string[],
+    error: { code: string; message: string },
+  ) {
+    if (Command.#isJsonOutput(command, argv)) {
+      printError(
+        {
+          ...error,
+          data: { usage: command.usage, help: `${command.path} -h` },
+        },
+        { json: true },
+      )
+    } else {
+      console.error(
+        `${error.message}\n\nUsage: ${command.usage}\nRun '${command.path} -h' for help.`,
+      )
+    }
+    return process.exit(USAGE_EXIT_CODE)
   }
 
   // Flags before the command name that belong to a visible global option, with their values
@@ -490,7 +664,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       const arg = command.arguments[i]
       const value = positionals[i]
       if (value == null) continue
-      const keys = Command.#staticChoices(arg.completion)
+      const keys = staticChoices(arg.completion)
       if (!keys) continue
       const values = arg.variadic ? value : [value]
       for (const v of values) {
@@ -509,7 +683,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     for (const opt of registeredOptions) {
       const value = options[opt.attributeName]
       if (value == null || typeof value === 'boolean') continue
-      const keys = Command.#staticChoices(opt.completion)
+      const keys = staticChoices(opt.completion)
       if (!keys) continue
       for (const v of Array.isArray(value) ? value : [value]) {
         if (!keys.includes(String(v))) {
@@ -518,15 +692,6 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       }
     }
     return null
-  }
-
-  // Fixed choices a value must match; undefined when completion is dynamic or a Carapace macro
-  static #staticChoices(completion: string[] | (() => string[])) {
-    if (typeof completion === 'function') return
-    if (completion.length === 0) return
-    if (completion.some((c) => c.startsWith('$') || /^[<[]/.test(c))) return
-    // Extract keys from "key\tdescription" format for validation
-    return completion.map((c) => c.split('\t')[0])
   }
 
   // add(name, description?, completionOrDefault?) and add(name, completionOrDefault)
