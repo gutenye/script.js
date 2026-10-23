@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import { realpathSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, realpathSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { $, exitOnShellError, ShellError } from '../spawn'
 
 describe('throw error', () => {
@@ -144,5 +146,46 @@ describe('$.global', () => {
     expect(withCwd).toBe('1.2.3')
     const withoutCwd = $`echo $A.$B.$C`.text()
     expect(withoutCwd).toBe('1..3')
+  })
+})
+
+describe('awaited commands', () => {
+  test('run in parallel under Promise.all', async () => {
+    const start = Date.now()
+    await Promise.all([$`sleep 0.4`, $`sleep 0.4`])
+    expect(Date.now() - start).toBeLessThan(750)
+  })
+})
+
+describe('.timeout()', () => {
+  test('rejects an awaited command that runs too long', async () => {
+    const promise = (async () => await $`sleep 2`.timeout(100))()
+    await expect(promise).rejects.toThrow(
+      'Command timed out after 100ms: sleep 2',
+    )
+  })
+
+  test('throws from text() when the command runs too long', () => {
+    expect(() => $`sleep 2`.timeout(100).text()).toThrow(
+      'Command timed out after 100ms: sleep 2',
+    )
+  })
+})
+
+describe('un-awaited commands', () => {
+  test('still run after .cwd()', async () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), 'spawn-')))
+    $`touch ran`.cwd(dir)
+    await Bun.sleep(0)
+    expect(existsSync(path.join(dir, 'ran'))).toBe(true)
+  })
+
+  test('run once when interpolated into a string', async () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), 'spawn-')))
+    const log = path.join(dir, 'log')
+    const text = `${$`echo run >> ${log}; echo done`}`
+    await Bun.sleep(0)
+    expect(text).toBe('done')
+    expect(readFileSync(log, 'utf8')).toBe('run\n')
   })
 })

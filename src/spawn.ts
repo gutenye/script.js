@@ -10,19 +10,31 @@ const defaults: {
   preambles: [],
 }
 
+type ShellResult = {
+  exitCode: number | null
+  stdout?: { toString(): string } | null
+  stderr?: { toString(): string } | null
+}
+
 export class ShellError extends Error {
   command: string
   exitCode: number
   stdout: string
   stderr: string
+  timeoutMs?: number
 
-  constructor(command: string, result: ReturnType<typeof Bun.spawnSync>) {
+  constructor(command: string, result: ShellResult, timeoutMs?: number) {
     const trimmed = command.trim()
-    super(`Command failed with exit code ${result.exitCode}: ${trimmed}`)
+    super(
+      timeoutMs === undefined
+        ? `Command failed with exit code ${result.exitCode}: ${trimmed}`
+        : `Command timed out after ${timeoutMs}ms: ${trimmed}`,
+    )
     this.command = trimmed
-    this.exitCode = result.exitCode
+    this.exitCode = result.exitCode as number
     this.stdout = (result.stdout ?? '').toString()
     this.stderr = (result.stderr ?? '').toString()
+    this.timeoutMs = timeoutMs
   }
 }
 
@@ -32,6 +44,7 @@ class ShellCommand {
   #cwd: string | undefined
   #env: Record<string, string> | undefined
   #nothrow = false
+  #timeoutMs: number | undefined
 
   constructor(command: string) {
     this.#command = command
@@ -46,34 +59,62 @@ class ShellCommand {
     return preamble ? preamble + this.#command : this.#command
   }
 
-  #pipeExec() {
-    if (!this.#result) {
-      const opts: Parameters<typeof Bun.spawnSync>[1] = {
-        stdin: 'inherit',
-        stdout: 'pipe',
-        stderr: 'inherit',
-      }
-      const cwd = this.#cwd ?? defaults.cwd
-      if (cwd !== undefined) opts.cwd = cwd
-      if (defaults.env !== undefined || this.#env !== undefined)
-        opts.env = { ...process.env, ...defaults.env, ...this.#env }
-      this.#result = Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
-    }
-    return this.#result
-  }
-
-  inheritExec() {
-    const opts: Parameters<typeof Bun.spawnSync>[1] = {
-      stdio: ['inherit', 'inherit', 'inherit'],
-    }
+  #spawnOptions(stdout: 'pipe' | 'inherit') {
+    const opts: {
+      stdio: ['inherit', 'pipe' | 'inherit', 'inherit']
+      cwd?: string
+      env?: Record<string, string | undefined>
+      timeout?: number
+    } = { stdio: ['inherit', stdout, 'inherit'] }
     const cwd = this.#cwd ?? defaults.cwd
     if (cwd !== undefined) opts.cwd = cwd
     if (defaults.env !== undefined || this.#env !== undefined)
       opts.env = { ...process.env, ...defaults.env, ...this.#env }
-    const result = Bun.spawnSync(['sh', '-c', this.#fullCommand], opts)
-    if (result.exitCode !== 0 && !this.#nothrow) {
-      throw new ShellError(this.#command, result)
+    if (this.#timeoutMs !== undefined) opts.timeout = this.#timeoutMs
+    return opts
+  }
+
+  #pipeExec() {
+    if (!this.#result) {
+      this.#result = Bun.spawnSync(
+        ['sh', '-c', this.#fullCommand],
+        this.#spawnOptions('pipe'),
+      )
     }
+    return this.#result
+  }
+
+  #throwUnlessSucceeded(result: ShellResult, timedOut: boolean) {
+    if (result.exitCode === 0 || this.#nothrow) return
+    throw new ShellError(
+      this.#command,
+      result,
+      timedOut ? this.#timeoutMs : undefined,
+    )
+  }
+
+  inheritExec() {
+    const result = Bun.spawnSync(
+      ['sh', '-c', this.#fullCommand],
+      this.#spawnOptions('inherit'),
+    )
+    this.#throwUnlessSucceeded(result, result.exitedDueToTimeout === true)
+    return result
+  }
+
+  // Awaited commands run without blocking, so Promise.all([$`a`, $`b`]) runs them in parallel
+  async #inheritExecAsync() {
+    const subprocess = Bun.spawn(
+      ['sh', '-c', this.#fullCommand],
+      this.#spawnOptions('inherit'),
+    )
+    await subprocess.exited
+    const result = { exitCode: subprocess.exitCode }
+    const timedOut =
+      this.#timeoutMs !== undefined &&
+      subprocess.killed &&
+      subprocess.signalCode !== null
+    this.#throwUnlessSucceeded(result, timedOut)
     return result
   }
 
@@ -92,15 +133,19 @@ class ShellCommand {
     return this
   }
 
+  // Kills the command with SIGTERM once it runs longer than ms
+  timeout(ms: number) {
+    this.#timeoutMs = ms
+    return this
+  }
+
   get exitCode() {
     return this.#pipeExec().exitCode
   }
 
   text() {
     const result = this.#pipeExec()
-    if (result.exitCode !== 0 && !this.#nothrow) {
-      throw new ShellError(this.#command, result)
-    }
+    this.#throwUnlessSucceeded(result, result.exitedDueToTimeout === true)
     return (result.stdout ?? '').toString().trimEnd()
   }
 
@@ -120,9 +165,11 @@ class ShellCommand {
   }
 
   // biome-ignore lint/suspicious/noThenProperty: thenable for await $`cmd`
-  then(resolve?: (value: { exitCode: number }) => void) {
-    const result = this.inheritExec()
-    resolve?.({ exitCode: result.exitCode })
+  then<Result = { exitCode: number | null }, Rejected = never>(
+    resolve?: (value: { exitCode: number | null }) => Result,
+    reject?: (reason: unknown) => Rejected,
+  ) {
+    return this.#inheritExecAsync().then(resolve, reject)
   }
 
   toString() {
@@ -130,16 +177,9 @@ class ShellCommand {
   }
 }
 
-const CAPTURED_PROPS = [
-  'text',
-  'json',
-  'lines',
-  'exitCode',
-  'cwd',
-  'env',
-  'then',
-]
-const CHAINABLE_PROPS = ['cwd', 'env', 'nothrow']
+const CAPTURED_PROPS = ['text', 'json', 'lines', 'exitCode', 'then', 'toString']
+// Chaining only configures the command, so an un-awaited $`cmd`.cwd(dir) still runs
+const CHAINABLE_PROPS = ['cwd', 'env', 'nothrow', 'timeout']
 
 function $tag(strings: TemplateStringsArray, ...values: any[]): ShellCommand {
   const command = buildCommand(strings, values)
@@ -203,7 +243,11 @@ export function exitOnShellError(error: unknown) {
   if (!(error instanceof ShellError)) throw error
   // signal-killed commands report a null exit code, which would exit 0
   const code = error.exitCode || 1
-  exitWithError(`${error.command} (exit ${code})`, undefined, code)
+  const reason =
+    error.timeoutMs === undefined
+      ? `exit ${code}`
+      : `timed out after ${error.timeoutMs}ms`
+  exitWithError(`${error.command} (${reason})`, undefined, code)
 }
 
 function buildCommand(strings: TemplateStringsArray, values: any[]) {
