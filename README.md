@@ -1,6 +1,6 @@
 # Script.js
 
-**Write shell scripts in JavaScript** and leverage the power of JavaScript's simplicity and flexibility to make your shell scripting easier and faster. Why struggle with the complexity of Bash or other shell scripting languages when you already know JavaScript? Script.js allows you to write and run complex shell scripts using JavaScript, saving you time and reducing errors.
+**Write CLI tools and shell scripts in JavaScript, for humans and agents.** A few lines give you a command with subcommands, typed arguments, help and validation. People get tab completion and readable output; AI agents get JSON results, errors with stable codes, the whole command tree in one call, and an MCP server, from the same script. If you know JavaScript, you know the API.
 
 **Show your ❤️ and support by starring this project and following the author, [Guten Ye](https://github.com/gutenye)!**
 
@@ -8,12 +8,26 @@
 
 ## Features
 
-- **Fast to write**: Global commands mean no imports needed. Open the editor, write a few lines, and run it.
-- **Fun to run**: Built-in autocompletion support via Carapace.
-- **JavaScript Power**: Access the entire JavaScript ecosystem.
-- **Subcommands**: Create and organize subcommands effortlessly.
-- **Help Documentation**: Auto-generated command help with argument validation.
-- **Fast Execution**: Powered by Bun for fast startup and execution.
+### For everyone
+
+- **Fast to write**: no imports in a `script.js` script. Open the editor, write a few lines, and run it.
+- **Commands that check their input**: subcommands, aliases, options shared across commands, `:number` and `:json` values, and choices. A typo such as `--dry-rn` stops with "did you mean `--dry-run`?" instead of running.
+- **Shell commands made easy**: `` $`git status` `` with safe escaping, `.text()` and `.json()` to capture output, `Promise.all` to run in parallel, and `.timeout()`.
+- **Fast**: runs on Bun, so a call starts in milliseconds.
+- **Typed in TypeScript**: handler parameters are inferred from the `add()` strings.
+
+### For humans
+
+- **Tab completion** in every shell through [Carapace](https://github.com/carapace-sh/carapace-bin), generated from your commands.
+- **Readable help** with examples, from `-h` at any level.
+- **Ake**: a per-project task runner with completion.
+
+### For agents
+
+- **JSON results**: with `app.json()`, a handler returns its result, printed as JSON with `--json` or whenever output is piped.
+- **Errors an agent can branch on**: `{"error":{"code","message"}}` on stderr. Usage errors exit 2, so they're never mistaken for a failed operation.
+- **The whole tool in one call**: `--help --json` prints every command with its arguments, options, types, defaults, choices and examples.
+- **An MCP server for free**: `<script> --mcp` serves every command as an MCP tool, with input schemas built from your declarations.
 
 ## Getting Started
 
@@ -49,6 +63,43 @@ chmod +x hello         # Make the script executable
 ./hello                # First run to create completion file
 ./hello <Tab>          # Use Tab key for autocompletion
 ```
+
+### 4. Make it agent-ready
+
+Turn on structured output, return results, and throw errors with a code:
+
+```ts
+#!/usr/bin/env script.js
+
+app.name("weather");
+app.json();
+
+app
+  .cmd("now", "Current weather for a city")
+  .add("<city>", "City name")
+  .add("-u, --units [units=metric]", "Units", ["metric", "imperial"])
+  .example("weather now Paris -u imperial", "Paris in Fahrenheit")
+  .add(async (city, options) => {
+    const response = await fetch(`https://example.com/weather?city=${encodeURIComponent(city)}`);
+    if (!response.ok) throw Object.assign(new Error(`No weather for ${city}`), { code: "not_found" });
+    return { city, units: options.units, ...(await response.json()) };
+  });
+```
+
+```sh
+./weather now Paris              # readable on a terminal
+./weather now Paris | jq .city   # JSON when piped
+./weather --help --json          # the command tree, for an agent to read
+./weather --mcp                  # serve it as MCP tools
+```
+
+Add it to an MCP client:
+
+```json
+{ "mcpServers": { "weather": { "command": "/path/to/weather", "args": ["--mcp"] } } }
+```
+
+See [Agents](./docs/Agents.md) for exit codes, error shapes and how tool calls map to arguments.
 
 ## Documentation
 

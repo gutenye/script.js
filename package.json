@@ -1,7 +1,7 @@
 {
   "name": "@gutenye/script.js",
   "version": "1.1.0",
-  "description": "Write shell scripts in JavaScript",
+  "description": "Write CLI tools and shell scripts in JavaScript, for humans and agents: tab completion and readable help for people, JSON results, machine-readable help and an MCP server for AI agents",
   "keywords": [
     "shell",
     "script",
@@ -9,7 +9,12 @@
     "exec",
     "spawn",
     "zx",
-    "bunshell"
+    "bunshell",
+    "cli",
+    "cli-framework",
+    "autocompletion",
+    "mcp",
+    "ai-agents"
   ],
   "license": "MIT",
   "repository": "github:gutenye/script.js",
