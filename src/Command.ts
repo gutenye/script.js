@@ -6,19 +6,28 @@ import {
   getProjectDir,
   isAke,
 } from './ake/shared'
+import type {
+  AddArgument,
+  AddOption,
+  CompletionOrDefault,
+  Context,
+  Handler,
+  NoOptions,
+} from './CommandTypes'
 import { installCompletion } from './completion'
 import { Option } from './Option'
 import { findOption, parseArgv, wantsHelp } from './parseArgv'
 import { exitOnShellError } from './spawn'
 import { UsageError } from './UsageError'
 
-export class Command {
+// Args and Opts type the handler from the add() strings; see CommandTypes.ts
+export class Command<Args extends unknown[] = any[], Opts = any> {
   static #nextOrder = 0
 
   _name?: string
   description?: string
   aliases: string[] = []
-  action!: (...args: any[]) => void | Promise<void>
+  action?: (...args: any[]) => unknown
   arguments: Argument[] = []
   commands: Command[] = []
   options: Option[] = []
@@ -58,8 +67,8 @@ export class Command {
     console.log(this.helpText())
   }
 
-  cmd(inputName?: string, description = '') {
-    const command = new Command()
+  cmd(inputName?: string, description = ''): Command<[], NoOptions> {
+    const command = new Command<[], NoOptions>()
     if (inputName) {
       const { name, aliases } = this.#parseAliases(inputName)
       const parts = name.split(/\s+/)
@@ -203,7 +212,13 @@ export class Command {
     await Command.#execute(command, commandArgv, { interceptHelp: true })
   }
 
-  add(...args: any[]) {
+  add(action: Handler<Args, Opts>): this
+  add<Raw extends string>(
+    name: Raw,
+    description?: string | CompletionOrDefault,
+    completionOrDefault?: CompletionOrDefault,
+  ): Command<AddArgument<Args, Raw>, AddOption<Opts, Raw>>
+  add(...args: any[]): any {
     if (typeof args[0] === 'function') {
       this.action = args[0]
     } else {
@@ -592,14 +607,10 @@ export class Command {
   }
 }
 
-export const app = new Command()
+export const app = new Command<[], NoOptions>()
 
 export function runAppBeforeExit() {
   return app.run()
-}
-
-type Context = {
-  argv: string[]
 }
 
 export type Mixin = (command: Command) => unknown

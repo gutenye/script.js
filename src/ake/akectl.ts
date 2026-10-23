@@ -20,7 +20,7 @@ app
   .add('<place>', 'Place', ['local', 'remote'])
   .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
   .add('--ci', 'Skip opening editor')
-  .add(async (place: string, suffix: string, options: { ci?: boolean }) => {
+  .add(async (place, suffix, options) => {
     suffix = suffix ?? ''
     const akeFiles = await findAkeFiles(suffix)
     if (akeFiles.length > 0) {
@@ -50,7 +50,7 @@ app
   .cmd('install-bin', 'Create a wrapper script for ake with a suffix')
   .add('<prefix>', 'Path prefix (e.g. ~/bin/ake, ~/bin/a)')
   .add('<suffix>', 'Suffix to append (e.g. "foo" → ~/bin/akefoo)')
-  .add(async (prefix: string, suffix: string) => {
+  .add(async (prefix, suffix) => {
     const target = `${prefix}${suffix}`
     const content = `
 #!/usr/bin/env bash
@@ -65,7 +65,7 @@ SUFFIX=${suffix} exec ${prefix} "$@"
 app
   .cmd('edit', 'Edit ake file')
   .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
-  .add(async (suffix: string) => {
+  .add(async (suffix) => {
     suffix = suffix ?? ''
     const akeFiles = await findAkeFiles(suffix)
     const akeFile = akeFiles[0]
@@ -79,7 +79,7 @@ app
 app
   .cmd('path', 'Print ake file path')
   .add('[suffix]', 'Ake file suffix (e.g. "foo" for akefoo)')
-  .add(async (suffix: string) => {
+  .add(async (suffix) => {
     suffix = suffix ?? ''
     const akeFiles = await findAkeFiles(suffix)
     const akeFile = akeFiles[0]
