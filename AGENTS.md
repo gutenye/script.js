@@ -56,3 +56,7 @@ bun run lint:ci       # CI lint with GitHub reporter
 ## Releases
 
 Automated via semantic-release on the `main` branch. Conventional commit messages determine version bumps. Do not manually edit version numbers.
+
+## Go
+
+- `go` commits on `main` and pushes; semantic-release publishes from `main`.
