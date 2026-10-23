@@ -1,3 +1,13 @@
+## [8.5.0](https://github.com/gutenye/script.js/compare/v8.4.0...v8.5.0) (2026-10-23)
+
+### Features
+
+* structured output, JSON help, examples, timeouts and an MCP server for agent-facing CLIs ([791dd76](https://github.com/gutenye/script.js/commit/791dd76bddbe0398d7661b6f7fdaf07354ac6493))
+
+### Bug Fixes
+
+* print the completion spec notice on stderr so stdout stays parseable ([b735aa2](https://github.com/gutenye/script.js/commit/b735aa263cb009e3abaa885a7c05a534ac3a2546))
+
 ## [8.4.0](https://github.com/gutenye/script.js/compare/v8.3.1...v8.4.0) (2026-10-23)
 
 ### Features
