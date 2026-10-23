@@ -92,6 +92,84 @@ app
   });
 ```
 
+A variadic option collects values until the next flag, and repeating it appends: `-a 1 2 -a 3` gives `['1', '2', '3']`. Short flags can be bundled: `-nv` is `-n -v`, and only the last one may take a value.
+
+## Typed Values
+
+Add `:number` or `:json` to a placeholder to convert the value, defaults included. An invalid value prints help and exits 1:
+
+```ts
+app
+  .cmd("open", "Open a screen")
+  .add("<screen>")
+  .add("[params:json]", "Route params") // '{"a":1}' → { a: 1 }
+  .add("-t, --timeout [ms:number=10000]", "Wait timeout") // '250' → 250, default 10000
+  .add((screen, params, options) => {
+    options.timeout; // a number
+  });
+```
+
+## Shared Options
+
+Put a group of arguments or options used by several commands in a function, and apply it with `.use()`. The group lands where `.use()` sits, and a factory takes parameters:
+
+```ts
+const targetOptions = (command) =>
+  command
+    .add("-d, --device [name]", "Simulator name or UDID")
+    .add("-p, --port [port:number]", "Metro port");
+
+const waitOptions =
+  ({ timeout = 10000 } = {}) =>
+  (command) =>
+    command.add(`-t, --timeout [ms:number=${timeout}]`, "Wait timeout");
+
+app
+  .cmd("open", "Open a screen")
+  .add("<screen>")
+  .use(targetOptions, waitOptions())
+  .add((screen, options) => {});
+```
+
+## Global Options
+
+`.global()` declares an option that a command and all its subcommands accept, before or after the command name. Help lists it under `Global Options:`, and completion offers it on every subcommand:
+
+```ts
+app.global("-d, --device [name]", "Simulator name or UDID");
+
+app.cmd("state", "Show the screen").add((options) => {
+  options.device;
+});
+```
+
+```sh
+./appctl state -d iPhone
+./appctl -d iPhone state
+```
+
+- A command that declares none of its own options still receives `options` once it inherits a global one.
+- A command's own option replaces a global one that shares its name or a flag.
+- An optional global value never takes a command name: `./appctl -d state` sets `device` to `true`.
+
+## Strict Parsing
+
+A command that declares any argument or option, its own or inherited, rejects mistakes instead of running with them: an unknown option (with a "did you mean" hint), an extra positional, or a value on a boolean flag prints help and exits 1. `-h` and `--help` print help anywhere before `--`.
+
+A command that declares nothing forwards its input untouched, so wrappers keep working:
+
+```ts
+app.cmd("t", "Run tests").add(({ argv }) => {
+  $`bun test ${argv}`; // ake t --watch src/foo.test.ts
+});
+```
+
+Everything after `--` is positional, including flags.
+
+## Types
+
+In TypeScript, the handler's parameters are inferred from the `add()` strings: `<amount:number>` is a `number`, `[account]` is `string | undefined`, `[...assets]` is `string[]`, and `-n, --dry-run` adds `options.dryRun?: boolean`. A command without its own options leaves the parameters after its arguments untyped, because an inherited global option may add `options` there.
+
 ## Subcommands
 
 A command can have both its own action and subcommands. The action runs when no subcommand matches:

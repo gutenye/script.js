@@ -18,17 +18,19 @@ bun run lint:ci       # CI lint with GitHub reporter
 - **Language:** TypeScript with strict mode, ESM only (`verbatimModuleSyntax`)
 - **Entry:** `src/index.ts` exports `app` (Command) and `$` (shell execution). Registers `process.on('beforeExit')` to auto-run `app.run()`; an explicit `await app.run()` removes that listener and `run()` remains idempotent
 - **CLI binary:** `src/script.ts` — sets globals on `globalThis`, imports user script (auto-run via `beforeExit`)
-- **Ake task runner:** `src/ake.ts`, `src/akectl.ts` — built-in task runner using same Command framework
+- **Ake task runner:** `src/ake/ake.ts`, `src/ake/akectl.ts` — built-in task runner using same Command framework
 
 ### Core modules
 
 | File            | Purpose                                                              |
 | --------------- | -------------------------------------------------------------------- |
-| `Command.ts`    | CLI command tree — subcommands, args, options, actions               |
+| `Command.ts`    | CLI command tree — subcommands, args, options, global options, mixins, actions |
+| `CommandTypes.ts` | Type-level inference of handler parameters from `add()` strings     |
 | `Argument.ts`   | Positional arg parsing (`<required>`, `[optional]`, `[...variadic]`) |
 | `Option.ts`     | Flag parsing (`-b \| --boolean`, `-s \| --string <value>`)           |
-| `parseArgv.ts`  | Raw argv → positionals + options                                     |
-| `spawn.ts`      | `$` tagged template for shell execution (`Bun.spawnSync` + `sh -c`)  |
+| `valueType.ts`  | `:number` / `:json` placeholder types and value conversion           |
+| `parseArgv.ts`  | Raw argv → positionals + options; strict mode throws `UsageError`    |
+| `spawn.ts`      | `$` tagged template (`sh -c`): `Bun.spawn` when awaited, `Bun.spawnSync` otherwise |
 | `completion.ts` | Carapace YAML spec generation from command tree                      |
 | `helpers/`      | Utility functions — `table` (formatted console tables), `common` (exitWithError) |
 

@@ -18,6 +18,18 @@ $`echo '{"a":1}'`.json()          // returns parsed JSON
 ```ts
 $`cmd`.cwd('/tmp').text()         // run in specific directory
 $`cmd`.env({ KEY: 'val' }).text() // run with env vars
+$`cmd`.timeout(5000)              // kill with SIGTERM after 5s; fails as "timed out after 5000ms"
+```
+
+### Running in Parallel
+
+An awaited command runs without blocking, so `Promise.all` runs several at once. Un-awaited commands and `.text()`, `.lines()` and `.json()` stay synchronous, so plain sequential scripts keep their order:
+
+```ts
+await Promise.all([$`bun run build`, $`bun run lint`]) // both at once
+
+$`echo first`                     // runs before the next line
+$`echo second`
 ```
 
 ### Ignoring Failures

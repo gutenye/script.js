@@ -20,6 +20,20 @@ exitWithError('missing argument', 'Usage: myscript <file>')
 // Usage: myscript <file>
 ```
 
+## printJson
+
+Pretty-print a value as JSON on stdout, for output that other tools parse.
+
+```ts
+import { printJson } from '@gutenye/script.js'
+
+printJson({ route: 'PayHome', pending: [] })
+// {
+//   "route": "PayHome",
+//   "pending": []
+// }
+```
+
 ## printTable
 
 Print data as a formatted console table with rounded borders and green headers.
