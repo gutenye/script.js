@@ -1,3 +1,15 @@
+## [8.4.0](https://github.com/gutenye/script.js/compare/v8.3.1...v8.4.0) (2026-10-23)
+
+### Features
+
+* add global options, use() mixins, typed values and strict parsing ([fe8edb3](https://github.com/gutenye/script.js/commit/fe8edb3b0b46d4ea7865e96dc3fc15e96a3192c9))
+* infer handler parameter types from add() strings and add printJson ([f6f0f6b](https://github.com/gutenye/script.js/commit/f6f0f6b4206a6a1e663e3996ccd276511c98d3ea))
+* run awaited shell commands without blocking and add .timeout() ([c29f661](https://github.com/gutenye/script.js/commit/c29f661e10bf671561689d2eda29ebde3e99e464))
+
+### Bug Fixes
+
+* point the ake and akectl bins at src/ake and drop undeclared dependencies ([9a31038](https://github.com/gutenye/script.js/commit/9a310383805060d5eaf10d2a629e2002310c4f06))
+
 ## [8.3.1](https://github.com/gutenye/script.js/compare/v8.3.0...v8.3.1) (2026-08-25)
 
 ### Bug Fixes
