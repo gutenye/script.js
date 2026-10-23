@@ -154,7 +154,7 @@ app.cmd("state", "Show the screen").add((options) => {
 
 ## Strict Parsing
 
-A command that declares any argument or option, its own or inherited, rejects mistakes instead of running with them: an unknown option (with a "did you mean" hint), an extra positional, or a value on a boolean flag prints help and exits 1. `-h` and `--help` print help anywhere before `--`.
+A command that declares any argument or option, its own or inherited, rejects mistakes instead of running with them: an unknown option (with a "did you mean" hint), an extra positional, or a value on a boolean flag. The error, the usage line and a `-h` hint go to stderr, and the script exits 2, as it does for an unknown command. `-h` and `--help` print help anywhere before `--`; add `--json` for the machine-readable tree (see [Agents](./Agents.md)).
 
 A command that declares nothing forwards its input untouched, so wrappers keep working:
 

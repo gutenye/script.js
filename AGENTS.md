@@ -30,6 +30,9 @@ bun run lint:ci       # CI lint with GitHub reporter
 | `Option.ts`     | Flag parsing (`-b \| --boolean`, `-s \| --string <value>`)           |
 | `valueType.ts`  | `:number` / `:json` placeholder types and value conversion           |
 | `parseArgv.ts`  | Raw argv → positionals + options; strict mode throws `UsageError`    |
+| `structured.ts` | `app.json()` results and errors, `CommandError`, exit codes          |
+| `describe.ts`   | Machine-readable command tree for `--help --json` and MCP            |
+| `mcp.ts`        | `--mcp`: serves runnable commands as MCP tools over stdio            |
 | `spawn.ts`      | `$` tagged template (`sh -c`): `Bun.spawn` when awaited, `Bun.spawnSync` otherwise |
 | `completion.ts` | Carapace YAML spec generation from command tree                      |
 | `helpers/`      | Utility functions — `table` (formatted console tables), `common` (exitWithError) |

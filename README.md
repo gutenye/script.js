@@ -57,6 +57,7 @@ chmod +x hello         # Make the script executable
 - [Global Commands](./docs/Global%20Commands.md): List of global variables and commands
 - [Helpers](./docs/Helpers.md): Utility functions for writing scripts
 - [Ake](./docs/Ake.md): A task runner supports shell autocompletion
+- [Agents](./docs/Agents.md): JSON results and errors, machine-readable help, and serving a script as an MCP server
 
 ## v2
 
