@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { Argument } from '../Argument'
 import { Option } from '../Option'
-import { parseArgv } from '../parseArgv'
+import { parseArgv, wantsHelp } from '../parseArgv'
 
 describe('parseArgv', () => {
   test('parses positional arguments', () => {
@@ -153,6 +153,119 @@ describe('parseArgv', () => {
       const opts = [new Option('-v, --verbose')]
       const result = parseArgv([], [], opts)
       expect(result.options.$has('verbose')).toBe(false)
+    })
+  })
+
+  describe('variadic options', () => {
+    test('collect values until the next flag', () => {
+      const opts = [new Option('-a, --array [values...]'), new Option('-v')]
+      const result = parseArgv(['-a', '1', '2', '-v'], [], opts)
+      expect(result.options.array).toEqual(['1', '2'])
+      expect(result.options.v).toBe(true)
+    })
+
+    test('accumulate across repeats', () => {
+      const opts = [new Option('-a, --array [values...]')]
+      const result = parseArgv(['-a', '1', '--array=2', '-a', '3'], [], opts)
+      expect(result.options.array).toEqual(['1', '2', '3'])
+    })
+
+    test('leave a required variadic option without values unset', () => {
+      const opts = [new Option('-a, --array <values...>')]
+      const result = parseArgv(['-a'], [], opts)
+      expect(result.options.array).toBeUndefined()
+    })
+  })
+
+  describe('typed values', () => {
+    test('convert number and json values', () => {
+      const args = [
+        new Argument('<amount:number>'),
+        new Argument('[params:json]'),
+      ]
+      const opts = [new Option('-t, --timeout [ms:number=10000]')]
+      const result = parseArgv(['1.5', '{"a":1}', '-t', '250'], args, opts)
+      expect(result.positionals).toEqual([1.5, { a: 1 }])
+      expect(result.options.timeout).toBe(250)
+    })
+
+    test('convert inline and argument defaults', () => {
+      const args = [new Argument('[depth:number=6]')]
+      const opts = [new Option('-t, --timeout [ms:number=10000]')]
+      const result = parseArgv([], args, opts)
+      expect(result.positionals).toEqual([6])
+      expect(result.options.timeout).toBe(10000)
+    })
+
+    test('throw a usage error for an invalid number', () => {
+      const opts = [new Option('-t, --timeout <ms:number>')]
+      expect(() => parseArgv(['-t', 'soon'], [], opts)).toThrow(
+        "Invalid number for --timeout: 'soon'",
+      )
+    })
+
+    test('treat a negative number as a value', () => {
+      const opts = [new Option('--offset <n:number>')]
+      const result = parseArgv(['--offset', '-5'], [], opts)
+      expect(result.options.offset).toBe(-5)
+    })
+  })
+
+  describe('bundled short flags', () => {
+    test('expand into separate flags, the last taking a value', () => {
+      const opts = [
+        new Option('-n, --dry-run'),
+        new Option('-v, --verbose'),
+        new Option('-f, --from [account]'),
+      ]
+      const result = parseArgv(['-nvf', 'exodus_1'], [], opts)
+      expect(result.options).toMatchObject({
+        dryRun: true,
+        verbose: true,
+        from: 'exodus_1',
+      })
+    })
+  })
+
+  describe('strict', () => {
+    test('rejects an unknown option with a suggestion', () => {
+      const opts = [new Option('-n, --dry-run')]
+      expect(() => parseArgv(['--dry-rn'], [], opts, { strict: true })).toThrow(
+        'Unknown option: --dry-rn (did you mean --dry-run?)',
+      )
+    })
+
+    test('rejects an extra positional', () => {
+      const args = [new Argument('<to>')]
+      expect(() =>
+        parseArgv(['x', 'extra'], args, [], { strict: true }),
+      ).toThrow('Unexpected argument: extra')
+    })
+
+    test('rejects a value on a boolean flag', () => {
+      const opts = [new Option('-v, --verbose')]
+      expect(() =>
+        parseArgv(['--verbose=no'], [], opts, { strict: true }),
+      ).toThrow('Option --verbose does not take a value')
+    })
+
+    test('keeps everything after -- as positionals', () => {
+      const args = [new Argument('[...rest]')]
+      const result = parseArgv(['--', '--unknown'], args, [], { strict: true })
+      expect(result.positionals).toEqual([['--unknown']])
+    })
+
+    test('lenient mode still ignores unknown options', () => {
+      const result = parseArgv(['--anything', 'x'], [], [])
+      expect(result.positionals).toEqual([])
+    })
+  })
+
+  describe('wantsHelp', () => {
+    test('finds -h and --help before --', () => {
+      expect(wantsHelp(['x', '--help'])).toBe(true)
+      expect(wantsHelp(['-h'])).toBe(true)
+      expect(wantsHelp(['--', '-h'])).toBe(false)
     })
   })
 })

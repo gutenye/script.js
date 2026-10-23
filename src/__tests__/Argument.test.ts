@@ -41,4 +41,17 @@ describe('Argument', () => {
     const arg = new Argument('<platform>', 'Platform', fn)
     expect(arg.completion).toBe(fn)
   })
+
+  test('parses a value type and converts its default', () => {
+    const arg = new Argument('[depth:number=6]')
+    expect(arg.name).toBe('depth')
+    expect(arg.valueType).toBe('number')
+    expect(arg.defaultValue).toBe(6)
+  })
+
+  test('keeps a colon inside a default value', () => {
+    const arg = new Argument('[url=http://localhost]')
+    expect(arg.name).toBe('url')
+    expect(arg.defaultValue).toBe('http://localhost')
+  })
 })

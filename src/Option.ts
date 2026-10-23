@@ -1,3 +1,5 @@
+import { convertValue, splitValueType, type ValueType } from './valueType'
+
 export class Option {
   rawFlags: string
   short?: string
@@ -10,7 +12,8 @@ export class Option {
   attributeName: string
   completion: string[] | (() => string[])
   defaultValue: any
-  inlineDefaultValue?: string
+  inlineDefaultValue?: any
+  valueType?: ValueType
 
   constructor(
     rawFlags: string,
@@ -39,9 +42,21 @@ export class Option {
     this.variadic = rawFlags.includes('...')
     this.negate = this.long?.startsWith('--no-') ?? false
 
-    const inlineDefaultMatch = rawFlags.match(/\[[\w.]+=(.*?)\]/)
-    if (inlineDefaultMatch) {
-      this.inlineDefaultValue = inlineDefaultMatch[1]
+    // '[ms:number=10000]' → type 'number', inline default 10000
+    const placeholderMatch = rawFlags.match(/[<[]([^>\]]*)[>\]]/)
+    if (placeholderMatch) {
+      const [placeholder, inlineDefault] = splitOnce(
+        placeholderMatch[1].replace(/\.\.\./g, ''),
+        '=',
+      )
+      this.valueType = splitValueType(placeholder.trim()).valueType
+      if (inlineDefault !== undefined && placeholderMatch[0][0] === '[') {
+        this.inlineDefaultValue = convertValue(
+          inlineDefault,
+          this.valueType,
+          rawFlags,
+        )
+      }
     }
 
     if (this.long) {
@@ -73,4 +88,23 @@ export class Option {
   isBoolean() {
     return !this.required && !this.optional && !this.negate
   }
+
+  convert(value: string) {
+    return convertValue(value, this.valueType, this.long ?? this.short ?? '')
+  }
+
+  // Two options clash when they share a flag or an attribute name
+  overlaps(other: Option) {
+    return (
+      this.attributeName === other.attributeName ||
+      (this.short !== undefined && this.short === other.short) ||
+      (this.long !== undefined && this.long === other.long)
+    )
+  }
+}
+
+function splitOnce(text: string, separator: string): [string, string?] {
+  const index = text.indexOf(separator)
+  if (index === -1) return [text]
+  return [text.slice(0, index), text.slice(index + 1)]
 }

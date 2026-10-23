@@ -3,6 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import * as yaml from 'yaml'
 import type { Command } from './Command'
+import type { Option } from './Option'
 
 export type CompletionValue = string[] | (() => string[])
 
@@ -11,6 +12,7 @@ export type CarapaceSpec = {
   aliases?: string[]
   description?: string
   flags?: Record<string, string>
+  persistentflags?: Record<string, string>
   completion?: CarapaceCompletion
   commands?: CarapaceSpec[]
 }
@@ -73,19 +75,14 @@ function buildSpecInner(
 
     for (const opt of source.options) {
       spec.flags = spec.flags || {}
-      let flag = [opt.short, opt.long].filter(Boolean).join(', ')
-      const values = resolveCompletion(opt.completion)
-      if (values.length > 0) flag += '='
-      else if (opt.required) flag += '='
-      else if (opt.optional) flag += '=?'
-      spec.flags[flag] = opt.description
-
-      if (values.length > 0) {
-        completion.flag = completion.flag || {}
-        const key = opt.long?.replace(/^--/, '') || opt.attributeName
-        completion.flag[key] = values
-      }
+      addFlag(spec.flags, completion, opt)
     }
+  }
+
+  // Carapace applies persistent flags to every subcommand, matching global()
+  for (const opt of command.globalOptions) {
+    spec.persistentflags = spec.persistentflags || {}
+    addFlag(spec.persistentflags, completion, opt)
   }
 
   if (Object.keys(completion).length > 0) {
@@ -110,13 +107,33 @@ function buildSpecInner(
   return spec
 }
 
+function addFlag(
+  flags: Record<string, string>,
+  completion: CarapaceCompletion,
+  opt: Option,
+) {
+  let flag = [opt.short, opt.long].filter(Boolean).join(', ')
+  const values = resolveCompletion(opt.completion)
+  if (values.length > 0) flag += '='
+  else if (opt.required) flag += '='
+  else if (opt.optional) flag += '=?'
+  flags[flag] = opt.description
+
+  if (values.length > 0) {
+    completion.flag = completion.flag || {}
+    const key = opt.long?.replace(/^--/, '') || opt.attributeName
+    completion.flag[key] = values
+  }
+}
+
 export function buildSpecText(
   command: Command,
 ): { spec: CarapaceSpec; text: string } | undefined {
   if (!command._name) return undefined
 
   const spec = buildSpec(command)
-  if (!(spec.commands || spec.flags || spec.completion)) return undefined
+  if (!(spec.commands || spec.flags || spec.persistentflags || spec.completion))
+    return undefined
 
   const text = yaml.stringify(spec)
   return { spec, text }

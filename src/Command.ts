@@ -8,8 +8,9 @@ import {
 } from './ake/shared'
 import { installCompletion } from './completion'
 import { Option } from './Option'
-import { parseArgv } from './parseArgv'
+import { findOption, parseArgv, wantsHelp } from './parseArgv'
 import { exitOnShellError } from './spawn'
+import { UsageError } from './UsageError'
 
 export class Command {
   static #nextOrder = 0
@@ -21,6 +22,9 @@ export class Command {
   arguments: Argument[] = []
   commands: Command[] = []
   options: Option[] = []
+  // Options this command and every descendant accept, declared with global()
+  globalOptions: Option[] = []
+  parent?: Command
   hidden = false
   #defaultCommand?: Command
   #extraHelp?: string
@@ -67,12 +71,14 @@ export class Command {
         } else {
           const intermediate = new Command()
           intermediate._name = parts[i]
+          intermediate.parent = parent
           parent.commands.push(intermediate)
           parent = intermediate
         }
       }
       command._name = parts[parts.length - 1]
       command.description = description
+      command.parent = parent
       parent.commands.push(command)
       if (parts.length > 1) {
         const prefix = parts.slice(0, -1).join(' ')
@@ -94,6 +100,7 @@ export class Command {
         command.aliases = aliases
       }
     } else {
+      command.parent = this
       this.#defaultCommand = command
     }
     return command
@@ -154,9 +161,11 @@ export class Command {
     ;(globalThis as any).PROJECT_DIR = projectDir
   }
 
-  async parse(argv: string[]): Promise<void> {
+  async parse(inputArgv: string[]): Promise<void> {
+    // Global options may come before the command name: `app -d iPhone state`
+    const { leadingGlobals, argv } = this.#takeLeadingGlobals(inputArgv)
     const commandName = argv[0]
-    if (commandName === '-h') {
+    if (commandName === '-h' || commandName === '--help') {
       console.log(this.helpText())
       return process.exit(0)
     }
@@ -166,11 +175,11 @@ export class Command {
           (a) => a.required,
         )
         if (this.commands.length === 0 || !hasRequiredArg) {
-          return this.#runDefault(argv)
+          return this.#runDefault(leadingGlobals)
         }
       }
       if (this.action) {
-        return this.#runSelf(argv)
+        return this.#runSelf(leadingGlobals)
       }
       console.log(this.helpText())
       return process.exit(0)
@@ -178,49 +187,28 @@ export class Command {
     const command = this.#findCommand(commandName)
     if (!command) {
       if (this.#defaultCommand) {
-        return this.#runDefault(argv)
+        return this.#runDefault([...leadingGlobals, ...argv])
       }
       if (this.action) {
-        return this.#runSelf(argv)
+        return this.#runSelf([...leadingGlobals, ...argv])
       }
       console.log(this.helpText())
       console.error(`\nUnknown command: ${commandName}`)
       return process.exit(1)
     }
-    const commandArgv = argv.slice(1)
+    const commandArgv = [...leadingGlobals, ...argv.slice(1)]
     if (command.commands.length > 0 || command.#defaultCommand) {
       return command.parse(commandArgv)
     }
-    if (commandArgv.includes('-h')) {
-      console.log(command.helpText())
-      return process.exit(0)
-    }
-    const { positionals, options } = parseArgv(
-      commandArgv,
-      command.arguments,
-      command.options,
-    )
-    const context: Context = { argv: commandArgv }
-    await this.#invokeAction(command, positionals, options, context)
+    await Command.#execute(command, commandArgv, { interceptHelp: true })
   }
 
   add(...args: any[]) {
     if (typeof args[0] === 'function') {
       this.action = args[0]
     } else {
-      let [inputName, description, completionOrDefault] = args
-
-      if (typeof description !== 'string') {
-        if (completionOrDefault) {
-          throw new Error(
-            'Invalid third argument, should be add(name, description, completion) format',
-          )
-        }
-        completionOrDefault = description
-        description = ''
-      }
-
-      const name = inputName.trim()
+      const { name, description, completionOrDefault } =
+        Command.#normalizeAddArgs(args)
       if (name.startsWith('-')) {
         this.options.push(new Option(name, description, completionOrDefault))
       } else {
@@ -231,6 +219,51 @@ export class Command {
     }
 
     return this
+  }
+
+  // Declares an option that this command and every descendant accept, before or after the command name
+  global(...args: any[]) {
+    const { name, description, completionOrDefault } =
+      Command.#normalizeAddArgs(args)
+    if (!name.startsWith('-')) {
+      throw new Error(`global() takes an option, got '${name}'`)
+    }
+    this.globalOptions.push(new Option(name, description, completionOrDefault))
+    return this
+  }
+
+  // Applies reusable fragments in place, so shared arguments and options keep the position they are used at
+  use(...mixins: Mixin[]) {
+    for (const mixin of mixins) {
+      mixin(this)
+    }
+    return this
+  }
+
+  // Global options from this command and its ancestors, nearest first; a nearer one replaces a clashing farther one
+  get visibleGlobalOptions(): Option[] {
+    const result: Option[] = []
+    for (let command: Command | undefined = this; command; ) {
+      for (const option of command.globalOptions) {
+        if (!result.some((existing) => existing.overlaps(option))) {
+          result.push(option)
+        }
+      }
+      command = command.parent
+    }
+    return result
+  }
+
+  // Global options this command inherits, minus any its own options redeclare
+  get inheritedOptions(): Option[] {
+    return this.visibleGlobalOptions.filter(
+      (option) => !this.options.some((own) => own.overlaps(option)),
+    )
+  }
+
+  // Everything the parser accepts for this command
+  get effectiveOptions(): Option[] {
+    return [...this.options, ...this.inheritedOptions]
   }
 
   helpText() {
@@ -273,20 +306,14 @@ export class Command {
         const padded = entry.label.padEnd(maxLen + 2)
         lines.push(`  ${padded}${entry.description}`)
       }
-      if (defaultCmd && defaultCmd.options.length > 0) {
-        lines.push('')
-        lines.push('Default Command Options:')
-        const flags = defaultCmd.options.map(String)
-        const optMaxLen = Math.max(...flags.map((f) => f.length))
-        for (let i = 0; i < defaultCmd.options.length; i++) {
-          const padded = flags[i].padEnd(optMaxLen + 2)
-          const choices = Command.#choicesText(defaultCmd.options[i].completion)
-          const desc = [defaultCmd.options[i].description, choices]
-            .filter(Boolean)
-            .join(' ')
-          lines.push(`  ${padded}${desc}`)
-        }
+      if (defaultCmd) {
+        Command.#appendOptions(
+          lines,
+          'Default Command Options',
+          defaultCmd.options,
+        )
       }
+      Command.#appendOptions(lines, 'Global Options', this.visibleGlobalOptions)
     } else {
       const args = this.#argsText()
       const usage = args ? `${name} ${args}` : name
@@ -296,6 +323,7 @@ export class Command {
         lines.push(this.description)
       }
       this.#appendArgsAndOptions(lines, this)
+      Command.#appendOptions(lines, 'Global Options', this.inheritedOptions)
     }
     if (this.#extraHelp) {
       lines.push('')
@@ -305,47 +333,83 @@ export class Command {
   }
 
   async #runDefault(argv: string[]) {
+    // A default command usually forwards its argv, so -h reaches the wrapped tool unless the command declares something
     const cmd = this.#defaultCommand as Command
-    const { positionals, options } = parseArgv(argv, cmd.arguments, cmd.options)
-    const context: Context = { argv }
-    await this.#invokeAction(cmd, positionals, options, context)
+    await Command.#execute(cmd, argv, { interceptHelp: Command.#isStrict(cmd) })
   }
 
   async #runSelf(argv: string[]) {
-    if (argv.includes('-h')) {
-      console.log(this.helpText())
-      return process.exit(0)
-    }
-    const { positionals, options } = parseArgv(
-      argv,
-      this.arguments,
-      this.options,
-    )
-    const context: Context = { argv }
-    await this.#invokeAction(this, positionals, options, context)
+    await Command.#execute(this, argv, { interceptHelp: true })
   }
 
-  async #invokeAction(
+  static async #execute(
     command: Command,
-    positionals: any[],
-    options: Record<string, any>,
-    context: Context,
+    argv: string[],
+    { interceptHelp }: { interceptHelp: boolean },
   ) {
+    if (interceptHelp && wantsHelp(argv)) {
+      console.log(command.helpText())
+      return process.exit(0)
+    }
+    const effectiveOptions = command.effectiveOptions
+    let parsed: ReturnType<typeof parseArgv>
+    try {
+      parsed = parseArgv(argv, command.arguments, effectiveOptions, {
+        strict: Command.#isStrict(command),
+      })
+    } catch (error) {
+      if (!(error instanceof UsageError)) throw error
+      return Command.#exitWithUsage(command, error.message)
+    }
+    const { positionals, options } = parsed
     const error =
       Command.#validateRequired(command, positionals) ??
-      Command.#validateOptions(command, options) ??
-      Command.#validateChoices(command, positionals)
+      Command.#validateOptions(effectiveOptions, options) ??
+      Command.#validateChoices(command, positionals) ??
+      Command.#validateOptionChoices(effectiveOptions, options)
     if (error) {
-      console.log(command.helpText())
-      console.error(`\n${error}`)
-      return process.exit(1)
+      return Command.#exitWithUsage(command, error)
     }
     const args = [...positionals]
-    if (command.options.length > 0) {
+    if (effectiveOptions.length > 0) {
       args.push(options)
     }
+    const context: Context = { argv }
     args.push(context)
     await command.action?.(...args)
+  }
+
+  // A command that declares nothing forwards context.argv as is; anything declared makes typos fail
+  static #isStrict(command: Command) {
+    return command.arguments.length > 0 || command.effectiveOptions.length > 0
+  }
+
+  static #exitWithUsage(command: Command, message: string) {
+    console.log(command.helpText())
+    console.error(`\n${message}`)
+    return process.exit(1)
+  }
+
+  // Flags before the command name that belong to a visible global option, with their values
+  #takeLeadingGlobals(argv: string[]) {
+    const globals = this.visibleGlobalOptions
+    let index = 0
+    while (index < argv.length) {
+      const token = argv[index]
+      if (!token.startsWith('-') || token === '--') break
+      const [flag] = token.split('=')
+      const option = findOption(flag, globals)
+      if (!option) break
+      index++
+      if (token.includes('=') || option.isBoolean() || option.negate) continue
+      const next = argv[index]
+      if (next === undefined) continue
+      const isCommandName = this.#findCommand(next) !== undefined
+      if (option.required || (!next.startsWith('-') && !isCommandName)) {
+        index++
+      }
+    }
+    return { leadingGlobals: argv.slice(0, index), argv: argv.slice(index) }
   }
 
   #appendArgsAndOptions(lines: string[], source: Command) {
@@ -360,19 +424,20 @@ export class Command {
         lines.push(`  ${padded}${desc}`)
       }
     }
-    if (source.options.length > 0) {
-      lines.push('')
-      lines.push('Options:')
-      const flags = source.options.map(String)
-      const maxLen = Math.max(...flags.map((f) => f.length))
-      for (let i = 0; i < source.options.length; i++) {
-        const padded = flags[i].padEnd(maxLen + 2)
-        const choices = Command.#choicesText(source.options[i].completion)
-        const desc = [source.options[i].description, choices]
-          .filter(Boolean)
-          .join(' ')
-        lines.push(`  ${padded}${desc}`)
-      }
+    Command.#appendOptions(lines, 'Options', source.options)
+  }
+
+  static #appendOptions(lines: string[], title: string, options: Option[]) {
+    if (options.length === 0) return
+    lines.push('')
+    lines.push(`${title}:`)
+    const flags = options.map(String)
+    const maxLen = Math.max(...flags.map((f) => f.length))
+    for (let i = 0; i < options.length; i++) {
+      const padded = flags[i].padEnd(maxLen + 2)
+      const choices = Command.#choicesText(options[i].completion)
+      const desc = [options[i].description, choices].filter(Boolean).join(' ')
+      lines.push(`  ${padded}${desc}`)
     }
   }
 
@@ -394,10 +459,10 @@ export class Command {
   }
 
   static #validateOptions(
-    command: Command,
+    registeredOptions: Option[],
     options: Record<string, any>,
   ): string | null {
-    for (const opt of command.options) {
+    for (const opt of registeredOptions) {
       if (opt.required && options[opt.attributeName] == null) {
         return `Missing required value for option: ${opt}`
       }
@@ -410,20 +475,64 @@ export class Command {
       const arg = command.arguments[i]
       const value = positionals[i]
       if (value == null) continue
-      if (typeof arg.completion === 'function') continue
-      if (arg.completion.length === 0) continue
-      if (arg.completion.some((c) => c.startsWith('$') || /^[<[]/.test(c)))
-        continue
-      // Extract keys from "key\tdescription" format for validation
-      const keys = arg.completion.map((c) => c.split('\t')[0])
+      const keys = Command.#staticChoices(arg.completion)
+      if (!keys) continue
       const values = arg.variadic ? value : [value]
       for (const v of values) {
-        if (!keys.includes(v)) {
+        if (!keys.includes(String(v))) {
           return `Invalid value for ${arg.name}: '${v}' (expected: ${keys.join(', ')})`
         }
       }
     }
     return null
+  }
+
+  static #validateOptionChoices(
+    registeredOptions: Option[],
+    options: Record<string, any>,
+  ): string | null {
+    for (const opt of registeredOptions) {
+      const value = options[opt.attributeName]
+      if (value == null || typeof value === 'boolean') continue
+      const keys = Command.#staticChoices(opt.completion)
+      if (!keys) continue
+      for (const v of Array.isArray(value) ? value : [value]) {
+        if (!keys.includes(String(v))) {
+          return `Invalid value for ${opt.long ?? opt.short}: '${v}' (expected: ${keys.join(', ')})`
+        }
+      }
+    }
+    return null
+  }
+
+  // Fixed choices a value must match; undefined when completion is dynamic or a Carapace macro
+  static #staticChoices(completion: string[] | (() => string[])) {
+    if (typeof completion === 'function') return
+    if (completion.length === 0) return
+    if (completion.some((c) => c.startsWith('$') || /^[<[]/.test(c))) return
+    // Extract keys from "key\tdescription" format for validation
+    return completion.map((c) => c.split('\t')[0])
+  }
+
+  // add(name, description?, completionOrDefault?) and add(name, completionOrDefault)
+  static #normalizeAddArgs(args: any[]) {
+    let [inputName, description, completionOrDefault] = args
+
+    if (typeof description !== 'string') {
+      if (completionOrDefault) {
+        throw new Error(
+          'Invalid third argument, should be add(name, description, completion) format',
+        )
+      }
+      completionOrDefault = description
+      description = ''
+    }
+
+    return {
+      name: inputName.trim() as string,
+      description,
+      completionOrDefault,
+    }
   }
 
   static #choicesText(completion: string[] | (() => string[])): string {
@@ -492,6 +601,8 @@ export function runAppBeforeExit() {
 type Context = {
   argv: string[]
 }
+
+export type Mixin = (command: Command) => unknown
 
 type HelpEntry = CommandHelpEntry | SectionHelpEntry
 

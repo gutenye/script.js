@@ -722,3 +722,254 @@ describe('choices validation', () => {
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 })
+
+describe('use()', () => {
+  test('adds a mixin’s options where use() sits', () => {
+    const c = new Command()
+    const target = (command: Command) =>
+      command.add('-d, --device [name]').add('-p, --port [port]')
+    const cmd = c.cmd('state').add('-v, --verbose').use(target)
+    expect(cmd.options.map((o) => o.long)).toEqual([
+      '--verbose',
+      '--device',
+      '--port',
+    ])
+  })
+
+  test('applies several mixins in order, including a factory', async () => {
+    const c = new Command()
+    const action = mock()
+    const target = (command: Command) => command.add('-d, --device [name]')
+    const wait =
+      ({ timeout }: { timeout: number }) =>
+      (command: Command) =>
+        command.add(`-t, --timeout [ms:number=${timeout}]`)
+    c.cmd('open')
+      .add('<screen>')
+      .use(target, wait({ timeout: 5000 }))
+      .add(action)
+
+    await c.parse(['open', 'Home', '-d', 'iPhone'])
+
+    const [screen, options] = action.mock.calls[0]
+    expect(screen).toBe('Home')
+    expect(options.device).toBe('iPhone')
+    expect(options.timeout).toBe(5000)
+  })
+})
+
+describe('global()', () => {
+  test('passes inherited options to a command that declares none', async () => {
+    const c = new Command()
+    const action = mock()
+    c.global('-d, --device [name]', 'Device')
+    c.cmd('accounts', 'List accounts').add(action)
+
+    await c.parse(['accounts', '-d', 'iPhone'])
+
+    const [options, context] = action.mock.calls[0]
+    expect(options.device).toBe('iPhone')
+    expect(context.argv).toEqual(['-d', 'iPhone'])
+  })
+
+  test('accepts global options before the command name', async () => {
+    const c = new Command()
+    const action = mock()
+    c.global('-d, --device [name]').global('-p, --port <port:number>')
+    c.cmd('state').add('-v, --verbose').add(action)
+
+    await c.parse(['-d', 'iPhone', '-p', '8082', 'state', '-v'])
+
+    const [options] = action.mock.calls[0]
+    expect(options).toMatchObject({
+      device: 'iPhone',
+      port: 8082,
+      verbose: true,
+    })
+  })
+
+  test('does not take a command name as an optional value', async () => {
+    const c = new Command()
+    const action = mock()
+    c.global('-d, --device [name]')
+    c.cmd('state').add(action)
+
+    await c.parse(['-d', 'state'])
+
+    const [options] = action.mock.calls[0]
+    expect(options.device).toBe(true)
+  })
+
+  test('reaches nested subcommands through every level', async () => {
+    const c = new Command()
+    const action = mock()
+    c.global('-d, --device [name]')
+    c.cmd('wallet').global('-a, --account [name]')
+    c.cmd('wallet send').add('<to>').add(action)
+
+    await c.parse(['-d', 'iPhone', 'wallet', '-a', 'exodus_1', 'send', 'x'])
+
+    const [to, options] = action.mock.calls[0]
+    expect(to).toBe('x')
+    expect(options).toMatchObject({ device: 'iPhone', account: 'exodus_1' })
+  })
+
+  test('lets a command’s own option replace a clashing global', async () => {
+    const c = new Command()
+    const action = mock()
+    c.global('-d, --device [name]')
+    c.cmd('send').add('-d, --dry-run').add(action)
+
+    await c.parse(['send', '-d'])
+
+    const [options] = action.mock.calls[0]
+    expect(options.dryRun).toBe(true)
+    expect(options.device).toBeUndefined()
+  })
+
+  test('lists inherited options under Global Options', () => {
+    const c = new Command()
+    c.name('appctl')
+    c.global('-d, --device [name]', 'Device')
+    const state = c.cmd('state', 'Show state').add('-v, --verbose', 'Verbose')
+
+    expect(c.helpText()).toMatch(
+      /Global Options:\n {2}-d, --device \[name\] {2}Device/,
+    )
+    const help = state.helpText()
+    expect(help).toMatch(/Options:\n {2}-v, --verbose {2}Verbose/)
+    expect(help).toMatch(/Global Options:\n {2}-d, --device \[name\] {2}Device/)
+  })
+
+  test('emits persistent flags for completion', () => {
+    const c = new Command()
+    c.name('appctl')
+    c.global('-d, --device [name]', 'Device', ['ios', 'android'])
+    c.cmd('state', 'Show state')
+
+    const spec = buildSpecText(c)?.spec
+    expect(spec?.persistentflags).toEqual({ '-d, --device=': 'Device' })
+    expect(spec?.completion?.flag).toEqual({ device: ['ios', 'android'] })
+  })
+
+  test('rejects a non-option', () => {
+    expect(() => new Command().global('<name>')).toThrow(
+      'global() takes an option',
+    )
+  })
+})
+
+describe('usage errors', () => {
+  test('a typo in a declared option exits with help and a suggestion', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('send').add('<to>').add('-n, --dry-run').add(action)
+
+    const { errors, exitCode } = await parseCapturingExit(c, [
+      'send',
+      'x',
+      '--dry-rn',
+    ])
+
+    expect(action).not.toHaveBeenCalled()
+    expect(errors[0]).toContain(
+      'Unknown option: --dry-rn (did you mean --dry-run?)',
+    )
+    expect(exitCode).toBe(1)
+  })
+
+  test('an extra positional exits with an error', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('send').add('<to>').add(action)
+
+    const { errors, exitCode } = await parseCapturingExit(c, [
+      'send',
+      'x',
+      'extra',
+    ])
+
+    expect(action).not.toHaveBeenCalled()
+    expect(errors[0]).toContain('Unexpected argument: extra')
+    expect(exitCode).toBe(1)
+  })
+
+  test('an invalid option choice exits with an error', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('run').add('--mode [mode]', 'Mode', ['fast', 'slow']).add(action)
+
+    const { errors, exitCode } = await parseCapturingExit(c, [
+      'run',
+      '--mode',
+      'bogus',
+    ])
+
+    expect(action).not.toHaveBeenCalled()
+    expect(errors[0]).toContain(
+      "Invalid value for --mode: 'bogus' (expected: fast, slow)",
+    )
+    expect(exitCode).toBe(1)
+  })
+
+  test('--help prints help instead of running the command', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('send', 'Send').add('<to>').add(action)
+
+    const { logs, exitCode } = await parseCapturingExit(c, [
+      'send',
+      'x',
+      '--help',
+    ])
+
+    expect(action).not.toHaveBeenCalled()
+    expect(logs[0]).toContain('Usage: send <to>')
+    expect(exitCode).toBe(0)
+  })
+
+  test('a command that declares nothing still forwards any argv', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('t').add(action)
+
+    await c.parse(['t', '--watch', 'src/foo.test.ts'])
+
+    const [context] = action.mock.calls[0]
+    expect(context.argv).toEqual(['--watch', 'src/foo.test.ts'])
+  })
+
+  test('a forwarding default command passes -h through', async () => {
+    const c = new Command()
+    const action = mock()
+    c.cmd('build')
+    c.cmd().add(action)
+
+    await c.parse(['lint', '-h'])
+
+    const [context] = action.mock.calls[0]
+    expect(context.argv).toEqual(['lint', '-h'])
+  })
+})
+
+async function parseCapturingExit(command: Command, argv: string[]) {
+  const logs: string[] = []
+  const errors: string[] = []
+  let exitCode: number | undefined
+  const origLog = console.log
+  const origError = console.error
+  const origExit = process.exit
+  console.log = (...args: any[]) => logs.push(args.join(' '))
+  console.error = (...args: any[]) => errors.push(args.join(' '))
+  process.exit = ((code?: number) => {
+    exitCode ??= code
+  }) as any
+  try {
+    await command.parse(argv)
+  } finally {
+    console.log = origLog
+    console.error = origError
+    process.exit = origExit
+  }
+  return { logs, errors, exitCode }
+}

@@ -87,4 +87,23 @@ describe('Option', () => {
     expect(opt.completion).toBe(fn)
     expect(opt.defaultValue).toBeUndefined()
   })
+
+  test('parses a value type and converts its inline default', () => {
+    const opt = new Option('-t, --timeout [ms:number=10000]')
+    expect(opt.valueType).toBe('number')
+    expect(opt.defaultValue).toBe(10000)
+    expect(opt.attributeName).toBe('timeout')
+  })
+
+  test('throws on an unknown value type', () => {
+    expect(() => new Option('--when <time:date>')).toThrow(
+      "Unknown value type 'date'",
+    )
+  })
+
+  test('overlaps another option sharing a flag', () => {
+    const device = new Option('-d, --device [name]')
+    expect(device.overlaps(new Option('-d, --dry-run'))).toBe(true)
+    expect(device.overlaps(new Option('-p, --port [port]'))).toBe(false)
+  })
 })
