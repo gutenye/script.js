@@ -1,6 +1,5 @@
 #!/usr/bin/env script.js
 
-import { castArray } from 'lodash-es'
 import fs from '../utils/fs'
 import {
   exitWithError,
@@ -92,7 +91,7 @@ app
   })
 
 async function openEditor(inputPaths: string | string[]) {
-  const paths = castArray(inputPaths)
+  const paths = [inputPaths].flat()
   const editor =
     ENV.TERM_PROGRAM === 'vscode'
       ? ENV.CURSOR_TRACE_ID

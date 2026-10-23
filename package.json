@@ -26,8 +26,8 @@
   ],
   "bin": {
     "script.js": "src/script.ts",
-    "ake": "src/ake.ts",
-    "akectl": "src/akectl.ts"
+    "ake": "src/ake/ake.ts",
+    "akectl": "src/ake/akectl.ts"
   },
   "scripts": {
     "test": "bun test",
@@ -38,7 +38,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@gutenye/script.js": "^2.3.0",
     "table": "^6.9.0",
     "yaml": "^2.6.0"
   },
