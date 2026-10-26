@@ -388,6 +388,30 @@ Examples:
     expect(mockExit).toHaveBeenCalledWith(0)
   })
 
+  test('prints an argument default and its full choices on their own lines', async () => {
+    const c = new Command()
+    c.name('myapp', 'My app')
+    c.cmd('dev', 'Start apps')
+      .add('[app]', {
+        completion: ['web', 'server', 'desktop', 'desktop-electrobun-cef'],
+        default: 'server and desktop',
+      })
+      .add(() => {})
+
+    const logs: string[] = []
+    const origLog = console.log
+    const origExit = process.exit
+    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.exit = mock() as any
+    await c.parse(['dev', '-h'])
+    console.log = origLog
+    process.exit = origExit
+
+    expect(logs[0]).toContain(
+      '  [app]  default: server and desktop\n         choices: web, server, desktop, desktop-electrobun-cef',
+    )
+  })
+
   test('prints command help when command -h is passed', async () => {
     const c = new Command()
     c.name('myapp', 'My app')
@@ -408,7 +432,9 @@ Examples:
 
     expect(logs[0]).toContain('deploy')
     expect(logs[0]).toContain('env')
-    expect(logs[0]).toContain('(staging, production)')
+    expect(logs[0]).toContain(
+      '  <env>  Target environment\n         choices: staging, production',
+    )
     expect(logs[0]).toContain('--port')
     expect(mockExit).toHaveBeenCalledWith(0)
   })

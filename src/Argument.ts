@@ -8,12 +8,17 @@ export class Argument {
   variadic: boolean
   completion: string[] | (() => string[])
   defaultValue: any
+  // Help-only text for what an omitted argument does, when that is not a single value
+  defaultText?: string
   valueType?: ValueType
 
   constructor(
     rawName: string,
     description = '',
-    completion: string[] | (() => string[]) = [],
+    completion:
+      | string[]
+      | (() => string[])
+      | { completion?: string[] | (() => string[]); default?: string } = [],
   ) {
     this.rawName = rawName.trim()
     const { name, required, variadic, defaultValue, valueType } =
@@ -22,7 +27,12 @@ export class Argument {
     this.required = required
     this.variadic = variadic
     this.description = description
-    this.completion = completion
+    if (Array.isArray(completion) || typeof completion === 'function') {
+      this.completion = completion
+    } else {
+      this.completion = completion.completion ?? []
+      this.defaultText = completion.default
+    }
     this.valueType = valueType
     this.defaultValue =
       defaultValue === undefined

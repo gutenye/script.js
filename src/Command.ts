@@ -605,12 +605,27 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     if (source.arguments.length > 0) {
       lines.push('')
       lines.push('Arguments:')
-      const maxLen = Math.max(...source.arguments.map((a) => a.name.length))
+      const maxLen = Math.max(...source.arguments.map((a) => a.rawName.length))
+      const indent = ' '.repeat(maxLen + 4)
       for (const arg of source.arguments) {
-        const padded = arg.name.padEnd(maxLen + 2)
-        const choices = Command.#choicesText(arg.completion)
-        const desc = [arg.description, choices].filter(Boolean).join(' ')
-        lines.push(`  ${padded}${desc}`)
+        const values =
+          typeof arg.completion === 'function'
+            ? arg.completion()
+            : arg.completion
+        const defaultText =
+          arg.defaultText ??
+          (arg.defaultValue === undefined
+            ? undefined
+            : String(arg.defaultValue))
+        const detail = [
+          defaultText && `default: ${defaultText}`,
+          values.length > 0 && `choices: ${values.join(', ')}`,
+        ].filter(Boolean) as string[]
+        const [first = '', ...rest] = [arg.description, ...detail].filter(
+          Boolean,
+        )
+        lines.push(`  ${arg.rawName.padEnd(maxLen + 2)}${first}`.trimEnd())
+        for (const line of rest) lines.push(`${indent}${line}`)
       }
     }
     Command.#appendOptions(lines, 'Options', source.options)
