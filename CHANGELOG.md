@@ -1,3 +1,9 @@
+## [8.6.0](https://github.com/gutenye/script.js/compare/v8.5.0...v8.6.0) (2026-10-26)
+
+### Features
+
+* **help:** print an argument as declared, with its default and full choices on their own lines ([f9049c8](https://github.com/gutenye/script.js/commit/f9049c8d14daecb1fff1640da884894153abe99a))
+
 ## [8.5.0](https://github.com/gutenye/script.js/compare/v8.4.0...v8.5.0) (2026-10-23)
 
 ### Features
