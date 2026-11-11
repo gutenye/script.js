@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -6,6 +13,13 @@ import { REMOTE_DIR } from '../shared'
 
 const akeBinary = path.resolve(import.meta.dir, '../ake.ts')
 const indexPath = path.resolve(import.meta.dir, '../../index')
+// every ake run writes its completion spec, so keep those out of the real
+// carapace specs dir
+const defaultSpecsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ake-specs-'))
+
+afterAll(() => {
+  fs.rmSync(defaultSpecsDir, { recursive: true, force: true })
+})
 
 describe('ake', () => {
   let projectDir: string
@@ -141,7 +155,7 @@ function spawn(cmd: string[], cwd: string, env?: Record<string, string>) {
     cwd,
     stdout: 'pipe',
     stderr: 'pipe',
-    env: { ...process.env, ...env },
+    env: { ...process.env, CARAPACE_SPECS_DIR: defaultSpecsDir, ...env },
   })
   const lines = result.stdout.toString().trimEnd().split('\n')
   return {
