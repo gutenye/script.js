@@ -1,3 +1,9 @@
+## [8.6.1](https://github.com/gutenye/script.js/compare/v8.6.0...v8.6.1) (2026-11-11)
+
+### Bug Fixes
+
+* **ake:** name completion specs ake<suffix>+<path> so carapace loads them ([1608bc2](https://github.com/gutenye/script.js/commit/1608bc2440f91fe4bdca643b67cf66aa47f9ada0))
+
 ## [8.6.0](https://github.com/gutenye/script.js/compare/v8.5.0...v8.6.0) (2026-10-26)
 
 ### Features
