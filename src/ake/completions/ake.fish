@@ -11,8 +11,9 @@ end
 
 function _ake_complete
 	set suffix $argv[1]
-	set unique_name (string replace --all '.' '|' (string replace --all '/' '_' (realpath $PWD)))
-	set name "ake$suffix|$unique_name"
+	# Keep in sync with getCompletionName() in src/ake/shared.ts
+	set unique_name (string replace --all '.' '+' (string replace --all '/' '_' (realpath $PWD)))
+	set name "ake$suffix+$unique_name"
 	_carapace_completer $name
 end
 

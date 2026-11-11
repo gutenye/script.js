@@ -5,6 +5,7 @@ import path from 'node:path'
 import {
   getAkeFilenames,
   getAkeSuffix,
+  getCompletionName,
   getProjectDir,
   isAke,
   REMOTE_DIR,
@@ -64,6 +65,47 @@ describe('isAke()', () => {
   test('false for non-ake files', () => {
     expect(isAke('/project/akectl')).toBe(false)
     expect(isAke('/project/script.ts')).toBe(false)
+  })
+})
+
+describe('getCompletionName()', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = fs.realpathSync(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'ake-name-')),
+    )
+  })
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  test('joins ake and the path with "+", turning "/" into "_"', () => {
+    const dir = path.join(tmpDir, 'exact-todo')
+    fs.mkdirSync(dir)
+    expect(getCompletionName('', dir)).toBe(`ake+${dir.replaceAll('/', '_')}`)
+  })
+
+  test('keeps the suffix before the "+"', () => {
+    expect(getCompletionName('a', tmpDir)).toBe(
+      `akea+${tmpDir.replaceAll('/', '_')}`,
+    )
+  })
+
+  // carapace ignores a spec whose name has '.', '|' or '@'
+  test('turns "." in the path into "+"', () => {
+    const dir = path.join(tmpDir, 'bin.src', 'script.js')
+    fs.mkdirSync(dir, { recursive: true })
+    const name = getCompletionName('', dir)
+    expect(name).toEndWith('_bin+src_script+js')
+    expect(name).toMatch(/^[\w+-]+$/)
+  })
+
+  test('resolves symlinks so every link to a project shares one spec', () => {
+    const link = path.join(tmpDir, 'link')
+    fs.symlinkSync(tmpDir, link)
+    expect(getCompletionName('', link)).toBe(getCompletionName('', tmpDir))
   })
 })
 

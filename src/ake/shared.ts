@@ -99,14 +99,16 @@ export function getRemoteDir() {
   return getRemoteDirFor(CWD)
 }
 
-export function getCompletionName(suffix = '') {
-  // carapace silently rejects spec names containing '.', so use '|' as the
-  // separator and also replace any '.' inside the path (e.g. `bin.src`).
+// Keep in sync with `_ake_complete` in completions/ake.fish
+export function getCompletionName(suffix = '', dir = CWD) {
+  // carapace silently ignores a spec whose name has '.', '|' or '@' (it
+  // accepts letters, digits, '_', '-' and '+'), so use '+' as the separator
+  // and also replace any '.' inside the path (e.g. `bin.src`).
   const uniqueName = fsSync
-    .realpathSync(CWD)
+    .realpathSync(dir)
     .replaceAll('/', '_')
-    .replaceAll('.', '|')
-  return `ake${suffix}|${uniqueName}`
+    .replaceAll('.', '+')
+  return `ake${suffix}+${uniqueName}`
 }
 
 export function exitWithError(message: string, help?: string): never {
