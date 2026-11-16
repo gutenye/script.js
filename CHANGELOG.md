@@ -1,3 +1,9 @@
+## [8.7.0](https://github.com/gutenye/script.js/compare/v8.6.1...v8.7.0) (2026-11-16)
+
+### Features
+
+* **spawn:** add $`cmd`.spawn() returning the running Bun.Subprocess ([262d9b5](https://github.com/gutenye/script.js/commit/262d9b57760c33ee32879c55928c4e7fdf723b36))
+
 ## [8.6.1](https://github.com/gutenye/script.js/compare/v8.6.0...v8.6.1) (2026-11-11)
 
 ### Bug Fixes
