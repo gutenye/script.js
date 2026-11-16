@@ -158,6 +158,16 @@ class ShellCommand {
     return this
   }
 
+  // Starts the command and returns the running Subprocess at once; the caller owns it (kill, await exited).
+  // .timeout() still kills it; .nothrow() does not apply since nothing awaits the exit code
+  spawn(options: { stdout?: 'pipe' | 'inherit' } = {}) {
+    const opts = this.#spawnOptions(options.stdout ?? 'inherit')
+    return Bun.spawn(['sh', '-c', this.#fullCommand], {
+      ...opts,
+      stdio: ['ignore', opts.stdio[1], 'inherit'],
+    })
+  }
+
   get exitCode() {
     return this.#pipeExec().exitCode
   }
@@ -196,7 +206,15 @@ class ShellCommand {
   }
 }
 
-const CAPTURED_PROPS = ['text', 'json', 'lines', 'exitCode', 'then', 'toString']
+const CAPTURED_PROPS = [
+  'text',
+  'json',
+  'lines',
+  'exitCode',
+  'then',
+  'toString',
+  'spawn',
+]
 // Chaining only configures the command, so an un-awaited $`cmd`.cwd(dir) still runs
 const CHAINABLE_PROPS = ['cwd', 'env', 'nothrow', 'timeout']
 

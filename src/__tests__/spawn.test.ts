@@ -189,3 +189,37 @@ describe('un-awaited commands', () => {
     expect(readFileSync(log, 'utf8')).toBe('run\n')
   })
 })
+
+describe('spawn()', () => {
+  test('returns before the process exits', async () => {
+    const proc = $`sleep 5`.spawn()
+    expect(proc.exitCode).toBeNull()
+    proc.kill()
+    await proc.exited
+  })
+
+  test('exited resolves with the exit code', async () => {
+    expect(await $`exit 3`.spawn().exited).toBe(3)
+  })
+
+  test('kill() stops the process', async () => {
+    const proc = $`sleep 5`.spawn()
+    proc.kill()
+    await proc.exited
+    expect(proc.killed).toBe(true)
+    expect(proc.signalCode).toBe('SIGTERM')
+  })
+
+  test('respects $.cwd and .env(), with piped stdout', async () => {
+    const dir = realpathSync(mkdtempSync(path.join(tmpdir(), 'spawn-')))
+    $.cwd(dir)
+    try {
+      const proc = $`echo $PWD $KEY`
+        .env({ KEY: 'val' })
+        .spawn({ stdout: 'pipe' })
+      expect((await new Response(proc.stdout).text()).trim()).toBe(`${dir} val`)
+    } finally {
+      $.cwd(undefined as unknown as string)
+    }
+  })
+})

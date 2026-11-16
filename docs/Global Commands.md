@@ -32,6 +32,21 @@ $`echo first`                     // runs before the next line
 $`echo second`
 ```
 
+### Long-running Processes
+
+`.spawn()` starts the command and returns the running [`Bun.Subprocess`](https://bun.sh/docs/api/spawn) at once, instead of waiting for it to finish. It honours `.cwd()`, `.env()`, `$.cwd()`, `$.env()` and `$.global`; stdin is ignored and stdout/stderr go to the terminal:
+
+```ts
+const server = $`bun run dev`.spawn()
+server.kill()                     // stop it
+const code = await server.exited  // resolves with the exit code
+
+$`cmd`.spawn({ stdout: 'pipe' })  // read output from proc.stdout (a ReadableStream)
+$`cmd`.timeout(5000).spawn()      // killed with SIGTERM after 5s
+```
+
+`.nothrow()` has no effect on a spawned process: it never throws, so check `await proc.exited` yourself.
+
 ### Ignoring Failures
 
 By default a failed command throws (or exits the script). Use `.nothrow()` to keep going:

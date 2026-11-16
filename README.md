@@ -12,7 +12,7 @@
 
 - **Fast to write**: no imports in a `script.js` script. Open the editor, write a few lines, and run it.
 - **Commands that check their input**: subcommands, aliases, options shared across commands, `:number` and `:json` values, and choices. A typo such as `--dry-rn` stops with "did you mean `--dry-run`?" instead of running.
-- **Shell commands made easy**: `` $`git status` `` with safe escaping, `.text()` and `.json()` to capture output, `Promise.all` to run in parallel, and `.timeout()`.
+- **Shell commands made easy**: `` $`git status` `` with safe escaping, `.text()` and `.json()` to capture output, `Promise.all` to run in parallel, `.spawn()` for long-running processes, and `.timeout()`.
 - **Fast**: runs on Bun, so a call starts in milliseconds.
 - **Typed in TypeScript**: handler parameters are inferred from the `add()` strings.
 
