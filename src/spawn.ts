@@ -1,3 +1,4 @@
+import { statSync } from 'node:fs'
 import { exitWithError } from './helpers/exitWithError'
 
 const defaults: {
@@ -45,6 +46,12 @@ export class ShellError extends Error {
   }
 }
 
+class ShellCwdError extends Error {
+  constructor(cwd: string) {
+    super(`Working directory is missing or not a directory: ${cwd}`)
+  }
+}
+
 class ShellCommand {
   #command: string
   #result: ReturnType<typeof Bun.spawnSync> | undefined
@@ -81,7 +88,12 @@ class ShellCommand {
       ],
     }
     const cwd = this.#cwd ?? defaults.cwd
-    if (cwd !== undefined) opts.cwd = cwd
+    if (cwd !== undefined) {
+      if (!statSync(cwd, { throwIfNoEntry: false })?.isDirectory()) {
+        throw new ShellCwdError(cwd)
+      }
+      opts.cwd = cwd
+    }
     if (defaults.env !== undefined || this.#env !== undefined)
       opts.env = { ...process.env, ...defaults.env, ...this.#env }
     if (this.#timeoutMs !== undefined) opts.timeout = this.#timeoutMs
@@ -277,6 +289,7 @@ export { $tag as $ }
 
 // the failed command already printed its own stderr, so keep the report to one line
 export function exitOnShellError(error: unknown) {
+  if (error instanceof ShellCwdError) exitWithError(error.message)
   if (!(error instanceof ShellError)) throw error
   // signal-killed commands report a null exit code, which would exit 0
   const code = error.exitCode || 1

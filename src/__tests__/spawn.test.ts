@@ -96,6 +96,34 @@ describe('.cwd()', () => {
     const result = $`pwd`.cwd(cwd).text()
     expect(result).toBe(cwd)
   })
+
+  test.each([
+    'text',
+    'spawn',
+  ] as const)('%s() reports a missing working directory', (mode) => {
+    const cwd = path.join(mkdtempSync(path.join(tmpdir(), 'cwd-')), 'missing')
+    expect(() => $`exit 0`.cwd(cwd)[mode]()).toThrow(
+      `Working directory is missing or not a directory: ${cwd}`,
+    )
+  })
+
+  test('await reports a missing default working directory', async () => {
+    const cwd = path.join(mkdtempSync(path.join(tmpdir(), 'cwd-')), 'missing')
+    $.cwd(cwd)
+    try {
+      await expect((async () => await $`exit 0`)()).rejects.toThrow(
+        `Working directory is missing or not a directory: ${cwd}`,
+      )
+    } finally {
+      $.cwd(undefined as any)
+    }
+  })
+
+  test('rejects a file as the working directory', () => {
+    expect(() => $`exit 0`.cwd(import.meta.path).text()).toThrow(
+      `Working directory is missing or not a directory: ${import.meta.path}`,
+    )
+  })
 })
 
 describe('.env()', () => {

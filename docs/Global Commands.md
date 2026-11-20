@@ -21,6 +21,8 @@ $`cmd`.env({ KEY: 'val' }).text() // run with env vars
 $`cmd`.timeout(5000)              // kill with SIGTERM after 5s; fails as "timed out after 5000ms"
 ```
 
+Commands check that the configured working directory exists before spawning. A missing directory or a file used as `.cwd()` reports `Working directory is missing or not a directory: <path>`, including when the directory comes from `$.cwd()`.
+
 ### Running in Parallel
 
 An awaited command runs without blocking, so `Promise.all` runs several at once. Un-awaited commands and `.text()`, `.lines()` and `.json()` stay synchronous, so plain sequential scripts keep their order:

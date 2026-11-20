@@ -87,4 +87,14 @@ describe('script.ts', () => {
     expect(result.stderr).not.toContain('(exit ')
     expect(result.exitCode).toBe(1)
   })
+
+  test('invalid cwd exits with its path and no spawn stack trace', () => {
+    const result = runFixture('fail.ts', 'missing-cwd')
+    expect(result.stderr).toContain(
+      'Error: Working directory is missing or not a directory:',
+    )
+    expect(result.stderr).toContain('fixtures/fail.ts')
+    expect(result.stderr).not.toContain('posix_spawn')
+    expect(result.exitCode).toBe(1)
+  })
 })
