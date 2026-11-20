@@ -1,3 +1,9 @@
+## [8.7.1](https://github.com/gutenye/script.js/compare/v8.7.0...v8.7.1) (2026-11-20)
+
+### Bug Fixes
+
+* **spawn:** report invalid working directories before launching ([1f08be1](https://github.com/gutenye/script.js/commit/1f08be18cabf33d3d800a67ff66edacd4e7db277))
+
 ## [8.7.0](https://github.com/gutenye/script.js/compare/v8.6.1...v8.7.0) (2026-11-16)
 
 ### Features
