@@ -1,3 +1,9 @@
+## [8.8.0](https://github.com/gutenye/script.js/compare/v8.7.1...v8.8.0) (2026-11-20)
+
+### Features
+
+* **output:** add default JSON output and app formatters ([6d7a9ae](https://github.com/gutenye/script.js/commit/6d7a9ae0e1ca29ab8e700787e0180ba619c2a8c3))
+
 ## [8.7.1](https://github.com/gutenye/script.js/compare/v8.7.0...v8.7.1) (2026-11-20)
 
 ### Bug Fixes
