@@ -118,7 +118,7 @@ $`cat ${files}`                   // cat a.txt b.txt
 ## Global Variables
 
 ```ts
-app          // Command instance for defining CLI metadata and commands
+app          // Command instance; app.format.table(), .record(), .lines() return strings
 $            // Shell command tagged template
 PROJECT_DIR  // ake only: absolute path to the project dir (where the ake file lives)
 ```

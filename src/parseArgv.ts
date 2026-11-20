@@ -9,13 +9,14 @@ export type Options<T = Record<string, any>> = T & {
 type ParseArgvSettings = {
   // Unknown options and extra positionals fail instead of being left for context.argv
   strict?: boolean
+  onOption?: (option: Option, originalIndex: number) => void
 }
 
 export function parseArgv(
   argv: string[],
   registeredArgs: Argument[],
   registeredOptions: Option[],
-  { strict = false }: ParseArgvSettings = {},
+  { strict = false, onOption }: ParseArgvSettings = {},
 ): { positionals: any[]; options: Record<string, any> } {
   const options: Record<string, any> = {}
   const provided = new Set<string>()
@@ -29,7 +30,8 @@ export function parseArgv(
     }
   }
 
-  const tokens = expandShortFlags(argv, registeredOptions)
+  const expanded = expandShortFlags(argv, registeredOptions)
+  const tokens = expanded.map(({ token }) => token)
   let i = 0
   let optionsParsing = true
 
@@ -60,6 +62,7 @@ export function parseArgv(
         continue
       }
 
+      onOption?.(opt, expanded[i].index)
       const name = opt.attributeName
       const isRepeated = provided.has(name)
       provided.add(name)
@@ -161,9 +164,9 @@ function isFlag(token: string, options: Option[]) {
 function expandShortFlags(argv: string[], options: Option[]) {
   const end = argv.indexOf('--')
   return argv.flatMap((token, index) => {
-    if (end !== -1 && index >= end) return [token]
-    if (!/^-[a-zA-Z]{2,}$/.test(token)) return [token]
-    if (findOption(token, options)) return [token]
+    if (end !== -1 && index >= end) return [{ token, index }]
+    if (!/^-[a-zA-Z]{2,}$/.test(token)) return [{ token, index }]
+    if (findOption(token, options)) return [{ token, index }]
     const flags = token
       .slice(1)
       .split('')
@@ -174,7 +177,7 @@ function expandShortFlags(argv: string[], options: Option[]) {
         opt !== undefined &&
         (position === flags.length - 1 || opt.isBoolean() || opt.negate),
     )
-    return isExpandable ? flags : [token]
+    return (isExpandable ? flags : [token]).map((token) => ({ token, index }))
   })
 }
 

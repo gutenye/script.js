@@ -19,12 +19,13 @@
 ### For humans
 
 - **Tab completion** in every shell through [Carapace](https://github.com/carapace-sh/carapace-bin), generated from your commands.
+- **Output formatting**: `app.format.table()`, `.record()` and `.lines()` return strings; `.render()` formats returned data for humans.
 - **Readable help** with examples, from `-h` at any level.
 - **Ake**: a per-project task runner with completion.
 
 ### For agents
 
-- **JSON results**: with `app.json()`, a handler returns its result, printed as JSON with `--json` or whenever output is piped.
+- **JSON results**: every command supports `--json` by default, using the handler’s returned data or capturing printed output.
 - **Errors an agent can branch on**: `{"error":{"code","message"}}` on stderr. Usage errors exit 2, so they're never mistaken for a failed operation.
 - **The whole tool in one call**: `--help --json` prints every command with its arguments, options, types, defaults, choices and examples.
 - **An MCP server for free**: `<script> --mcp` serves every command as an MCP tool, with input schemas built from your declarations.
@@ -66,13 +67,12 @@ chmod +x hello         # Make the script executable
 
 ### 4. Make it agent-ready
 
-Turn on structured output, return results, and throw errors with a code:
+Every command supports `--json`. Return results, optionally add `.render(app.format.table)`, and throw errors with a code:
 
 ```ts
 #!/usr/bin/env script.js
 
 app.name("weather");
-app.json();
 
 app
   .cmd("now", "Current weather for a city")
@@ -88,7 +88,7 @@ app
 
 ```sh
 ./weather now Paris              # readable on a terminal
-./weather now Paris | jq .city   # JSON when piped
+./weather now Paris --json | jq .city  # JSON for another program
 ./weather --help --json          # the command tree, for an agent to read
 ./weather --mcp                  # serve it as MCP tools
 ```

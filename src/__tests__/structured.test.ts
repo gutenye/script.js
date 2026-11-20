@@ -30,11 +30,9 @@ describe('app.json()', () => {
   })
 
   test('keeps shell output apart from the result', () => {
-    const { stdout } = run('echo', 'hi', '--count', '2')
-    expect(stdout.split('\n')).toEqual([
-      'shell:hi',
-      '{"echoed":"hi","count":2}',
-    ])
+    const { stdout, stderr } = run('echo', 'hi', '--count', '2')
+    expect(JSON.parse(stdout)).toEqual({ echoed: 'hi', count: 2 })
+    expect(stderr).toContain('shell:hi')
   })
 
   test('prints a thrown error as JSON on stderr with its code', () => {

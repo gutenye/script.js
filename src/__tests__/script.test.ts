@@ -33,6 +33,12 @@ function runRaw(...args: string[]) {
 }
 
 describe('script.ts', () => {
+  test('format is available on app', () => {
+    const result = runFixture('format.ts')
+    expect(result.exitCode).toBe(0)
+    expect(result.stdout).toBe('first\nsecond')
+  })
+
   test('prints usage and exits 1 when no script path given', () => {
     const result = runRaw()
     expect(result.stderr).toContain('Usage: script.js <script>')

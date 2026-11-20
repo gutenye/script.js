@@ -6,16 +6,37 @@ const defaults: {
   env: Record<string, string> | undefined
   preambles: { text: string; cwd?: string }[]
   outputSink: ((text: string) => void) | undefined
+  errorSink: ((error: unknown) => void) | undefined
 } = {
   cwd: undefined,
   env: undefined,
   preambles: [],
   outputSink: undefined,
+  errorSink: undefined,
 }
 
-// While set, commands get no stdin and their stdout goes to sink: the MCP server owns both streams
-export function captureShellOutput(sink: ((text: string) => void) | undefined) {
+// Capture owns stdout and disables stdin for JSON output and MCP calls.
+export function captureShellOutput(
+  sink: ((text: string) => void) | undefined,
+  errorSink?: (error: unknown) => void,
+) {
+  const previous = {
+    outputSink: defaults.outputSink,
+    errorSink: defaults.errorSink,
+  }
   defaults.outputSink = sink
+  defaults.errorSink = errorSink
+  return () => {
+    Object.assign(defaults, previous)
+  }
+}
+
+const shellResults = new WeakSet<object>()
+
+export function isShellResult(
+  value: unknown,
+): value is { exitCode: number | null } {
+  return typeof value === 'object' && value !== null && shellResults.has(value)
 }
 
 type ShellResult = {
@@ -141,6 +162,7 @@ class ShellCommand {
     }
     await subprocess.exited
     const result = { exitCode: subprocess.exitCode }
+    shellResults.add(result)
     const timedOut =
       this.#timeoutMs !== undefined &&
       subprocess.killed &&
@@ -260,7 +282,8 @@ function $tag(strings: TemplateStringsArray, ...values: any[]): ShellCommand {
       try {
         output.inheritExec()
       } catch (error) {
-        exitOnShellError(error)
+        if (defaults.errorSink) defaults.errorSink(error)
+        else exitOnShellError(error)
       }
     }
   })

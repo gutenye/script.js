@@ -196,7 +196,7 @@ function toolDescription(command: Command) {
 }
 
 function isPassThrough(command: Command) {
-  return command.arguments.length === 0 && command.effectiveOptions.length === 0
+  return command.arguments.length === 0 && command.declaredOptions.length === 0
 }
 
 // The --json switch is implied: tool results are always structured

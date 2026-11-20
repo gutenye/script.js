@@ -2,6 +2,28 @@
 
 Utility functions for writing scripts.
 
+## app.format
+
+Format data as a string without printing it. Available on the existing `app`, including in `#!/usr/bin/env script.js` scripts; no separate formatter import is needed:
+
+```ts
+import { app } from '@gutenye/script.js'
+
+console.log(app.format.table([
+  { Name: 'dev', Path: '~/dev' },
+  { Name: 'Cloud', Path: '~/Cloud' },
+]))
+console.log(app.format.record({ Name: 'dev', Files: 42, Paused: false }))
+console.log(app.format.lines(['~/dev', '~/Cloud']))
+```
+
+- `app.format.table(data, options?)`: rounded table from records, a 2-D array whose first row contains headers, or grouped tables. Grouped tables accept `{ headers: [...] }`.
+- `app.format.record(record, options?)`: a two-column key/value table, without a header row.
+- `app.format.lines(iterable)`: one value per line, preserving order and blank values.
+- All return `''` for empty input and omit the trailing newline. Nullish cells are blank; objects and arrays are compact JSON.
+- Tables and records color headings when the terminal supports ANSI. Use `{ color: false }` for plain strings or `{ color: true }` to force color.
+- `printTable` keeps its existing printing behavior; use `app.format.table` to capture or compose the output.
+
 ## exitWithError
 
 Print an error message to stderr and exit with code 1. Optionally display help text.

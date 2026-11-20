@@ -1,6 +1,6 @@
 import { ShellError } from './spawn'
 
-// Results and errors of apps that call app.json(): data on stdout, errors on stderr, both JSON when asked or piped
+// Returned data goes to stdout; errors go to stderr, with --json available in every app.
 
 export const USAGE_EXIT_CODE = 2
 
@@ -30,7 +30,12 @@ export class CommandError extends Error {
 export function printResult(result: unknown, { json }: { json: boolean }) {
   if (result === undefined) return
   if (json) {
-    console.log(JSON.stringify(result))
+    const serialized = JSON.stringify(result)
+    if (serialized === undefined)
+      throw new CommandError('Command result is not JSON-serializable', {
+        code: 'invalid_result',
+      })
+    console.log(serialized)
     return
   }
   console.log(

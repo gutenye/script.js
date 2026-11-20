@@ -54,11 +54,14 @@ export function describeCommand(command: Command): CommandDescription {
     description: command.description ?? '',
     usage: command.usage,
     passThrough:
-      command.arguments.length === 0 && command.effectiveOptions.length === 0,
+      command.arguments.length === 0 && command.declaredOptions.length === 0,
     runnable: command.action !== undefined,
     arguments: command.arguments.map(describeArgument),
     options: command.effectiveOptions.map((option) =>
-      describeOption(option, inherited.has(option)),
+      describeOption(
+        option,
+        inherited.has(option) || command.frameworkOptions.includes(option),
+      ),
     ),
     examples: command.examples,
     commands: command.commands

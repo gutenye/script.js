@@ -874,7 +874,10 @@ describe('global()', () => {
     c.cmd('state', 'Show state')
 
     const spec = buildSpecText(c)?.spec
-    expect(spec?.persistentflags).toEqual({ '-d, --device=': 'Device' })
+    expect(spec?.persistentflags).toEqual({
+      '-d, --device=': 'Device',
+      '--json': 'Print the result as JSON',
+    })
     expect(spec?.completion?.flag).toEqual({ device: ['ios', 'android'] })
   })
 

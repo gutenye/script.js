@@ -120,6 +120,8 @@ describe('ake', () => {
       const specFile = path.join(specsDir, `${specName}.yaml`)
       const spec = fs.readFileSync(specFile, 'utf8')
       expect(spec).toEqual(`name: ${specName}
+persistentflags:
+  --json: Print the result as JSON
 commands:
   - name: pwd
     description: Print working directory

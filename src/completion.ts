@@ -80,7 +80,10 @@ function buildSpecInner(
   }
 
   // Carapace applies persistent flags to every subcommand, matching global()
-  for (const opt of command.globalOptions) {
+  for (const opt of [
+    ...command.globalOptions,
+    ...(!command.parent ? command.frameworkOptions : []),
+  ]) {
     spec.persistentflags = spec.persistentflags || {}
     addFlag(spec.persistentflags, completion, opt)
   }
@@ -131,6 +134,16 @@ export function buildSpecText(
 ): { spec: CarapaceSpec; text: string } | undefined {
   if (!command._name) return undefined
 
+  if (
+    !(
+      command.commands.length ||
+      command.action ||
+      command.defaultCommand ||
+      command.declaredOptions.length
+    )
+  )
+    return undefined
+
   const spec = buildSpec(command)
   if (!(spec.commands || spec.flags || spec.persistentflags || spec.completion))
     return undefined
@@ -160,6 +173,7 @@ function getCarapaceSpecsDir(): string {
 
 type InstallOptions = {
   specsDir?: string
+  quiet?: boolean
 }
 
 export async function installCompletion(
@@ -182,7 +196,7 @@ export async function installCompletion(
 
     fsSync.mkdirSync(specsDir, { recursive: true })
     fsSync.writeFileSync(filePath, result.text)
-    console.error(`Updated completion spec: ${filePath}`)
+    if (!options.quiet) console.error(`Updated completion spec: ${filePath}`)
   } catch {
     // completion is supplementary — silently ignore errors
   }

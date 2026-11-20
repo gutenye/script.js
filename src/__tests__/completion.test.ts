@@ -25,6 +25,8 @@ name: myapp
 description: My app
 aliases:
   - m
+persistentflags:
+  --json: Print the result as JSON
 commands:
   - name: build
     description: Build
@@ -45,6 +47,8 @@ commands:
     expect(buildSpecText(c)?.text).toBe(
       `
 name: myapp
+persistentflags:
+  --json: Print the result as JSON
 commands:
   - name: build
     flags:
@@ -79,6 +83,8 @@ commands:
     expect(buildSpecText(c)?.text).toBe(
       `
 name: myapp
+persistentflags:
+  --json: Print the result as JSON
 commands:
   - name: deploy
     completion:
@@ -105,6 +111,8 @@ commands:
     expect(buildSpecText(c)?.text).toBe(
       `
 name: myapp
+persistentflags:
+  --json: Print the result as JSON
 commands:
   - name: open
     completion:
@@ -138,6 +146,8 @@ commands:
 name: myapp
 flags:
   --format=: Format
+persistentflags:
+  --json: Print the result as JSON
 completion:
   positional:
     - - a
@@ -165,6 +175,8 @@ commands:
     expect(buildSpecText(c)?.text).toBe(
       `
 name: myapp
+persistentflags:
+  --json: Print the result as JSON
 commands:
   - name: deploy
     description: Deploy app

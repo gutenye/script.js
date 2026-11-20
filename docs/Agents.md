@@ -4,34 +4,32 @@ Script.js tools work well for AI agents and other programs: results arrive as JS
 
 ## Structured Output
 
-Call `app.json()` once. A handler then **returns** its result instead of printing it:
+Every command supports `--json` automatically. Return data from the handler and optionally provide a human renderer:
 
 ```ts
-app.name("exodusctl");
-app.json();
-app.global("-d, --device [name]", "Simulator name or UDID");
-
-app.cmd("state", "Show the screen").add(async (options) => {
-  return { route: "PayHome", device: options.device ?? null };
-});
+app.name('examplectl')
+app.cmd('list', 'List items')
+  .add(() => [{ name: 'demo', path: '/example' }])
+  .render(app.format.table)
 ```
 
 ```sh
-exodusctl state --json          # {"route":"PayHome","device":null}
-exodusctl state | jq .route     # piped output is JSON without --json
-exodusctl state                 # on a terminal: indented JSON, strings as is
+examplectl list                 # human table, including when piped
+examplectl list --json          # raw array of objects
+examplectl --json list          # the flag may precede the command
 ```
 
-- **`--json`** is added to every command. JSON is also the default whenever stdout is not a terminal.
-- **Nothing is printed** when the handler returns `undefined`, so a handler can still print its own output.
-- **`context.json`** tells the handler which format is being printed, for example to skip a progress line.
-- Shell output from `$` still goes to stdout, ahead of the result line.
-
-Apps that don't call `app.json()` behave as before: what a handler returns is ignored. Many one-line handlers, such as `` () => $`yarn test` ``, return a value without meaning it as output.
+- `--json` is a framework option. It does not add an options parameter to existing handlers or make forwarding commands strict. Use `--` to pass a literal `--json` to another program.
+- `.render(fn)` receives the handler's returned data and returns a human-readable string. JSON mode bypasses it; programmatic `execute()` and MCP return the raw data too.
+- In JSON mode, stdout contains one JSON value. Printed diagnostics from handlers that return data go to stderr. Returned values must be JSON-serializable.
+- Existing `console.log` scripts continue to print normally. With `--json`, a handler that only prints returns `{"stdout":"..."}`; a command that produces nothing returns `null`.
+- Shell wrappers return captured `{ stdout, exitCode }` in JSON mode and retain their ordinary terminal output otherwise.
+- `context.json` tells the handler whether JSON output was requested. Framework flags are removed from `context.argv`; other arguments retain their original spelling and order.
+- `app.json()` remains compatible with existing apps and additionally enables automatic JSON when stdout is piped. New scripts need no opt-in; keeping JSON explicit preserves plain-text pipelines.
 
 ## Errors and Exit Codes
 
-In a structured app, a thrown error prints on stderr and sets the exit code:
+With `--json`, a thrown error prints as JSON on stderr and sets the exit code:
 
 ```ts
 import { CommandError } from "@gutenye/script.js";
@@ -66,7 +64,7 @@ Usage: exodusctl send <asset> <amount> <to>
 Run 'exodusctl send -h' for help.
 ```
 
-In a structured app with JSON output, the same error is `{"error":{"code":"usage","message":"…","data":{"usage":"…","help":"exodusctl send -h"}}}`.
+With `--json`, the same error is `{"error":{"code":"usage","message":"…","data":{"usage":"…","help":"exodusctl send -h"}}}`.
 
 ## Machine-Readable Help
 

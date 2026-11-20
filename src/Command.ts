@@ -16,10 +16,12 @@ import type {
 } from './CommandTypes'
 import { installCompletion } from './completion'
 import { describeCommand, staticChoices } from './describe'
+import { format } from './helpers/format'
 import { serveMcp } from './mcp'
 import { Option } from './Option'
+import { captureJsonResult, hasJsonFlag } from './output'
 import { closestMatch, findOption, parseArgv, wantsHelp } from './parseArgv'
-import { exitOnShellError } from './spawn'
+import { exitOnShellError, isShellResult } from './spawn'
 import {
   CommandError,
   printError,
@@ -32,6 +34,9 @@ import { UsageError } from './UsageError'
 // Args and Opts type the handler from the add() strings; see CommandTypes.ts
 export class Command<Args extends unknown[] = any[], Opts = any> {
   static #nextOrder = 0
+
+  readonly format = format
+  #renderer?: (result: any) => string
 
   _name?: string
   description?: string
@@ -47,7 +52,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   examples: { command: string; description: string }[] = []
   #defaultCommand?: Command
   #extraHelp?: string
-  #isStructured = false
+  #jsonWhenPiped = false
   #timeoutMs?: number
   #runPromise?: Promise<void>
   #sections: { name: string; order: number }[] = []
@@ -144,15 +149,20 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     return this
   }
 
-  // Structured output for the whole app: a handler returns its result, printed as JSON with --json or when piped
+  // Legacy opt-in to automatic JSON when piped; --json is built in for every app.
   json() {
     const root = this.root
-    if (root.#isStructured) return this
-    root.#isStructured = true
+    if (root.#jsonWhenPiped) return this
+    root.#jsonWhenPiped = true
     root.global(
       '--json',
       'Print the result as JSON; the default when output is piped',
     )
+    return this
+  }
+
+  render(renderer: (result: any) => string) {
+    this.#renderer = renderer
     return this
   }
 
@@ -220,7 +230,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       const scriptPath = isScriptJs ? Bun.argv[2] : Bun.main
       const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
       this.#setupAke(scriptPath)
-      installCompletion(this)
+      installCompletion(this, { quiet: hasJsonFlag(argv) })
       if (argv[0] === '--mcp') {
         await serveMcp(this)
         return
@@ -251,7 +261,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     const { leadingGlobals, argv } = this.#takeLeadingGlobals(inputArgv)
     const commandName = argv[0]
     if (commandName === '-h' || commandName === '--help') {
-      Command.#printHelp(this, argv)
+      Command.#printHelp(this, [...leadingGlobals, ...argv])
       return process.exit(0)
     }
     if (!commandName) {
@@ -266,7 +276,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       if (this.action) {
         return this.#runSelf(leadingGlobals)
       }
-      console.log(this.helpText())
+      Command.#printHelp(this, leadingGlobals)
       return process.exit(0)
     }
     const command = this.#findCommand(commandName)
@@ -363,8 +373,18 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   }
 
   // Everything the parser accepts for this command
-  get effectiveOptions(): Option[] {
+  get declaredOptions(): Option[] {
     return [...this.options, ...this.inheritedOptions]
+  }
+
+  get frameworkOptions(): Option[] {
+    return this.declaredOptions.some((option) => option.long === '--json')
+      ? []
+      : [jsonOption]
+  }
+
+  get effectiveOptions(): Option[] {
+    return [...this.declaredOptions, ...this.frameworkOptions]
   }
 
   helpText() {
@@ -413,7 +433,10 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
           defaultCmd.options,
         )
       }
-      Command.#appendOptions(lines, 'Global Options', this.visibleGlobalOptions)
+      Command.#appendOptions(lines, 'Global Options', [
+        ...this.visibleGlobalOptions,
+        ...this.frameworkOptions,
+      ])
     } else {
       lines.push(`Usage: ${this.usage}`)
       if (this.description) {
@@ -421,7 +444,10 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
         lines.push(this.description)
       }
       this.#appendArgsAndOptions(lines, this)
-      Command.#appendOptions(lines, 'Global Options', this.inheritedOptions)
+      Command.#appendOptions(lines, 'Global Options', [
+        ...this.inheritedOptions,
+        ...this.frameworkOptions,
+      ])
     }
     if (this.examples.length > 0) {
       lines.push('')
@@ -451,7 +477,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     await Command.#execute(this, argv, { interceptHelp: true, print: true })
   }
 
-  // print: the CLI path prints a structured app's result and error; execute() hands them to its caller instead
+  // The CLI prints results; execute() hands raw data to its caller instead.
   static async #execute(
     command: Command,
     argv: string[],
@@ -463,9 +489,13 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     }
     const effectiveOptions = command.effectiveOptions
     let parsed: ReturnType<typeof parseArgv>
+    const frameworkIndices = new Set<number>()
     try {
       parsed = parseArgv(argv, command.arguments, effectiveOptions, {
         strict: Command.#isStrict(command),
+        onOption: (option, index) => {
+          if (option.long === '--json') frameworkIndices.add(index)
+        },
       })
     } catch (error) {
       if (!(error instanceof UsageError)) throw error
@@ -486,21 +516,32 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
         message: error,
       })
     }
-    const json = Command.#isJsonOutput(command, argv)
+    const json =
+      Boolean(options.json) ||
+      (command.root.#jsonWhenPiped && !process.stdout.isTTY)
     const args = [...positionals]
-    if (effectiveOptions.length > 0) {
+    if (command.declaredOptions.length > 0) {
+      if (command.frameworkOptions.length) delete options.json
       args.push(options)
     }
-    const context: Context = { argv, json }
-    args.push(context)
-    if (!print || !command.root.#isStructured) {
-      return Command.#runAction(command, args)
+    const context: Context = {
+      argv: argv.filter((_, index) => !frameworkIndices.has(index)),
+      json,
     }
+    args.push(context)
+    if (!print) return Command.#runAction(command, args)
     try {
-      const result = await Command.#runAction(command, args)
-      printResult(result, { json })
+      const result = json
+        ? await captureJsonResult(() => Command.#runAction(command, args))
+        : await Command.#runAction(command, args)
+      if (json) printResult(result, { json: true })
+      else if (result !== undefined && !isShellResult(result)) {
+        const rendered = command.#renderer ? command.#renderer(result) : result
+        if (rendered !== '') printResult(rendered, { json: false })
+      }
       return result
     } catch (actionError) {
+      if (!json && !command.root.#jsonWhenPiped) throw actionError
       const { exitCode, ...shape } = toErrorShape(actionError)
       printError(shape, { json })
       return process.exit(exitCode)
@@ -538,19 +579,19 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
 
   // A command that declares nothing forwards context.argv as is; anything declared makes typos fail
   static #isStrict(command: Command) {
-    return command.arguments.length > 0 || command.effectiveOptions.length > 0
+    return command.arguments.length > 0 || command.declaredOptions.length > 0
   }
 
-  // Structured apps print JSON when asked with --json, and whenever stdout is not a terminal
+  // Explicit JSON works everywhere; existing json() apps also switch when piped.
   static #isJsonOutput(command: Command, argv: string[]) {
-    if (!command.root.#isStructured) return false
-    const end = argv.indexOf('--')
-    const flags = end === -1 ? argv : argv.slice(0, end)
-    return flags.includes('--json') || !process.stdout.isTTY
+    return (
+      hasJsonFlag(argv) ||
+      (command.root.#jsonWhenPiped && !process.stdout.isTTY)
+    )
   }
 
   static #printHelp(command: Command, argv: string[]) {
-    if (argv.includes('--json')) {
+    if (hasJsonFlag(argv)) {
       console.log(JSON.stringify(command.describe()))
       return
     }
@@ -581,7 +622,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
 
   // Flags before the command name that belong to a visible global option, with their values
   #takeLeadingGlobals(argv: string[]) {
-    const globals = this.visibleGlobalOptions
+    const globals = [...this.visibleGlobalOptions, ...this.frameworkOptions]
     let index = 0
     while (index < argv.length) {
       const token = argv[index]
@@ -809,3 +850,5 @@ type SectionHelpEntry = {
   name: string
   order: number
 }
+
+const jsonOption = new Option('--json', 'Print the result as JSON')
