@@ -1,3 +1,13 @@
+## [9.0.0](https://github.com/gutenye/script.js/compare/v8.9.1...v9.0.0) (2026-11-21)
+
+### ⚠ BREAKING CHANGES
+
+* **output:** require string renderers
+
+### Code Refactoring
+
+* **output:** require string renderers ([6edea5d](https://github.com/gutenye/script.js/commit/6edea5d8eff8ad92c3d65c3cba141df4b3e191d1))
+
 ## [8.9.1](https://github.com/gutenye/script.js/compare/v8.9.0...v8.9.1) (2026-11-21)
 
 ### Bug Fixes
