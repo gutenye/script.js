@@ -37,6 +37,14 @@ export function getProjectDir(scriptPath: string): string {
   // local not found, try remote ake
   const dir = path.dirname(path.resolve(scriptPath))
   if (dir.startsWith(REMOTE_DIR)) {
+    // Match existing paths before decoding: underscores can belong to directory names.
+    let projectDir = process.cwd()
+    while (true) {
+      if (getRemoteDirFor(projectDir) === dir) return projectDir
+      const parent = path.dirname(projectDir)
+      if (parent === projectDir) break
+      projectDir = parent
+    }
     const uniqueName = path.basename(dir)
     return uniqueName.replaceAll('_', '/')
   }

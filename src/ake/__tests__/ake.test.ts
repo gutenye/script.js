@@ -28,7 +28,7 @@ describe('ake', () => {
 
   beforeEach(() => {
     projectDir = fs.realpathSync(
-      fs.mkdtempSync(path.join(os.tmpdir(), 'ake-int-')),
+      fs.mkdtempSync(path.join(os.tmpdir(), 'ake-int_with_underscores-')),
     )
     akeFile = path.join(projectDir, 'ake')
     webDir = path.join(projectDir, 'web')
@@ -91,10 +91,15 @@ describe('ake', () => {
       fs.rmSync(remoteDir, { recursive: true, force: true })
     })
 
-    test('ake binary finds remote and CWD is project dir', () => {
-      const result = runViaAke(projectDir, ['pwd'])
-      expect(result.stdout).toBe(projectDir)
-      expect(result.exitCode).toBe(0)
+    test.each([
+      '.',
+      'web',
+    ])('ake binary finds remote and CWD is project dir from %s', (relativeDir) => {
+      const result = runViaAke(path.join(projectDir, relativeDir), ['pwd'])
+      expect(result).toMatchObject({
+        stdout: projectDir,
+        exitCode: 0,
+      })
     })
   })
 
