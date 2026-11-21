@@ -1,3 +1,9 @@
+## [9.4.0](https://github.com/gutenye/script.js/compare/v9.3.0...v9.4.0) (2026-11-21)
+
+### Features
+
+* **output:** add global table pagination and ,next ([517152d](https://github.com/gutenye/script.js/commit/517152de6aff0fd5cab3e69adc4046e125e0ff3f))
+
 ## [9.3.0](https://github.com/gutenye/script.js/compare/v9.2.0...v9.3.0) (2026-11-21)
 
 ### Features
