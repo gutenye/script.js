@@ -1,10 +1,16 @@
 #!/usr/bin/env bun
 
+import { isNextRequest, runNext } from '../pagination'
 import { exitWithError, findAkeFiles, getSuffix } from './shared'
 
 const suffix = process.env.SUFFIX ?? getSuffix()
 
 async function main() {
+  if (isNextRequest(Bun.argv.slice(2))) {
+    const argv = Bun.argv.slice(2)
+    await runNext(argv[0] === '--next' ? argv.slice(1) : argv)
+    return
+  }
   const akeFile = await findAkeFile()
   runCommand(akeFile)
 }

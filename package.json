@@ -32,7 +32,8 @@
   "bin": {
     "script.js": "src/script.ts",
     "ake": "src/ake/ake.ts",
-    "akectl": "src/ake/akectl.ts"
+    "akectl": "src/ake/akectl.ts",
+    ",next": "src/next.ts"
   },
   "scripts": {
     "test": "bun test",

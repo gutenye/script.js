@@ -1,5 +1,6 @@
 import type { SpanningCellConfig } from 'table'
 import { getBorderCharacters, table as rawTable } from 'table'
+import { captureTablePage, isPaginatingTables } from '../tablePages'
 
 export const format = {
   table: formatTable,
@@ -11,7 +12,7 @@ export const format = {
 
 // data: [{a: '1'}] | [['a'], ['1'], ..] | { Group: [{a: '1'}] | [['a'], ['1']] }
 function formatTable(data: TableData, options: TableOptions = {}): string {
-  const limit = options.limit ?? Infinity
+  const limit = options.limit ?? (isPaginatingTables() ? 50 : Infinity)
   if (limit !== Infinity && (!Number.isInteger(limit) || limit < 0)) {
     throw new RangeError(
       'Table limit must be a non-negative integer or Infinity',
@@ -54,14 +55,32 @@ function formatTable(data: TableData, options: TableOptions = {}): string {
       border: borderChars,
     },
   )
-  return withOmittedRows(output.trimEnd(), totalRows - rows.length)
+  const preview = withOmittedRows(output.trimEnd(), totalRows - rows.length)
+  if (isPaginatingTables() && limit > 0 && totalRows > limit) {
+    const allRows = Array.isArray(data[0])
+      ? (data as unknown[][]).slice(1).map((row) => row.map(formatValue))
+      : (data as Record<string, unknown>[]).map((row) =>
+          columns.map((column) => formatValue(row[column])),
+        )
+    captureTablePage(
+      {
+        data: [columns, ...allRows],
+        pageSize: limit,
+        offset: limit,
+        color: options.color,
+      },
+      preview,
+    )
+  }
+  return preview
 }
 
 function formatGroupedTable(
   data: Record<string, GroupValue>,
   options: TableOptions,
 ): string {
-  const { headers, limit = Infinity } = options
+  const { headers } = options
+  const limit = options.limit ?? (isPaginatingTables() ? 50 : Infinity)
   const groups = Object.entries(data)
     .map(([name, value]) => [name, groupToRows(value)] as const)
     .filter(([, rows]) => rows.length > 0)
@@ -121,7 +140,23 @@ function formatGroupedTable(
     },
     border: borderChars,
   })
-  return withOmittedRows(output.trimEnd(), Math.max(0, totalRows - limit))
+  const preview = withOmittedRows(
+    output.trimEnd(),
+    Math.max(0, totalRows - limit),
+  )
+  if (isPaginatingTables() && limit > 0 && totalRows > limit) {
+    captureTablePage(
+      {
+        data: Object.fromEntries(groups),
+        pageSize: limit,
+        offset: limit,
+        headers,
+        color: options.color,
+      },
+      preview,
+    )
+  }
+  return preview
 }
 
 function withOmittedRows(output: string, omitted: number): string {

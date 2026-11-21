@@ -85,6 +85,7 @@ describe('--mcp', () => {
       'exit',
       'slow',
     ])
+    expect(tools[0].inputSchema.properties).not.toHaveProperty('next')
     expect(tools[0].description).toBe(
       'Show state\nExample: structured-fixture state -d iPhone (State on a device)',
     )

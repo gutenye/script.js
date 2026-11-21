@@ -877,6 +877,7 @@ describe('global()', () => {
     expect(spec?.persistentflags).toEqual({
       '-d, --device=': 'Device',
       '--json': 'Print the result as JSON',
+      '--next': 'Print the next saved table page; use alone',
     })
     expect(spec?.completion?.flag).toEqual({ device: ['ios', 'android'] })
   })

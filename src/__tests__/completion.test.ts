@@ -27,6 +27,7 @@ aliases:
   - m
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 commands:
   - name: build
     description: Build
@@ -49,6 +50,7 @@ commands:
 name: myapp
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 commands:
   - name: build
     flags:
@@ -85,6 +87,7 @@ commands:
 name: myapp
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 commands:
   - name: deploy
     completion:
@@ -113,6 +116,7 @@ commands:
 name: myapp
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 commands:
   - name: open
     completion:
@@ -148,6 +152,7 @@ flags:
   --format=: Format
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 completion:
   positional:
     - - a
@@ -177,6 +182,7 @@ commands:
 name: myapp
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 commands:
   - name: deploy
     description: Deploy app

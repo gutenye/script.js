@@ -202,7 +202,8 @@ function isPassThrough(command: Command) {
 // The --json switch is implied: tool results are always structured
 function toolOptions(command: Command) {
   return command.effectiveOptions.filter(
-    (option) => option.attributeName !== 'json',
+    (option) =>
+      option.attributeName !== 'json' && option.attributeName !== 'next',
   )
 }
 

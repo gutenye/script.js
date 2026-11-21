@@ -2,6 +2,7 @@
 
 import path from 'node:path'
 import { $, app } from './index'
+import { isNextRequest } from './pagination'
 import { exitOnShellError } from './spawn'
 
 ;(globalThis as any).$ = $
@@ -14,7 +15,9 @@ if (!scriptPath) {
 }
 
 try {
-  await import(path.resolve(scriptPath))
+  if (scriptPath === '--next' || isNextRequest(Bun.argv.slice(3)))
+    await app.run()
+  else await import(path.resolve(scriptPath))
 } catch (error) {
   exitOnShellError(error)
 }

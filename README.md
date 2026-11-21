@@ -20,6 +20,7 @@
 
 - **Tab completion** in every shell through [Carapace](https://github.com/carapace-sh/carapace-bin), generated from your commands.
 - **Output formatting**: `app.format.table()`, `.record()` and `.lines()` return strings; `.render()` formats returned data for humans.
+- **Table pagination**: tables show 50 rows by default; `,next` or standalone `--next` continues saved table data without rerunning the command.
 - **Readable help** with examples, from `-h` at any level.
 - **Ake**: a per-project task runner with completion.
 

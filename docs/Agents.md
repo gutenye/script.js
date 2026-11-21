@@ -28,6 +28,10 @@ examplectl --json list          # the flag may precede the command
 - `context.json` tells the handler whether JSON output was requested. Framework flags are removed from `context.argv`; other arguments retain their original spelling and order.
 - `app.json()` remains compatible with existing apps and additionally enables automatic JSON when stdout is piped. New scripts need no opt-in; keeping JSON explicit preserves plain-text pipelines.
 
+## Table pagination
+
+Human table renderers show 50 rows by default. `,next` or standalone `<tool> --next` prints the next saved table page without rerunning the command. One global cache at `~/cache/script.js` contains table data only. Every ordinary CLI execution resets it. JSON, MCP and programmatic `execute()` return complete raw data; see [saved table pages](./Helpers.md#saved-table-pages).
+
 ## Errors and Exit Codes
 
 With `--json`, a thrown error prints as JSON on stderr and sets the exit code:

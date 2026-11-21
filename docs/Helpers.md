@@ -20,7 +20,7 @@ console.log(format.lines(['~/dev', '~/Cloud']))
 ```
 
 - `app.format.table(data, options?)`: rounded table from records, a 2-D array whose first row contains headers, or grouped tables. Grouped tables accept `{ headers: [...] }`.
-- Table option `{ limit: 50 }` shows the first 50 data rows followed by `… N more rows`; headers and group titles do not count. Omit `limit` or use `Infinity` for all rows. `0` hides all data rows; negative or fractional limits are invalid. Input data is not modified.
+- During CLI rendering, `format.table(data)` shows 50 data rows by default and saves remaining rows for `,next` or standalone `--next`. An explicit `{ limit: 20 }` changes the page size; `Infinity` shows all rows and `0` hides all data rows. Headers and group titles do not count. Outside a command renderer, omitting `limit` still formats all rows. Input data is not modified.
 - `app.format.record(record, options?)`: a two-column key/value table, without a header row.
 - `app.format.lines(iterable)`: one value per line, preserving order and blank values.
 - `app.format.section(title, content)`: a heading followed by content, or `''` when content is blank.
@@ -51,6 +51,33 @@ app.cmd('list')
 - `format.section(title, content)` joins a heading and trimmed content with one newline. Empty or whitespace-only content returns `''`, so an empty table also hides its heading.
 - JSON, MCP and `execute()` return the handler's original data without invoking the renderer.
 - Nested arrays, block objects, and other non-string values fail with `invalid_render_output` before any rendered output is printed.
+
+## Saved table pages
+
+No pagination setup is needed in a renderer:
+
+```ts
+const { format } = app
+
+app.cmd('list').add(() => entries).render((rows) => {
+  return [
+    format.table(rows),
+  ]
+})
+```
+
+```sh
+tool list       # Run once, show page 1 and save remaining table rows
+,next           # Print the next table page only
+tool --next     # Continue the same saved data
+```
+
+- One global item lives at `~/cache/script.js`; scripts share it. It stores table cells, headers, formatting options and offsets, not the original command or surrounding text.
+- Every ordinary CLI execution replaces the saved item, even when it returns no tables. Help and programmatic `execute()` do not change it. JSON and MCP return full raw data; JSON execution clears prior pages, while MCP does not use the cache.
+- `,next` and standalone `--next` never run the original handler. Through the `script.js` launcher, `--next` also skips importing the original script. Do not combine `--next` with subcommands or other arguments; use `--` to forward it literally.
+- Continuation prints only tables that still have rows, including their column and group headers. It omits summaries, section labels, totals and pagination footers. At the end, stdout is empty and the command succeeds.
+- The first page keeps the renderer's surrounding output and the existing `… N more rows` indicator. Small tables appear only on that initial page.
+- Missing or invalid cached data produces an error on stderr. Rerun an ordinary command to replace invalid data. Cache writes are atomic and private; simultaneous updates report a busy-cache error instead of consuming the same page twice.
 
 ## exitWithError
 

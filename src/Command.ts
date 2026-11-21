@@ -20,6 +20,7 @@ import { format } from './helpers/format'
 import { serveMcp } from './mcp'
 import { Option } from './Option'
 import { captureJsonResult, hasJsonFlag } from './output'
+import { handleNextRequest, isNextRequest, saveTablePages } from './pagination'
 import { closestMatch, findOption, parseArgv, wantsHelp } from './parseArgv'
 import type { RenderOutput } from './render'
 import { renderOutput } from './render'
@@ -31,6 +32,7 @@ import {
   toErrorShape,
   USAGE_EXIT_CODE,
 } from './structured'
+import { collectTablePages } from './tablePages'
 import { UsageError } from './UsageError'
 
 // Args and Opts type the handler from the add() strings; see CommandTypes.ts
@@ -230,7 +232,14 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     try {
       const isScriptJs = (globalThis as any).app === this
       const scriptPath = isScriptJs ? Bun.argv[2] : Bun.main
-      const argv = isScriptJs ? Bun.argv.slice(3) : Bun.argv.slice(2)
+      const argv =
+        isScriptJs && scriptPath !== '--next'
+          ? Bun.argv.slice(3)
+          : Bun.argv.slice(2)
+      if (isNextRequest(argv)) {
+        await handleNextRequest(argv)
+        return
+      }
       this.#setupAke(scriptPath)
       installCompletion(this, { quiet: hasJsonFlag(argv) })
       if (argv[0] === '--mcp') {
@@ -259,6 +268,10 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   }
 
   async parse(inputArgv: string[]): Promise<void> {
+    if (isNextRequest(inputArgv)) {
+      await handleNextRequest(inputArgv)
+      return
+    }
     // Global options may come before the command name: `app -d iPhone state`
     const { leadingGlobals, argv } = this.#takeLeadingGlobals(inputArgv)
     const commandName = argv[0]
@@ -380,9 +393,10 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   }
 
   get frameworkOptions(): Option[] {
-    return this.declaredOptions.some((option) => option.long === '--json')
-      ? []
-      : [jsonOption]
+    return [jsonOption, nextOption].filter(
+      (option) =>
+        !this.declaredOptions.some((declared) => declared.long === option.long),
+    )
   }
 
   get effectiveOptions(): Option[] {
@@ -523,7 +537,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       (command.root.#jsonWhenPiped && !process.stdout.isTTY)
     const args = [...positionals]
     if (command.declaredOptions.length > 0) {
-      if (command.frameworkOptions.length) delete options.json
+      if (command.frameworkOptions.includes(jsonOption)) delete options.json
       args.push(options)
     }
     const context: Context = {
@@ -533,15 +547,20 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     args.push(context)
     if (!print) return Command.#runAction(command, args)
     try {
+      await saveTablePages([])
       const result = json
         ? await captureJsonResult(() => Command.#runAction(command, args))
         : await Command.#runAction(command, args)
       if (json) await printResult(result, { json: true })
       else if (result !== undefined && !isShellResult(result)) {
-        const rendered = command.#renderer
-          ? renderOutput(command.#renderer(result))
-          : result
-        if (rendered !== '') await printResult(rendered, { json: false })
+        const renderer = command.#renderer
+        if (renderer) {
+          const { output, tables } = collectTablePages(() =>
+            renderOutput(renderer(result)),
+          )
+          await saveTablePages(tables)
+          if (output !== '') await printResult(output, { json: false })
+        } else if (result !== '') await printResult(result, { json: false })
       }
       return result
     } catch (actionError) {
@@ -856,3 +875,8 @@ type SectionHelpEntry = {
 }
 
 const jsonOption = new Option('--json', 'Print the result as JSON')
+
+const nextOption = new Option(
+  '--next',
+  'Print the next saved table page; use alone',
+)

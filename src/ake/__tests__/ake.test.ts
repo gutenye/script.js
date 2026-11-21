@@ -127,6 +127,7 @@ describe('ake', () => {
       expect(spec).toEqual(`name: ${specName}
 persistentflags:
   --json: Print the result as JSON
+  --next: Print the next saved table page; use alone
 commands:
   - name: pwd
     description: Print working directory
