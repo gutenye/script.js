@@ -1,3 +1,9 @@
+## [8.9.0](https://github.com/gutenye/script.js/compare/v8.8.0...v8.9.0) (2026-11-21)
+
+### Features
+
+* **output:** compose ordered render blocks and custom formatters ([3aeeab2](https://github.com/gutenye/script.js/commit/3aeeab284a0662927a14c8c1e8f520b9acd7a95d))
+
 ## [8.8.0](https://github.com/gutenye/script.js/compare/v8.7.1...v8.8.0) (2026-11-20)
 
 ### Features
