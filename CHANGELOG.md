@@ -1,3 +1,9 @@
+## [9.3.0](https://github.com/gutenye/script.js/compare/v9.2.0...v9.3.0) (2026-11-21)
+
+### Features
+
+* **output:** limit table previews and flush piped results ([45b5041](https://github.com/gutenye/script.js/commit/45b5041be391dfbecaee11f5c474b8f24627b280))
+
 ## [9.2.0](https://github.com/gutenye/script.js/compare/v9.1.0...v9.2.0) (2026-11-21)
 
 ### Features
