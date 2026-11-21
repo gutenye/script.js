@@ -1,3 +1,9 @@
+## [8.9.1](https://github.com/gutenye/script.js/compare/v8.9.0...v8.9.1) (2026-11-21)
+
+### Bug Fixes
+
+* **ake:** preserve underscores in remote project paths ([7d2088e](https://github.com/gutenye/script.js/commit/7d2088e2845a775dd4cd53bc52467bc43128e571))
+
 ## [8.9.0](https://github.com/gutenye/script.js/compare/v8.8.0...v8.9.0) (2026-11-21)
 
 ### Features
