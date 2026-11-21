@@ -20,6 +20,7 @@ console.log(format.lines(['~/dev', '~/Cloud']))
 ```
 
 - `app.format.table(data, options?)`: rounded table from records, a 2-D array whose first row contains headers, or grouped tables. Grouped tables accept `{ headers: [...] }`.
+- Table option `{ limit: 50 }` shows the first 50 data rows followed by `… N more rows`; headers and group titles do not count. Omit `limit` or use `Infinity` for all rows. `0` hides all data rows; negative or fractional limits are invalid. Input data is not modified.
 - `app.format.record(record, options?)`: a two-column key/value table, without a header row.
 - `app.format.lines(iterable)`: one value per line, preserving order and blank values.
 - `app.format.section(title, content)`: a heading followed by content, or `''` when content is blank.

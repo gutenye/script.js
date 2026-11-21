@@ -69,10 +69,17 @@ describe('app.json()', () => {
     const c = new Command()
     c.name('tool').json()
     c.cmd('state').add(() => ({ route: 'Home' }))
-    const logs: string[] = []
-    const origLog = console.log
+    const output: string[] = []
+    const originalWrite = process.stdout.write
     const isTTY = process.stdout.isTTY
-    console.log = (...args: any[]) => logs.push(args.join(' '))
+    process.stdout.write = ((
+      chunk: string,
+      callback?: (error?: Error) => void,
+    ) => {
+      output.push(String(chunk))
+      callback?.()
+      return true
+    }) as typeof process.stdout.write
     Object.defineProperty(process.stdout, 'isTTY', {
       value: true,
       configurable: true,
@@ -80,13 +87,13 @@ describe('app.json()', () => {
     try {
       await c.parse(['state'])
     } finally {
-      console.log = origLog
+      process.stdout.write = originalWrite
       Object.defineProperty(process.stdout, 'isTTY', {
         value: isTTY,
         configurable: true,
       })
     }
-    expect(logs).toEqual(['{\n  "route": "Home"\n}'])
+    expect(output).toEqual(['{\n  "route": "Home"\n}\n'])
   })
 
   test('tells the handler whether output is JSON', async () => {

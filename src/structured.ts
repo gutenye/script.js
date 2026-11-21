@@ -27,20 +27,26 @@ export class CommandError extends Error {
   }
 }
 
-export function printResult(result: unknown, { json }: { json: boolean }) {
+export async function printResult(
+  result: unknown,
+  { json }: { json: boolean },
+) {
   if (result === undefined) return
-  if (json) {
-    const serialized = JSON.stringify(result)
-    if (serialized === undefined)
-      throw new CommandError('Command result is not JSON-serializable', {
-        code: 'invalid_result',
-      })
-    console.log(serialized)
-    return
+  const text =
+    typeof result === 'string' && !json
+      ? result
+      : JSON.stringify(result, null, json ? undefined : 2)
+  if (json && text === undefined) {
+    throw new CommandError('Command result is not JSON-serializable', {
+      code: 'invalid_result',
+    })
   }
-  console.log(
-    typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-  )
+  // Await the stream callback so piped output drains before exit.
+  await new Promise<void>((resolve, reject) => {
+    process.stdout.write(`${text}\n`, (error) =>
+      error ? reject(error) : resolve(),
+    )
+  })
 }
 
 export function printError(

@@ -11,6 +11,12 @@ export const format = {
 
 // data: [{a: '1'}] | [['a'], ['1'], ..] | { Group: [{a: '1'}] | [['a'], ['1']] }
 function formatTable(data: TableData, options: TableOptions = {}): string {
+  const limit = options.limit ?? Infinity
+  if (limit !== Infinity && (!Number.isInteger(limit) || limit < 0)) {
+    throw new RangeError(
+      'Table limit must be a non-negative integer or Infinity',
+    )
+  }
   if (!Array.isArray(data) && typeof data === 'object' && data !== null) {
     return formatGroupedTable(data as Record<string, GroupValue>, options)
   }
@@ -19,20 +25,26 @@ function formatTable(data: TableData, options: TableOptions = {}): string {
 
   let columns: string[]
   let rows: string[][]
+  let totalRows: number
 
   if (Array.isArray(data[0])) {
     columns = (data[0] as unknown[]).map(formatValue)
-    rows = (data as unknown[][]).slice(1).map((row) => row.map(formatValue))
+    totalRows = data.length - 1
+    rows = (data as unknown[][])
+      .slice(1, limit + 1)
+      .map((row) => row.map(formatValue))
   } else {
     columns = [
       ...new Set((data as Record<string, unknown>[]).flatMap(Object.keys)),
     ]
-    rows = (data as Record<string, unknown>[]).map((row) =>
-      columns.map((col) => formatValue(row[col])),
-    )
+    totalRows = data.length
+    rows = (data as Record<string, unknown>[])
+      .slice(0, limit)
+      .map((row) => columns.map((col) => formatValue(row[col])))
   }
 
   if (columns.length === 0) return ''
+  if (limit === 0) return withOmittedRows('', totalRows)
 
   const output = rawTable(
     [columns.map((v) => formatHeading(v, options.color)), ...rows],
@@ -42,14 +54,14 @@ function formatTable(data: TableData, options: TableOptions = {}): string {
       border: borderChars,
     },
   )
-  return output.trimEnd()
+  return withOmittedRows(output.trimEnd(), totalRows - rows.length)
 }
 
 function formatGroupedTable(
   data: Record<string, GroupValue>,
   options: TableOptions,
 ): string {
-  const { headers } = options
+  const { headers, limit = Infinity } = options
   const groups = Object.entries(data)
     .map(([name, value]) => [name, groupToRows(value)] as const)
     .filter(([, rows]) => rows.length > 0)
@@ -60,6 +72,8 @@ function formatGroupedTable(
     ...groups.flatMap(([, rows]) => rows.map((r) => r.length)),
   )
   if (colCount === 0) return ''
+  const totalRows = groups.reduce((count, [, rows]) => count + rows.length, 0)
+  if (limit === 0) return withOmittedRows('', totalRows)
   const tableData: string[][] = []
   const spanningCells: SpanningCellConfig[] = []
   const groupHeaderRows = new Set<number>()
@@ -74,7 +88,11 @@ function formatGroupedTable(
     tableData.push(padded.map((v) => formatHeading(v, options.color)))
   }
 
+  let remaining = limit
   for (const [groupName, rows] of groups) {
+    if (remaining === 0) break
+    const visibleRows = rows.slice(0, remaining)
+    remaining -= visibleRows.length
     const headerRow = tableData.length
     groupHeaderRows.add(headerRow)
     tableData.push([
@@ -83,7 +101,7 @@ function formatGroupedTable(
     ])
     spanningCells.push({ col: 0, row: headerRow, colSpan: colCount })
 
-    for (const row of rows) {
+    for (const row of visibleRows) {
       tableData.push([
         ...row,
         ...Array(Math.max(0, colCount - row.length)).fill(''),
@@ -103,7 +121,13 @@ function formatGroupedTable(
     },
     border: borderChars,
   })
-  return output.trimEnd()
+  return withOmittedRows(output.trimEnd(), Math.max(0, totalRows - limit))
+}
+
+function withOmittedRows(output: string, omitted: number): string {
+  if (omitted === 0) return output
+  const message = `… ${omitted} more ${omitted === 1 ? 'row' : 'rows'}`
+  return output ? `${output}\n${message}` : message
 }
 
 function formatRecord(
@@ -161,7 +185,11 @@ export type TableData =
   | unknown[][]
   | Record<string, GroupValue>
 
-export type TableOptions = { headers?: string[]; color?: boolean }
+export type TableOptions = {
+  headers?: string[]
+  color?: boolean
+  limit?: number
+}
 
 type GroupValue = Record<string, unknown>[] | unknown[][]
 

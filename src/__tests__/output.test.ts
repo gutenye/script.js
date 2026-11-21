@@ -61,6 +61,30 @@ describe('default command output', () => {
       ok: true,
     })
   })
+  test('flushes large returned results completely to a pipe', () => {
+    const json = Bun.spawnSync(
+      [
+        'sh',
+        '-c',
+        '"$@" | cat',
+        'output-test',
+        'bun',
+        script,
+        fixture,
+        'large',
+        '--json',
+      ],
+      {
+        stdout: 'pipe',
+        stderr: 'pipe',
+        env: { ...process.env, CARAPACE_SPECS_DIR: '/tmp/script-output-specs' },
+      },
+    )
+    expect(json.exitCode).toBe(0)
+    expect(JSON.parse(json.stdout.toString()).data).toHaveLength(2000000)
+    expect(run('large').rawStdout).toHaveLength(2000001)
+    expect(run('large-after-print').rawStdout).toHaveLength(2000010)
+  })
   test('preserves printed text normally and captures it as a JSON fallback', () => {
     expect(run('printed').stdout).toBe('hello')
     expect(JSON.parse(run('printed', '--json').stdout)).toEqual({

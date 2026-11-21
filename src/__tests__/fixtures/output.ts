@@ -74,4 +74,12 @@ app
   .cmd('blank-renderer')
   .add(() => ({ ok: true }))
   .render(() => [' \n\t ', ''])
+app
+  .cmd('large')
+  .add(() => ({ data: 'x'.repeat(2000000) }))
+  .render(({ data }) => data)
+app.cmd('large-after-print').add(() => {
+  process.stdout.write('progress\n')
+  return 'x'.repeat(2000000)
+})
 await app.run()

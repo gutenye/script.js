@@ -536,12 +536,12 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
       const result = json
         ? await captureJsonResult(() => Command.#runAction(command, args))
         : await Command.#runAction(command, args)
-      if (json) printResult(result, { json: true })
+      if (json) await printResult(result, { json: true })
       else if (result !== undefined && !isShellResult(result)) {
         const rendered = command.#renderer
           ? renderOutput(command.#renderer(result))
           : result
-        if (rendered !== '') printResult(rendered, { json: false })
+        if (rendered !== '') await printResult(rendered, { json: false })
       }
       return result
     } catch (actionError) {

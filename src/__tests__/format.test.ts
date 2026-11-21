@@ -46,6 +46,60 @@ describe('format', () => {
     expect(output).toContain('0')
   })
 
+  test('limits record rows without mutating data or counting the header', () => {
+    const rows = [{ name: 'alpha' }, { name: 'beta' }, { name: 'gamma' }]
+    const output = format.table(rows, { limit: 2, color: false })
+    expect(output).toContain('name')
+    expect(output).toContain('alpha')
+    expect(output).toContain('beta')
+    expect(output).not.toContain('gamma')
+    expect(output).toEndWith('… 1 more row')
+    expect(rows).toEqual([
+      { name: 'alpha' },
+      { name: 'beta' },
+      { name: 'gamma' },
+    ])
+    expect(format.table(rows, { limit: Infinity })).toBe(format.table(rows))
+    expect(format.table(rows, { limit: 3 })).toBe(format.table(rows))
+    expect(format.table(rows, { limit: 0 })).toBe('… 3 more rows')
+  })
+
+  test('limits array rows while keeping their header', () => {
+    const output = format.table([['name'], ['alpha'], ['beta'], ['gamma']], {
+      limit: 1,
+    })
+    expect(output).toContain('name')
+    expect(output).toContain('alpha')
+    expect(output).not.toContain('beta')
+    expect(output).not.toContain('gamma')
+    expect(output).toEndWith('… 2 more rows')
+  })
+
+  test('limits grouped data rows across groups without counting titles or headers', () => {
+    const rows = { First: [['alpha'], ['beta']], Next: [['gamma'], ['delta']] }
+    const output = format.table(rows, {
+      headers: ['name'],
+      limit: 3,
+      color: false,
+    })
+    expect(output).toContain('First')
+    expect(output).toContain('Next')
+    expect(output).toContain('gamma')
+    expect(output).not.toContain('delta')
+    expect(output).toEndWith('… 1 more row')
+    const first = format.table(rows, { limit: 1 })
+    expect(first).not.toContain('Next')
+    expect(first).toEndWith('… 3 more rows')
+    expect(format.table(rows, { limit: 0 })).toBe('… 4 more rows')
+    expect(format.table({}, { limit: 0 })).toBe('')
+  })
+
+  test.each([-1, 1.5, NaN])('rejects invalid table limit %p', (limit) => {
+    expect(() => format.table([{ name: 'alpha' }], { limit })).toThrow(
+      RangeError,
+    )
+  })
+
   test('records preserve falsy values and display structured values', () => {
     const output = format.record(
       { Count: 0, Paused: false, Missing: null, Details: { ok: true } },
