@@ -1,3 +1,9 @@
+## [9.5.0](https://github.com/gutenye/script.js/compare/v9.4.0...v9.5.0) (2026-11-21)
+
+### Features
+
+* **output:** expose next through the public package API ([72526fd](https://github.com/gutenye/script.js/commit/72526fd753ae9cddc95e8f35ae41b8f0aa2bfed8))
+
 ## [9.4.0](https://github.com/gutenye/script.js/compare/v9.3.0...v9.4.0) (2026-11-21)
 
 ### Features
