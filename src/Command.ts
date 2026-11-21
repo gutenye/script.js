@@ -21,6 +21,7 @@ import { serveMcp } from './mcp'
 import { Option } from './Option'
 import { captureJsonResult, hasJsonFlag } from './output'
 import { closestMatch, findOption, parseArgv, wantsHelp } from './parseArgv'
+import type { RenderOutput } from './render'
 import { renderOutput } from './render'
 import { exitOnShellError, isShellResult } from './spawn'
 import {
@@ -37,7 +38,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
   static #nextOrder = 0
 
   readonly format = format
-  #renderer?: (result: any) => string
+  #renderer?: (result: any) => RenderOutput
 
   _name?: string
   description?: string
@@ -162,7 +163,7 @@ export class Command<Args extends unknown[] = any[], Opts = any> {
     return this
   }
 
-  render(renderer: (result: any) => string) {
+  render(renderer: (result: any) => RenderOutput) {
     this.#renderer = renderer
     return this
   }

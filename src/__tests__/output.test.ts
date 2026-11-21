@@ -36,12 +36,14 @@ describe('default command output', () => {
       'second',
     ])
   })
-  test('composes a trimmed string with one trailing newline while JSON bypasses presentation', () => {
+  test('composes flat string arrays with sections and one trailing newline while JSON bypasses presentation', () => {
     const result = run('composed')
     expect(result.exitCode).toBe(0)
     expect(result.stdout).toStartWith('Before\n\n╭')
     expect(result.stdout).toContain('demo')
     expect(result.stdout).toContain('count')
+    expect(result.stdout).toContain('Summary\n╭')
+    expect(result.stdout).not.toContain('Hidden')
     expect(result.stdout).toEndWith('first\nsecond\n\nAfter\n\nTotal: 1')
     expect(result.stdout).not.toContain('\x1b[')
     expect(result.rawStdout).toBe(`${result.stdout}\n`)

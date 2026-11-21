@@ -2,6 +2,17 @@ import { describe, expect, test } from 'bun:test'
 import { format } from '../helpers/format'
 
 describe('format', () => {
+  test('sections keep the heading and content together without a trailing newline', () => {
+    const { section } = format
+    expect(section('Status', '  first\nsecond\n')).toBe('Status\nfirst\nsecond')
+  })
+
+  test('sections omit the heading when the content is empty', () => {
+    expect(format.section('Hidden', '')).toBe('')
+    expect(format.section('Hidden', ' \n\t ')).toBe('')
+    expect(format.section('Hidden', format.table([]))).toBe('')
+  })
+
   test('returns a table string without a trailing newline', () => {
     const output = format.table([{ Name: 'demo', Path: '/example' }], {
       color: false,

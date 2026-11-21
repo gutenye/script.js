@@ -9,43 +9,44 @@ Format data as a string without printing it. Available on the existing `app`, in
 ```ts
 import { app } from '@gutenye/script.js'
 
-console.log(app.format.table([
+const { format } = app
+
+console.log(format.table([
   { Name: 'dev', Path: '~/dev' },
   { Name: 'Cloud', Path: '~/Cloud' },
 ]))
-console.log(app.format.record({ Name: 'dev', Files: 42, Paused: false }))
-console.log(app.format.lines(['~/dev', '~/Cloud']))
+console.log(format.record({ Name: 'dev', Files: 42, Paused: false }))
+console.log(format.lines(['~/dev', '~/Cloud']))
 ```
 
 - `app.format.table(data, options?)`: rounded table from records, a 2-D array whose first row contains headers, or grouped tables. Grouped tables accept `{ headers: [...] }`.
 - `app.format.record(record, options?)`: a two-column key/value table, without a header row.
 - `app.format.lines(iterable)`: one value per line, preserving order and blank values.
+- `app.format.section(title, content)`: a heading followed by content, or `''` when content is blank.
 - All return `''` for empty input and omit the trailing newline. Nullish cells are blank; objects and arrays are compact JSON.
 - Tables and records color headings when the terminal supports ANSI. Use `{ color: false }` for plain strings or `{ color: true }` to force color.
 - `printTable` keeps its existing printing behavior; use `app.format.table` to capture or compose the output.
 
 ## Render strings
 
-A command's `.render()` returns one string. Compose text and formatter results in a template literal:
+A command's `.render()` returns a string or a flat array of strings. Use an array to separate sections with one blank line:
 
 ```ts
+const { format } = app
+
 app.cmd('list')
   .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
-  .render(({ entries, count }) => {
-    return `
-${app.format.table(entries)}
-
-Status
-${count} entries
-`
-  })
+  .render(({ entries, count }) => [
+    format.table(entries),
+    format.section('Status', `${count} entries`),
+  ])
 ```
 
-- The framework applies `trim()` to the complete rendered string and prints one trailing newline. Whitespace-only output prints nothing.
-- Internal whitespace and blank lines are preserved; put section spacing directly in the template.
-- Call `app.format.table()`, `.record()`, `.lines()`, or your own string formatter inside the template.
+- The framework applies `trim()` to each string, skips empty strings, joins the remaining strings with one blank line, and prints one trailing newline. Empty output prints nothing.
+- Internal whitespace and blank lines within each string are preserved. A single template string works too.
+- `format.section(title, content)` joins a heading and trimmed content with one newline. Empty or whitespace-only content returns `''`, so an empty table also hides its heading.
 - JSON, MCP and `execute()` return the handler's original data without invoking the renderer.
-- Arrays and block objects are not supported. Non-string results fail with `invalid_render_output` before any rendered output is printed.
+- Nested arrays, block objects, and other non-string values fail with `invalid_render_output` before any rendered output is printed.
 
 ## exitWithError
 

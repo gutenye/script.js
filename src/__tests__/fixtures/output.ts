@@ -1,17 +1,19 @@
+const { format } = app
+
 app.name('output-fixture')
 
 app
   .cmd('rows')
   .add(() => [{ name: 'demo', path: '/example' }])
-  .render(app.format.table)
+  .render(format.table)
 app
   .cmd('record')
   .add(() => ({ name: 'demo' }))
-  .render(app.format.record)
+  .render(format.record)
 app
   .cmd('lines')
   .add(() => ['first', 'second'])
-  .render(app.format.lines)
+  .render(format.lines)
 app.cmd('printed').add(() => {
   console.log('hello')
 })
@@ -44,33 +46,28 @@ app.cmd('empty').add(() => {})
 app
   .cmd('empty-rows')
   .add(() => [])
-  .render(app.format.table)
+  .render(format.table)
 app.cmd('invalid').add(() => () => 'not data')
 app
   .cmd('composed')
   .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
-  .render(({ entries, count }) => {
-    return `
-Before
-
-${app.format.table(entries, { color: false })}
-
-${app.format.record({ count }, { color: false })}
-
-${app.format.lines(['first', 'second'])}
-
-After
-
-Total: ${count}
-
-`
-  })
+  .render(({ entries, count }) => [
+    ' \nBefore ',
+    format.table(entries, { color: false }),
+    format.section('Summary', format.record({ count }, { color: false })),
+    '',
+    ' \t ',
+    format.section('Hidden', format.table([])),
+    format.lines(['first', 'second']),
+    'After',
+    `Total: ${count}\n\n`,
+  ])
 app
   .cmd('invalid-renderer')
   .add(() => ({ ok: true }))
-  .render(() => ['not a string'] as any)
+  .render(() => [['nested array']] as any)
 app
   .cmd('blank-renderer')
   .add(() => ({ ok: true }))
-  .render(() => ' \n\t ')
+  .render(() => [' \n\t ', ''])
 await app.run()
