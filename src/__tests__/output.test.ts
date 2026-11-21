@@ -10,6 +10,7 @@ function run(...args: string[]) {
   })
   return {
     stdout: result.stdout.toString().trimEnd(),
+    rawStdout: result.stdout.toString(),
     stderr: result.stderr.toString().trimEnd(),
     exitCode: result.exitCode,
   }
@@ -35,23 +36,25 @@ describe('default command output', () => {
       'second',
     ])
   })
-  test('composes ordered output blocks while JSON bypasses presentation', () => {
-    const result = run('blocks')
+  test('composes a trimmed string with one trailing newline while JSON bypasses presentation', () => {
+    const result = run('composed')
     expect(result.exitCode).toBe(0)
     expect(result.stdout).toStartWith('Before\n\n╭')
     expect(result.stdout).toContain('demo')
     expect(result.stdout).toContain('count')
     expect(result.stdout).toEndWith('first\nsecond\n\nAfter\n\nTotal: 1')
     expect(result.stdout).not.toContain('\x1b[')
-    expect(JSON.parse(run('blocks', '--json').stdout)).toEqual({
+    expect(result.rawStdout).toBe(`${result.stdout}\n`)
+    expect(run('blank-renderer').rawStdout).toBe('')
+    expect(JSON.parse(run('composed', '--json').stdout)).toEqual({
       entries: [{ name: 'demo' }],
       count: 1,
     })
-    const invalid = run('invalid-block')
+    const invalid = run('invalid-renderer')
     expect(invalid.exitCode).toBe(1)
     expect(invalid.stdout).toBe('')
-    expect(invalid.stderr).toContain('exactly one formatter')
-    expect(JSON.parse(run('invalid-block', '--json').stdout)).toEqual({
+    expect(invalid.stderr).toContain('must return a string')
+    expect(JSON.parse(run('invalid-renderer', '--json').stdout)).toEqual({
       ok: true,
     })
   })

@@ -47,24 +47,30 @@ app
   .render(app.format.table)
 app.cmd('invalid').add(() => () => 'not data')
 app
-  .cmd('blocks')
+  .cmd('composed')
   .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
-  .render(({ entries, count }) => [
-    'Before',
-    { table: entries, options: { color: false } },
-    { record: { count }, options: { color: false } },
-    { lines: ['first', 'second'] },
-    'After',
-    {
-      format: (value, prefix) => `${prefix}${value}`,
-      data: count,
-      options: 'Total: ',
-    },
-    '',
-    { table: [] },
-  ])
+  .render(({ entries, count }) => {
+    return `
+Before
+
+${app.format.table(entries, { color: false })}
+
+${app.format.record({ count }, { color: false })}
+
+${app.format.lines(['first', 'second'])}
+
+After
+
+Total: ${count}
+
+`
+  })
 app
-  .cmd('invalid-block')
+  .cmd('invalid-renderer')
   .add(() => ({ ok: true }))
-  .render(() => [{ unknown: 'bad' }] as any)
+  .render(() => ['not a string'] as any)
+app
+  .cmd('blank-renderer')
+  .add(() => ({ ok: true }))
+  .render(() => ' \n\t ')
 await app.run()

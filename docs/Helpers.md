@@ -24,29 +24,28 @@ console.log(app.format.lines(['~/dev', '~/Cloud']))
 - Tables and records color headings when the terminal supports ANSI. Use `{ color: false }` for plain strings or `{ color: true }` to force color.
 - `printTable` keeps its existing printing behavior; use `app.format.table` to capture or compose the output.
 
-## Output blocks
+## Render strings
 
-A command's `.render()` can return a string, a single block, or an ordered array of strings and blocks:
+A command's `.render()` returns one string. Compose text and formatter results in a template literal:
 
 ```ts
 app.cmd('list')
   .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
-  .render(({ entries, count }) => [
-    { table: entries, options: { color: false } },
-    { record: { count } },
-    { lines: ['first', 'second'] },
-    { format: (value) => `Total: ${value}`, data: count },
-    'Finished',
-  ])
+  .render(({ entries, count }) => {
+    return `
+${app.format.table(entries)}
+
+Status
+${count} entries
+`
+  })
 ```
 
-- Use bare strings for text and exactly one of `table`, `record`, `lines`, or `format` per object.
-- `table` and `record` pass optional `options` to the corresponding `app.format` helper.
-- A custom `format` function receives `data` and optional `options`, and must return a string synchronously.
-- Blocks render in order, with one blank line between nonempty blocks; empty blocks produce no extra spacing.
-- Existing formatter calls work too: `[app.format.table(entries), 'Finished']`.
+- The framework applies `trim()` to the complete rendered string and prints one trailing newline. Whitespace-only output prints nothing.
+- Internal whitespace and blank lines are preserved; put section spacing directly in the template.
+- Call `app.format.table()`, `.record()`, `.lines()`, or your own string formatter inside the template.
 - JSON, MCP and `execute()` return the handler's original data without invoking the renderer.
-- Invalid or ambiguous blocks fail with `invalid_render_block` before any rendered output is printed.
+- Arrays and block objects are not supported. Non-string results fail with `invalid_render_output` before any rendered output is printed.
 
 ## exitWithError
 

@@ -20,7 +20,7 @@ examplectl --json list          # the flag may precede the command
 ```
 
 - `--json` is a framework option. It does not add an options parameter to existing handlers or make forwarding commands strict. Use `--` to pass a literal `--json` to another program.
-- `.render(fn)` receives the handler's returned data and returns text, a single output block, or an ordered array of blocks; see [Helpers](./Helpers.md#output-blocks). JSON, programmatic `execute()` and MCP bypass presentation and return the raw data.
+- `.render(fn)` receives the handler's returned data and returns a string; see [Helpers](./Helpers.md#render-strings). The framework trims surrounding whitespace and prints one trailing newline for nonempty output. JSON, programmatic `execute()` and MCP bypass presentation and return the raw data.
 - In JSON mode, stdout contains one JSON value. Printed diagnostics from handlers that return data go to stderr. Returned values must be JSON-serializable.
 - Existing `console.log` scripts continue to print normally. With `--json`, a handler that only prints returns `{"stdout":"..."}`; a command that produces nothing returns `null`.
 - Shell wrappers return captured `{ stdout, exitCode }` in JSON mode and retain their ordinary terminal output otherwise.
