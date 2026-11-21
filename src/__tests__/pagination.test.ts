@@ -229,3 +229,19 @@ test('a lock left by an exited process can be recovered', () => {
   expect(page.stdout).toContain('row-051')
   expect(existsSync(`${cache}.lock`)).toBe(false)
 })
+
+test('the public next entry point preserves pages on help and invalid arguments', () => {
+  expect(run([fixture, 'rows']).exitCode).toBe(0)
+  const before = readFileSync(cache, 'utf8')
+  const help = run(['--help'], next)
+  expect(help.exitCode, help.stderr).toBe(0)
+  expect(help.stdout).toBe(
+    'Usage: ,next\n\nPrint the next page of the most recently saved tables.\n',
+  )
+  const invalid = run(['extra'], next)
+  expect(invalid.exitCode).toBe(2)
+  expect(invalid.stdout).toBe('')
+  expect(invalid.stderr).toContain('--next must be used alone')
+  expect(readFileSync(cache, 'utf8')).toBe(before)
+  expect(run([], next).stdout).toContain('row-051')
+})

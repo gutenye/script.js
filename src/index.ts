@@ -1,4 +1,5 @@
 import { runAppBeforeExit } from './Command'
+import { runNext } from './pagination'
 
 process.on('beforeExit', runAppBeforeExit)
 
@@ -11,3 +12,8 @@ export type { Options } from './parseArgv'
 export type { RenderOutput } from './render'
 export { $ } from './spawn'
 export { CommandError } from './structured'
+
+export async function next(argv: string[] = []) {
+  process.off('beforeExit', runAppBeforeExit)
+  await runNext(argv)
+}

@@ -1,5 +1,5 @@
-#!/usr/bin/env bun --env-file ''
+#!/usr/bin/env bun
 
-import { runNext } from './pagination'
+import { next } from '@gutenye/script.js'
 
-await runNext(Bun.argv.slice(2))
+await next(Bun.argv.slice(2))
