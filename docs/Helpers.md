@@ -23,6 +23,7 @@ console.log(format.lines(['~/dev', '~/Cloud']))
 - `app.format.record(record, options?)`: a two-column key/value table, without a header row.
 - `app.format.lines(iterable)`: one value per line, preserving order and blank values.
 - `app.format.section(title, content)`: a heading followed by content, or `''` when content is blank.
+- `app.format.field(label, value)`: an optional labelled line such as `Incomplete: timeout`. Blank or nullish values return `''`; `0` and `false` are preserved. Values use the same formatting as table cells.
 - All return `''` for empty input and omit the trailing newline. Nullish cells are blank; objects and arrays are compact JSON.
 - Tables and records color headings when the terminal supports ANSI. Use `{ color: false }` for plain strings or `{ color: true }` to force color.
 - `printTable` keeps its existing printing behavior; use `app.format.table` to capture or compose the output.
@@ -36,10 +37,12 @@ const { format } = app
 
 app.cmd('list')
   .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
-  .render(({ entries, count }) => [
-    format.table(entries),
-    format.section('Status', `${count} entries`),
-  ])
+  .render(({ entries, count }) => {
+    return [
+      format.table(entries),
+      format.field('Count', count),
+    ]
+  })
 ```
 
 - The framework applies `trim()` to each string, skips empty strings, joins the remaining strings with one blank line, and prints one trailing newline. Empty output prints nothing.

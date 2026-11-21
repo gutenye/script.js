@@ -2,6 +2,21 @@ import { describe, expect, test } from 'bun:test'
 import { format } from '../helpers/format'
 
 describe('format', () => {
+  test.each([
+    ['timeout', 'Incomplete: timeout'],
+    [' timeout \n', 'Incomplete: timeout'],
+    [0, 'Incomplete: 0'],
+    [false, 'Incomplete: false'],
+    ['', ''],
+    [' \n\t ', ''],
+    [null, ''],
+    [undefined, ''],
+    [{ ok: true }, 'Incomplete: {"ok":true}'],
+  ])('formats an optional field for %p', (value, expected) => {
+    const { field } = format
+    expect(field('Incomplete', value)).toBe(expected)
+  })
+
   test('sections keep the heading and content together without a trailing newline', () => {
     const { section } = format
     expect(section('Status', '  first\nsecond\n')).toBe('Status\nfirst\nsecond')

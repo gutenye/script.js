@@ -6,6 +6,7 @@ export const format = {
   record: formatRecord,
   lines: formatLines,
   section: formatSection,
+  field: formatField,
 }
 
 // data: [{a: '1'}] | [['a'], ['1'], ..] | { Group: [{a: '1'}] | [['a'], ['1']] }
@@ -127,6 +128,11 @@ function formatLines(values: Iterable<unknown>): string {
 function formatSection(title: string, content: string): string {
   const text = content.trim()
   return text ? `${title}\n${text}` : ''
+}
+
+function formatField(label: string, value: unknown): string {
+  const text = formatValue(value).trim()
+  return text ? `${label}: ${text}` : ''
 }
 
 function formatHeading(value: string, color = Bun.enableANSIColors): string {

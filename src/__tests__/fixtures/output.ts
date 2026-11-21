@@ -51,17 +51,21 @@ app.cmd('invalid').add(() => () => 'not data')
 app
   .cmd('composed')
   .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
-  .render(({ entries, count }) => [
-    ' \nBefore ',
-    format.table(entries, { color: false }),
-    format.section('Summary', format.record({ count }, { color: false })),
-    '',
-    ' \t ',
-    format.section('Hidden', format.table([])),
-    format.lines(['first', 'second']),
-    'After',
-    `Total: ${count}\n\n`,
-  ])
+  .render(({ entries, count }) => {
+    return [
+      ' \nBefore ',
+      format.table(entries, { color: false }),
+      format.section('Summary', format.record({ count }, { color: false })),
+      '',
+      ' \t ',
+      format.section('Hidden', format.table([])),
+      format.field('Count', count),
+      format.field('Hidden field', undefined),
+      format.lines(['first', 'second']),
+      'After',
+      `Total: ${count}\n\n`,
+    ]
+  })
 app
   .cmd('invalid-renderer')
   .add(() => ({ ok: true }))

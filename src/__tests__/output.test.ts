@@ -43,6 +43,7 @@ describe('default command output', () => {
     expect(result.stdout).toContain('demo')
     expect(result.stdout).toContain('count')
     expect(result.stdout).toContain('Summary\n╭')
+    expect(result.stdout).toContain('Count: 1')
     expect(result.stdout).not.toContain('Hidden')
     expect(result.stdout).toEndWith('first\nsecond\n\nAfter\n\nTotal: 1')
     expect(result.stdout).not.toContain('\x1b[')
