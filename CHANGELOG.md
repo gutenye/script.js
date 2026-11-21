@@ -1,3 +1,9 @@
+## [9.2.0](https://github.com/gutenye/script.js/compare/v9.1.0...v9.2.0) (2026-11-21)
+
+### Features
+
+* **output:** format optional labelled fields ([98bef83](https://github.com/gutenye/script.js/commit/98bef83de440331ab82860f378e038a970b38295))
+
 ## [9.1.0](https://github.com/gutenye/script.js/compare/v9.0.0...v9.1.0) (2026-11-21)
 
 ### Features
