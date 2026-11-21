@@ -35,6 +35,26 @@ describe('default command output', () => {
       'second',
     ])
   })
+  test('composes ordered output blocks while JSON bypasses presentation', () => {
+    const result = run('blocks')
+    expect(result.exitCode).toBe(0)
+    expect(result.stdout).toStartWith('Before\n\n╭')
+    expect(result.stdout).toContain('demo')
+    expect(result.stdout).toContain('count')
+    expect(result.stdout).toEndWith('first\nsecond\n\nAfter\n\nTotal: 1')
+    expect(result.stdout).not.toContain('\x1b[')
+    expect(JSON.parse(run('blocks', '--json').stdout)).toEqual({
+      entries: [{ name: 'demo' }],
+      count: 1,
+    })
+    const invalid = run('invalid-block')
+    expect(invalid.exitCode).toBe(1)
+    expect(invalid.stdout).toBe('')
+    expect(invalid.stderr).toContain('exactly one formatter')
+    expect(JSON.parse(run('invalid-block', '--json').stdout)).toEqual({
+      ok: true,
+    })
+  })
   test('preserves printed text normally and captures it as a JSON fallback', () => {
     expect(run('printed').stdout).toBe('hello')
     expect(JSON.parse(run('printed', '--json').stdout)).toEqual({

@@ -1002,3 +1002,14 @@ async function parseCapturingExit(command: Command, argv: string[]) {
   }
   return { logs, errors, exitCode }
 }
+
+describe('render()', () => {
+  test('execute returns raw data without calling the renderer', async () => {
+    const command = new Command().name('render-fixture')
+    const data = { count: 1 }
+    const renderer = mock(() => 'human output')
+    command.add(() => data).render(renderer)
+    expect(await command.execute([])).toBe(data)
+    expect(renderer).not.toHaveBeenCalled()
+  })
+})

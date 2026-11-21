@@ -46,4 +46,25 @@ app
   .add(() => [])
   .render(app.format.table)
 app.cmd('invalid').add(() => () => 'not data')
+app
+  .cmd('blocks')
+  .add(() => ({ entries: [{ name: 'demo' }], count: 1 }))
+  .render(({ entries, count }) => [
+    'Before',
+    { table: entries, options: { color: false } },
+    { record: { count }, options: { color: false } },
+    { lines: ['first', 'second'] },
+    'After',
+    {
+      format: (value, prefix) => `${prefix}${value}`,
+      data: count,
+      options: 'Total: ',
+    },
+    '',
+    { table: [] },
+  ])
+app
+  .cmd('invalid-block')
+  .add(() => ({ ok: true }))
+  .render(() => [{ unknown: 'bad' }] as any)
 await app.run()
