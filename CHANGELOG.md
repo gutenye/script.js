@@ -1,3 +1,9 @@
+## [9.1.0](https://github.com/gutenye/script.js/compare/v9.0.0...v9.1.0) (2026-11-21)
+
+### Features
+
+* **output:** compose string arrays with titled sections ([c77161d](https://github.com/gutenye/script.js/commit/c77161d2382f6b6f5cc26a30cc7b20f5178b1f00))
+
 ## [9.0.0](https://github.com/gutenye/script.js/compare/v8.9.1...v9.0.0) (2026-11-21)
 
 ### ⚠ BREAKING CHANGES
